@@ -8,29 +8,34 @@ for (let mod of workerData.listenerModules)
 
 let envDataMap=new WeakMap();
 
-export default {
-	async fetch(req, env, ctx) {
-		if (!envDataMap.get(env)) {
-			let envData={...workerData.data};
-			envDataMap.set(env,envData);
+async function handleFetch(req, env, ctx) {
+	if (!envDataMap.get(env)) {
+		let envData={...workerData.data};
+		envDataMap.set(env,envData);
 
-			await hookRunner.emit("start",{
-				importModules: workerData.importModules,
-				options: workerData.options,
-				data: envData,
-				env,
-			});
-		}
-
-		let ev={
+		await hookRunner.emit("start",{
 			importModules: workerData.importModules,
 			options: workerData.options,
-			data: envDataMap.get(env),
-			req,
+			data: envData,
 			env,
-			ctx,
-		};
+		});
+	}
 
-		return await hookRunner.emit("fetch",req,ev);
+	let ev={
+		importModules: workerData.importModules,
+		options: workerData.options,
+		data: envDataMap.get(env),
+		localFetch: r=>handleFetch(r,env,ctx),
+		req,
+		env,
+		ctx,
+	};
+
+	return await hookRunner.emit("fetch",req,ev);
+}
+
+export default {
+	async fetch(req, env, ctx) {
+		return await handleFetch(req,env,ctx);
 	}
 }
