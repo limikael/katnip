@@ -36,9 +36,15 @@ export async function cfdeploy(ev) {
 	});
 
 	await ev.hookRunner.emit(buildEvent);
+
+	let env={...process.env};
+	if (ev.options.cfToken)
+		env.CLOUDFLARE_API_TOKEN=ev.options.cfToken;
+
 	let wranglerBin=findNodeBin(process.cwd(),"wrangler");
 	await runCommand(wranglerBin,["deploy"],{
-		passthrough: true
+		passthrough: true,
+		env: env
 	});
 }
 

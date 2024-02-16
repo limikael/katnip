@@ -1,6 +1,6 @@
 {
   "name": "katnip-quickmin",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "type": "module",
   "scripts": {},
   "license": "MIT",
@@ -10,7 +10,7 @@
   "dependencies": {
     "quickmin": "^0.0.28",
     "yaml": "^2.3.4",
-    "katnip": "^3.0.0"
+    "katnip": "^3.0.1"
   },
   "exports": {
     "isoq-wrapper": "./katnip-quickmin-isoq-wrapper.jsx",

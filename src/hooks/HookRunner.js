@@ -32,8 +32,9 @@ export default class HookRunner {
 			event=new HookEvent(event, {listenerParameters});
 
 		else {
-			if (!(event instanceof HookEvent))
-				throw new Error("not hook event");
+			// Can't check because doesn't work with npm link
+			/*if (!(event instanceof HookEvent))
+				throw new Error("not hook event");*/
 
 			if (listenerParameters.length)
 				throw new Error("Event options only allowed if event is a string.");

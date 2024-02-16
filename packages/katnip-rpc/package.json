@@ -1,6 +1,6 @@
 {
   "name": "katnip-rpc",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "type": "module",
   "license": "MIT",
   "scripts": {},
@@ -14,6 +14,6 @@
     "default": "./use-quick-rpc.jsx"
   },
   "dependencies": {
-    "katnip": "^3.0.0"
+    "katnip": "^3.0.1"
   }
 }
