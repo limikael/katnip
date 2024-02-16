@@ -1,0 +1,20 @@
+{
+  "name": "hello",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "katnip dev",
+    "cfdev": "katnip cfdev",
+    "cfdeploy": "katnip cfdeploy"
+  },
+  "exports": {
+    "browser": "./index.jsx",
+    "server": "./server.js",
+    "rpc": "./Api.js"
+  },
+  "dependencies": {
+    "katnip-twentytwentyfour": "^3.0.0"
+  }
+}

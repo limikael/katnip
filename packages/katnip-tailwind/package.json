@@ -1,0 +1,18 @@
+{
+  "name": "katnip-tailwind",
+  "version": "3.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "keywords": [
+    "katnip-plugin"
+  ],
+  "type": "module",
+  "exports": {
+    "cli": "./katnip-tailwind-cli.js",
+    "isoq-wrapper": "./katnip-tailwind-isoq-wrapper.jsx"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.4.1",
+    "katnip": "^3.0.0"
+  }
+}

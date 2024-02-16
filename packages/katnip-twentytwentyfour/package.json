@@ -1,0 +1,20 @@
+{
+  "name": "katnip-twentytwentyfour",
+  "version": "3.0.0",
+  "license": "MIT",
+  "scripts": {},
+  "type": "module",
+  "keywords": [
+    "katnip-plugin",
+    "katnip-template"
+  ],
+  "dependencies": {
+    "katnip": "^3.0.0",
+    "katnip-cloudflare": "^3.0.0",
+    "katnip-isoq": "^3.0.0",
+    "katnip-quickmin": "^3.0.0",
+    "katnip-rpc": "^3.0.0",
+    "katnip-static": "^3.0.0",
+    "katnip-tailwind": "^3.0.0"
+  }
+}

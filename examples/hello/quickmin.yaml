@@ -1,0 +1,10 @@
+jwtSecret: "changeme"
+adminUser: "admin"
+adminPass: "admin"
+apiPath: "admin"
+
+collections:
+  pages:
+    fields:
+      <Text id="title" listable/>
+      <RichText id="content"/>

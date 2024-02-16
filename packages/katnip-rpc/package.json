@@ -1,0 +1,19 @@
+{
+  "name": "katnip-rpc",
+  "version": "3.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {},
+  "keywords": [
+    "katnip-plugin"
+  ],
+  "exports": {
+    "cli": "./katnip-rpc-cli.js",
+    "server": "./katnip-rpc-server.js",
+    "isoq-wrapper": "./katnip-rpc-isoq-wrapper.jsx",
+    "default": "./use-quick-rpc.jsx"
+  },
+  "dependencies": {
+    "katnip": "^3.0.0"
+  }
+}

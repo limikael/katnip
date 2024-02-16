@@ -1,0 +1,18 @@
+{
+  "name": "katnip-cloudflare",
+  "version": "3.0.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {},
+  "keywords": [
+    "katnip-plugin"
+  ],
+  "exports": {
+    "cli": "./katnip-cloudflare-cli.js"
+  },
+  "dependencies": {
+    "@ltd/j-toml": "^1.38.0",
+    "wrangler": "^3.28.2",
+    "katnip": "^3.0.0"
+  }
+}

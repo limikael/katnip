@@ -1,0 +1,11 @@
+{
+  "name": "katnip-server",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "cli": "./katnip-server-cli.js"
+  },
+  "keywords": ["katnip-plugin"]
+}

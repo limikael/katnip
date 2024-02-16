@@ -1,0 +1,19 @@
+{
+  "name": "katnip-isoq",
+  "version": "3.0.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {
+    "isoq": "^1.0.18",
+    "katnip": "^3.0.0"
+  },
+  "keywords": [
+    "katnip-plugin",
+    "katnip-template"
+  ],
+  "exports": {
+    "cli": "./katnip-isoq-cli.js",
+    "server": "./katnip-isoq-server.js"
+  }
+}

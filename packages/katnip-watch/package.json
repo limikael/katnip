@@ -1,0 +1,15 @@
+{
+  "name": "katnip-watch",
+  "scripts": {},
+  "version": "3.0.0",
+  "license": "MIT",
+  "keywords": ["katnip-plugin"],
+  "type": "module",
+  "exports": {
+    "cli": "./katnip-watch-cli.js"
+  },
+  "dependencies": {
+    "chokidar": "^3.6.0",
+    "katnip": "^3.0.0"
+  }
+}
