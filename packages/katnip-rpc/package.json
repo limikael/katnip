@@ -1,6 +1,6 @@
 {
   "name": "katnip-rpc",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "type": "module",
   "license": "MIT",
   "scripts": {},
@@ -11,9 +11,10 @@
     "cli": "./katnip-rpc-cli.js",
     "server": "./katnip-rpc-server.js",
     "isoq-wrapper": "./katnip-rpc-isoq-wrapper.jsx",
-    "default": "./use-quick-rpc.jsx"
+    "default": "./katnip-rpc.jsx"
   },
   "dependencies": {
-    "katnip": "^3.0.1"
+    "katnip": "^3.0.2",
+    "fullstack-rpc": "^1.0.1"
   }
 }

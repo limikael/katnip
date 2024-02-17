@@ -1,41 +1,20 @@
 import {urlGetArgs} from "katnip";
+import {RpcServer} from "fullstack-rpc/server";
+
+export async function start(ev) {
+	if (!ev.importModules.rpc)
+		return;
+
+	ev.data.rpcServer=new RpcServer("rpc");
+}
 
 fetch.priority=15;
 export async function fetch(req, ev) {
-	let args=urlGetArgs(req.url);
-	if (args.length==1 && args[0]=="rpc" && ev.importModules.rpc) {
-		let cls=ev.importModules.rpc.default;
-		let body=await req.json();
-		let instance;
-		try {
-			instance=new cls(ev);
-		}
+	if (!ev.data.rpcServer)
+		return;
 
-		catch (e) {
-			console.log("unable to create api instance...");
-			console.log(e);
-			throw e;
-		}
-
-		//console.log("instance created...");
-
-		if (!instance[body.method])
-			throw new Error("Not found: "+body.method);
-			//throw new HttpError("Not found: "+body.method,{status: 404});
-
-		try {
-			let result=await instance[body.method](...body.params);
-			if (result===undefined)
-				result=null;
-
-			return Response.json({result: result});
-		}
-
-		catch (e) {
-			console.error(e);
-			return new Response(e.message,{
-				status: 500
-			});
-		}
-	}
+	let cls=ev.importModules.rpc.default;
+	return ev.data.rpcServer.handleRequest(req,{
+		handlerFactory: ()=>new cls(ev)
+	});
 }

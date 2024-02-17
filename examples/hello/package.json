@@ -15,6 +15,6 @@
     "rpc": "./Api.js"
   },
   "dependencies": {
-    "katnip-twentytwentyfour": "^3.0.0"
+    "katnip-twentytwentyfour": "^3.0.3"
   }
 }

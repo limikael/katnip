@@ -17,6 +17,7 @@ async function handleFetch(req, env, ctx) {
 			importModules: workerData.importModules,
 			options: workerData.options,
 			data: envData,
+			hookRunner: hookRunner,
 			env,
 		});
 	}
@@ -25,6 +26,7 @@ async function handleFetch(req, env, ctx) {
 		importModules: workerData.importModules,
 		options: workerData.options,
 		data: envDataMap.get(env),
+		hookRunner: hookRunner,
 		localFetch: r=>handleFetch(r,env,ctx),
 		req,
 		env,

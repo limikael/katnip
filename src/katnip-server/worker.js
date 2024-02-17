@@ -16,6 +16,7 @@ let fetchEvent={};
 fetchEvent.importModules={};
 fetchEvent.options=workerData.options;
 fetchEvent.data=workerData.data;
+fetchEvent.hookRunner=hookRunner;
 
 for (let k in workerData.importModules)
 	fetchEvent.importModules[k]=await import(resolveImport(workerData.importModules[k]));

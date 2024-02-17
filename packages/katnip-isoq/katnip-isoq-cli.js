@@ -43,11 +43,17 @@ export async function build(buildContext) {
 	fs.mkdirSync("node_modules/.katnip",{recursive: true});
 	fs.writeFileSync("node_modules/.katnip/main.jsx",source);
 
-	await isoqBundler({
+	//console.log("**** isoq build platform: "+buildContext.platform);
+
+	let bundlerOptions={
 		entryPoint: path.join(process.cwd(),"node_modules/.katnip/main.jsx"),
 		//quiet: true
-		//sourcemap: true
-	});
+	};
+
+	if (buildContext.platform=="node")
+		bundlerOptions.sourcemap=true;
+
+	await isoqBundler(bundlerOptions);
 
 	buildContext.importModules.isoqRequestHandler="__ISOQ_MIDDLEWARE";
 }

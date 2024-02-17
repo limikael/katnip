@@ -21,6 +21,7 @@ export async function start(ev) {
 	]);
 
 	ev.data.quickminServer=quickminServer;
+	ev.data.quickminApi=quickminServer.api;
 }
 
 fetch.priority=15;

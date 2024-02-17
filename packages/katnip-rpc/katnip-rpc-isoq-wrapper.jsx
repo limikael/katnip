@@ -1,12 +1,12 @@
 import {useIsoContext} from "isoq";
-import {QuickRpcProvider} from "./use-quick-rpc.jsx";
+import {RpcProvider} from "fullstack-rpc/react";
 
 export default function({children}) {
 	let iso=useIsoContext();
 
 	return (
-		<QuickRpcProvider url="/rpc" fetch={iso.fetch}>
+		<RpcProvider url="/rpc" fetch={iso.fetch}>
 			{children}
-		</QuickRpcProvider>
+		</RpcProvider>
 	);
 }
