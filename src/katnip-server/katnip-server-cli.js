@@ -18,6 +18,11 @@ export async function initcli(spec) {
 	});
 }
 
+export async function registerHooks(hookRunner) {
+	hookRunner.on("dev",predev);
+	hookRunner.on("dev",postdev);
+}
+
 predev.priority=1;
 async function predev(ev) {
 	let pkgPath=path.join(process.cwd(),"package.json");
@@ -28,13 +33,7 @@ async function predev(ev) {
 		);
 }
 
-export async function registerHooks(hookRunner) {
-	hookRunner.on("dev",predev);
-}
-
-dev.priority=20;
 export async function dev(ev) {
-
 	let buildEvent=new BuildEvent({
 		options: ev.options,
 		platform: "node"
@@ -42,10 +41,16 @@ export async function dev(ev) {
 
 	await ev.hookRunner.emit(buildEvent);
 
+	ev.data=buildEvent.data;
+	ev.importModules=buildEvent.importModules;
+}
+
+postdev.priority=20;
+async function postdev(ev) {
 	let workerData={
 		options: ev.options,
-		importModules: buildEvent.importModules,
-		data: buildEvent.data
+		importModules: ev.importModules,
+		data: ev.data
 	};
 
 	let startedPromise=new ResolvablePromise();

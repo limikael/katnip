@@ -15,6 +15,18 @@ export async function initcli(spec) {
 	});
 }
 
+export async function registerHooks(hookRunner) {
+	hookRunner.on("cfdev",precfdev);
+	hookRunner.on("cfdev",postcfdev);
+	hookRunner.on("cfdeploy",precfdeploy);
+	hookRunner.on("cfdeploy",postcfdeploy);
+}
+
+precfdev.priority=1;
+async function precfdev(ev) {
+	console.log("Building as starting local cloudflare env...");
+}
+
 export async function cfdev(ev) {
 	let buildEvent=new BuildEvent({
 		options: ev.options,
@@ -22,11 +34,19 @@ export async function cfdev(ev) {
 	});
 
 	await ev.hookRunner.emit(buildEvent);
+}
 
+postcfdev.priority=20;
+async function postcfdev(ev) {
 	let wranglerBin=findNodeBin(process.cwd(),"wrangler");
 	await runCommand(wranglerBin,["dev"],{
 		passthrough: true
 	});
+}
+
+precfdeploy.priority=1;
+async function precfdeploy(ev) {
+	console.log("Building and deploying cloudflare worker...");
 }
 
 export async function cfdeploy(ev) {
@@ -36,7 +56,10 @@ export async function cfdeploy(ev) {
 	});
 
 	await ev.hookRunner.emit(buildEvent);
+}
 
+postcfdeploy.priority=20;
+async function postcfdeploy(ev) {
 	let env={...process.env};
 	if (ev.options.cfToken)
 		env.CLOUDFLARE_API_TOKEN=ev.options.cfToken;

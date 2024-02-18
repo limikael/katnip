@@ -14,6 +14,40 @@ export async function initcli(spec) {
 	});
 }
 
+cfdev.priority=15;
+export async function cfdev(ev) {
+	let env={...process.env};
+	if (ev.options.cfToken)
+		env.CLOUDFLARE_API_TOKEN=ev.options.cfToken;
+
+	let quickminBin=await findNodeBin(__dirname,"quickmin");
+	let quickminArgs=["migrate","--driver","wrangler-local"];
+	if (ev.options.risky)
+		quickminArgs.push("--risky");
+
+	await runCommand(quickminBin,quickminArgs,{
+		passthrough: true,
+		env: env
+	});
+}
+
+cfdev.cfdeploy=15;
+export async function cfdeploy(ev) {
+	let env={...process.env};
+	if (ev.options.cfToken)
+		env.CLOUDFLARE_API_TOKEN=ev.options.cfToken;
+
+	let quickminBin=await findNodeBin(__dirname,"quickmin");
+	let quickminArgs=["migrate","--driver","wrangler"];
+	if (ev.options.risky)
+		quickminArgs.push("--risky");
+
+	await runCommand(quickminBin,quickminArgs,{
+		passthrough: true,
+		env: env
+	});
+}
+
 export async function dev(ev) {
 	let quickminBin=await findNodeBin(__dirname,"quickmin");
 	let quickminArgs=["migrate"];
