@@ -3,6 +3,32 @@ import {findKatnipModules} from "katnip";
 import fs from "fs";
 import path from "path";
 
+const INDEX_JSX=
+`export default function() {
+    return (<>
+        <div>Hello World</div>
+        <div>The project begins here...</div>
+    </>);
+}
+`;
+
+export function init(ev) {
+	let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
+	if (!packageJson.exports)
+		packageJson.exports={};
+
+	if (!packageJson.exports.browser) {
+		packageJson.exports.browser="src/main/index.jsx";
+		fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
+	}
+
+	if (!fs.existsSync(packageJson.exports.browser)) {
+		console.log("Creating "+packageJson.exports.browser);
+		fs.mkdirSync(path.dirname(packageJson.exports.browser),{recursive: true});
+		fs.writeFileSync(packageJson.exports.browser,INDEX_JSX);
+	}
+}
+
 function createEntryPointSource(main, wrappers) {
 	//console.log(wrappers);
 

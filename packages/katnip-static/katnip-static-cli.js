@@ -3,6 +3,13 @@ import * as TOML from "@ltd/j-toml";
 import path from "path";
 import fs from "fs";
 
+export function init(ev) {
+	if (!fs.existsSync(ev.options.publicDir)) {
+		console.log("Creating content dir: "+ev.options.publicDir);
+		fs.mkdirSync(ev.options.publicDir);
+	}
+}
+
 export function initcli(spec) {
 	spec.addGlobalOption("publicDir",{
 		description: "Directory to serve as plain static assets.",

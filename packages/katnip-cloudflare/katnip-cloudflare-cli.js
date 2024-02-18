@@ -15,6 +15,29 @@ export async function initcli(spec) {
 	});
 }
 
+export async function init(ev) {
+	let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
+	if (!packageJson.exports)
+		packageJson.exports={};
+
+	let updated=false;
+
+	if (!packageJson.scripts.cfdev) {
+		packageJson.scripts.cfdev="katnip cfdev";
+		updated=true;
+	}
+
+	if (!packageJson.scripts.deploy) {
+		packageJson.scripts.deploy="katnip cfdeploy";
+		updated=true;
+	}
+
+	if (updated) {
+		console.log("Updating cloudflare scripts in package.json...")
+		fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
+	}
+}
+
 export async function registerHooks(hookRunner) {
 	hookRunner.on("cfdev",precfdev);
 	hookRunner.on("cfdev",postcfdev);

@@ -97,11 +97,18 @@ export default class CliSpec {
 
 	checkArgv(argv) {
 		if (argv._.length!=1 || 
-				!this.isCommand(argv._[0]) ||
 				argv.help) {
 			this.printUsage(argv._[0]);
 			return false;
 		}
+
+		if (!this.isCommand(argv._[0])) {
+			console.log("Unknown command: "+argv._[0]);
+			console.log();
+			this.printUsage(argv._[0]);
+			return false;
+		}
+
 
 		let options=[...this.globalOptions];
 		if (argv._[0])
@@ -111,8 +118,9 @@ export default class CliSpec {
 			];
 
 		let optionsByName=Object.fromEntries(options.map(o=>[o.name,o]));
+		let booleanArgs=this.getBooleanArgs();
 		for (let k in argv)
-			if (k!="_" && !optionsByName[k]) {
+			if (k!="_" && !optionsByName[k] && !booleanArgs.includes(k)) {
 				console.log("Unknown option: "+k);
 				console.log();
 				this.printUsage(argv._[0]);
@@ -145,6 +153,8 @@ export default class CliSpec {
 			for (let option of command.options)
 				if (option.type=="boolean")
 					boolean.push(option.name);
+
+		return boolean;
 	}
 
 	populateDefault(argv) {

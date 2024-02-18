@@ -10,11 +10,67 @@ import {fileURLToPath} from 'url';
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
+let GIT_IGNORE=
+`node_modules
+.target
+.wrangler
+public/*.css
+public/*.js
+upload
+*.db
+`;
+
+init.priority=5;
+export async function init(ev) {
+	if (!fs.existsSync("package.json")) {
+	    let templateDep=ev.options.template;
+	    let pkgResponse=await fetch("https://registry.npmjs.org/"+templateDep+"/latest");
+	    if (pkgResponse.status<200 || pkgResponse>=300)
+	        throw new Error(await pkgResponse.text());
+
+	    let pkgResult=await pkgResponse.json();
+	    if (!pkgResult.keywords.includes("katnip-template"))
+	    	throw new DeclaredError("Not a katnip template: "+templateDep);
+
+	    console.log("Using template: "+templateDep+" "+pkgResult.version);
+
+	    let projectName=path.basename(process.cwd());
+	    console.log("Creating package.json for: "+projectName);
+	    let packageJson={
+	        name: projectName,
+	        license: "UNLICENSED",
+	        private: "true",
+	        scripts: {
+	        	"start": "katnip dev",
+	        	"dev": "katnip dev",
+	        	"postinstall": "katnip init"
+	        },
+	        type: "module",
+	        version: "1.0.0",
+	        dependencies: {}
+	    };
+
+	    packageJson.dependencies[templateDep]="^"+pkgResult.version;
+	    fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
+	}
+
+	if (!fs.existsSync(".gitignore")) {
+		console.log("Creating .gitignore");
+	    fs.writeFileSync(".gitignore",GIT_IGNORE);
+	}
+}
+
 export async function initcli(spec) {
 	spec.addCommand("dev","Start development server.");
 	spec.addCommandOption("dev","port",{
 		description: "Port to listen to.",
 		default: 3000
+	});
+
+	spec.addCommand("init","Initialize plugins.");
+	spec.addCommandOption("init","template",{
+		description: "Template to set as dependency.",
+		default: "katnip-twentytwentyfour"
 	});
 }
 

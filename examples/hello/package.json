@@ -6,15 +6,16 @@
   "private": true,
   "scripts": {
     "dev": "katnip dev",
+    "postinstall": "katnip init",
     "cfdev": "katnip cfdev",
     "deploy": "katnip cfdeploy"
   },
   "exports": {
     "browser": "./index.jsx",
     "server": "./server.js",
-    "rpc": "./Api.js"
+    "rpc": "Api.js"
   },
   "dependencies": {
-    "katnip-twentytwentyfour": "^3.0.3"
+    "katnip-twentytwentyfour": "^3.0.9"
   }
 }

@@ -8,6 +8,28 @@ import * as TOML from "@ltd/j-toml";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const QUICKMIN_YAML=
+`
+jwtSecret: "changeme"
+adminUser: "admin"
+adminPass: "admin"
+apiPath: "admin"
+
+collections:
+  pages:
+    fields:
+      <Text id="title" listable/>
+      <Text id="content" multiline fullWidth/>
+`;
+
+export function init(ev) {
+	let quickminYamlFile="quickmin.yaml";
+	if (!fs.existsSync(quickminYamlFile)) {
+		console.log("Creating "+quickminYamlFile);
+		fs.writeFileSync(quickminYamlFile,QUICKMIN_YAML);
+	}
+}
+
 function getWranglerEnvForEvent(ev) {
 	if (!ev.options)
 		throw new Error("Expected ev.options");
@@ -74,7 +96,7 @@ export async function build(ev) {
 	let server=new QuickminServer(conf);
 	console.log("Quickmin storage used: "+server.isStorageUsed());
 
-	if (ev.platform="workerd") {
+	if (ev.platform=="workerd") {
 		console.log("Checking database settings in wrangler.toml");
 		let wranglerPath=path.join(process.cwd(),"wrangler.toml");
 		let wrangler=TOML.parse(fs.readFileSync(wranglerPath,"utf8"));
