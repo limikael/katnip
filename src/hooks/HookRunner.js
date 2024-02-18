@@ -5,9 +5,23 @@ export default class HookRunner {
 		this.listeners={};
 	}
 
+	on(event, func) {
+		if (!this.listeners[event])
+			this.listeners[event]=[];
+
+		if (!func.priority)
+			func.priority=10;
+
+		this.listeners[event].push(func);
+		this.listeners[event].sort((a,b)=>a.priority-b.priority);
+	}
+
 	addListenerModule(mod, options={}) {
 		for (let funcName in mod) {
-			if (!this.listeners[funcName])
+			if (!["registerHooks","default"].includes(funcName))
+				this.on(funcName,mod[funcName]);
+
+			/*if (!this.listeners[funcName])
 				this.listeners[funcName]=[];
 
 			let func=mod[funcName];
@@ -15,8 +29,11 @@ export default class HookRunner {
 				func.priority=10;
 
 			this.listeners[funcName].push(func);
-			this.listeners[funcName].sort((a,b)=>a.priority-b.priority);
+			this.listeners[funcName].sort((a,b)=>a.priority-b.priority);*/
 		}
+
+		if (mod.registerHooks)
+			mod.registerHooks(this);
 	}
 
 	getListenersByEventType(type) {

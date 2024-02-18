@@ -15,6 +15,7 @@
     "katnip-quickmin": "^3.0.2",
     "katnip-rpc": "^3.0.4",
     "katnip-static": "^3.0.2",
-    "katnip-tailwind": "^3.0.2"
+    "katnip-tailwind": "^3.0.2",
+    "katnip-watch": "^3.0.0"
   }
 }

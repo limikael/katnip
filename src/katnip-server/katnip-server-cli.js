@@ -18,13 +18,22 @@ export async function initcli(spec) {
 	});
 }
 
-export async function dev(ev) {
+predev.priority=1;
+async function predev(ev) {
 	let pkgPath=path.join(process.cwd(),"package.json");
 	if (!fs.existsSync(pkgPath))
 		throw new DeclaredError(
 			"This is not a katnip project, this file doesn't exist: "+pkgPath+
 			" You can create a new project with 'katnip create'."
 		);
+}
+
+export async function registerHooks(hookRunner) {
+	hookRunner.on("dev",predev);
+}
+
+dev.priority=20;
+export async function dev(ev) {
 
 	let buildEvent=new BuildEvent({
 		options: ev.options,
