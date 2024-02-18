@@ -8,10 +8,6 @@ export async function build(buildEv) {
 	if (modulePaths.length>1)
 		throw new Error("More than one rpc module: "+JSON.stringify(modulePaths));
 
-	if (modulePaths.length) {
+	if (modulePaths.length==1)
 		buildEv.importModules.rpc=modulePaths[0];
-	}
-
-	else
-		console.log("rpc disabled");
 }
