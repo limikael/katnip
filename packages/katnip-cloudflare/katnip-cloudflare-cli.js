@@ -20,6 +20,7 @@ export async function registerHooks(hookRunner) {
 	hookRunner.on("cfdev",postcfdev);
 	hookRunner.on("cfdeploy",precfdeploy);
 	hookRunner.on("cfdeploy",postcfdeploy);
+	hookRunner.on("build",prebuild);
 }
 
 precfdev.priority=1;
@@ -73,9 +74,9 @@ async function postcfdeploy(ev) {
 
 function checkWranglerToml(ev) {
 	let wrangler={};
-	let wrangerPath=path.join(process.cwd(),"wrangler.toml");
-	if (fs.existsSync(wrangerPath))
-		wrangler=TOML.parse(fs.readFileSync(wrangerPath,"utf8"));
+	let wranglerPath=path.join(process.cwd(),"wrangler.toml");
+	if (fs.existsSync(wranglerPath))
+		wrangler=TOML.parse(fs.readFileSync(wranglerPath,"utf8"));
 
 	let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
 
@@ -91,33 +92,24 @@ function checkWranglerToml(ev) {
 			".target/worker.js, please remove it and it will be set automatically."
 		);
 
-	if (!wrangler.site || !wrangler.site.bucket) {
-		console.log("Updating wrangler.toml with content bucket...");
-		wrangler.site=TOML.Section({bucket: ev.options.publicDir});
-	}
-
-	if (wrangler.site.bucket!=ev.options.publicDir) {
-		throw new DeclaredError(
-			"The site bucket in wrangler.toml is different from the project publicDir. "+
-			"Remove the setting from wrangler.toml, and it will be set automatically."
-		);
-	}
-
 	wrangler.name=packageJson.name;
 	wrangler.main=".target/worker.js";
 
 	if (!wrangler.compatibility_date)
 		wrangler.compatibility_date = "2023-10-30"
 
-	fs.writeFileSync(wrangerPath,TOML.stringify(wrangler,{newline: "\n"}));
+	fs.writeFileSync(wranglerPath,TOML.stringify(wrangler,{newline: "\n"}));
+}
+
+prebuild.priority=5;
+function prebuild(ev) {
+	if (ev.platform=="workerd")
+		checkWranglerToml(ev);
 }
 
 build.priority=20;
 export function build(ev) {
 	if (ev.platform=="workerd") {
-		console.log("Generating worker...");
-		checkWranglerToml(ev);
-
 		let importStatements=[];
 		let importModuleNames=[];
 		for (let k in ev.importModules) {

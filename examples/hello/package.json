@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "katnip dev",
     "cfdev": "katnip cfdev",
-    "cfdeploy": "katnip cfdeploy"
+    "deploy": "katnip cfdeploy"
   },
   "exports": {
     "browser": "./index.jsx",

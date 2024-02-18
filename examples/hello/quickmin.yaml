@@ -7,4 +7,4 @@ collections:
   pages:
     fields:
       <Text id="title" listable/>
-      <RichText id="content"/>
+      <Text id="content" multiline/>

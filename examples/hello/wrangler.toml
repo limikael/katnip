@@ -4,10 +4,6 @@ name = 'hello'
 main = '.target/worker.js'
 compatibility_date = '2023-10-30'
 
-[site]
-
-bucket = 'public'
-
 [[d1_databases]]
 
 binding = 'DB'
@@ -18,3 +14,7 @@ database_id = '0deb653d-3917-4aca-af57-00667007f0e0'
 
 binding = 'BUCKET'
 bucket_name = 'hello'
+
+[site]
+
+bucket = 'public'

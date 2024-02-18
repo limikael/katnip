@@ -1,6 +1,6 @@
 {
   "name": "katnip-static",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "license": "MIT",
   "keywords": [
     "katnip-plugin"
@@ -8,7 +8,8 @@
   "scripts": {},
   "type": "module",
   "dependencies": {
-    "katnip": "^3.0.2"
+    "@ltd/j-toml": "^1.38.0",
+    "katnip": "^3.0.3"
   },
   "exports": {
     "cli": "./katnip-static-cli.js",
