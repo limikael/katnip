@@ -19,6 +19,7 @@ class CliRunner {
 
 		this.cliSpec=new CliSpec();
 		this.cliSpec.addGlobalOption("help","Get help for specified command.",{type: "boolean"});
+		this.cliSpec.addGlobalOption("version","Print version.",{type: "boolean"});
 
 		await this.hookRunner.emit("initcli",this.cliSpec);
 	}

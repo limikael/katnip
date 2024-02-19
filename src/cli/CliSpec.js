@@ -1,5 +1,10 @@
 import {objectifyArgs} from "../utils/js-util.js";
 import HookEvent from "../hooks/HookEvent.js";
+import path from "path";
+import {fileURLToPath} from 'url';
+import fs from "fs";
+
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 class CliCommad {
 	constructor({name, description, preCommand}) {
@@ -136,6 +141,13 @@ export default class CliSpec {
 	}
 
 	parseArgv(argv) {
+		if (argv.version) {
+			let packageJsonPath=path.join(__dirname,"../../package.json");
+			let packageJson=JSON.parse(fs.readFileSync(packageJsonPath,"utf8"));
+			console.log("Katnip version: "+packageJson.version);
+			return;
+		}
+
 		if (argv._.length<1 || 
 				argv.help) {
 			this.printUsage(argv._[0]);
