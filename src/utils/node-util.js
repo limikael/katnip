@@ -2,6 +2,7 @@ import {spawn} from "child_process";
 import findNodeModules from "find-node-modules";
 import path from "path";
 import fs from "fs";
+import semver from "semver";
 
 export function resolveImport(cand, conditions) {
 	if (!path.isAbsolute(cand)) {
@@ -87,15 +88,6 @@ export function resolveModuleEntryPoint(packageDir, conditions=[], args={}) {
 				return path.join(packageDir,exportDef.path);
 		}
 	}
-
-	/*if (conditions.length!=1)
-		throw new Error("need exactly one condition for now...");
-
-	let fn=pkg.exports[conditions[0]];
-	if (!fn)
-		return;
-
-	return path.join(packageDir,fn);*/
 }
 
 export async function runCommand(command, args=[], options={}) {
@@ -103,20 +95,24 @@ export async function runCommand(command, args=[], options={}) {
 	let out="";
 
 	await new Promise((resolve,reject)=>{
-		child.stdout.on('data', (data) => {
-			if (options.passthrough)
-				process.stdout.write(data);
+		if (child.stdout) {
+			child.stdout.on('data', (data) => {
+				if (options.passthrough)
+					process.stdout.write(data);
 
-			out+=data;
-		});
+				out+=data;
+			});
+		}
 
-		child.stderr.on('data', (data) => {
-			if (options.passthrough)
-				process.stderr.write(data);
+		if (child.stderr) {
+			child.stderr.on('data', (data) => {
+				if (options.passthrough)
+					process.stderr.write(data);
 
-			else
-				console.log(`stderr: ${data}`);
-		});
+				else
+					console.log(`stderr: ${data}`);
+			});
+		}
 
 		child.on('close', (code) => {
 			if (code) {
@@ -140,4 +136,21 @@ export function findNodeBin(cwd, name) {
 	}
 
 	throw new Error("Can't find binary: "+name);
+}
+
+export function projectNeedInstall(projectDir) {
+	let mainPackageJsonPath=path.join(projectDir,"package.json");
+	let mainPackageJson=JSON.parse(fs.readFileSync(mainPackageJsonPath,"utf8"));
+	for (let depName in mainPackageJson.dependencies) {
+		let depPackageJsonPath=path.join(path.join(projectDir,"node_modules",depName,"package.json"));
+		if (!fs.existsSync(depPackageJsonPath))
+			return true;
+
+		let depPackageJson=JSON.parse(fs.readFileSync(depPackageJsonPath,"utf8"));
+		let currentVersion=depPackageJson.version;
+		let requiredVersion=mainPackageJson.dependencies[depName];
+
+		if (!semver.satisfies(currentVersion,requiredVersion))
+			return true;
+	}
 }

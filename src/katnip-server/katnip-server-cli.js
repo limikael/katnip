@@ -7,8 +7,56 @@ import {DeclaredError, ResolvablePromise, Job} from "../utils/js-util.js";
 import path from "path";
 import {Worker} from "worker_threads";
 import {fileURLToPath} from 'url';
+import {projectNeedInstall, runCommand} from "../utils/node-util.js";
+import semver from "semver";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
+
+export async function create(ev) {
+	if (!ev.options.name)
+		throw new DeclaredError("Need project name.");
+
+	if (fs.existsSync(ev.options.name))
+		throw new DeclaredError("Already exists: "+ev.options.name);
+
+	fs.mkdirSync(ev.options.name);
+	let projectPath=path.resolve(ev.options.name);
+	process.chdir(ev.options.name);
+
+	try {
+		await ev.hookRunner.emit(new HookEvent("init",{options: {
+			createPackage: true,
+			install: ev.options.install,
+			template: ev.options.template
+		}}));
+	}
+
+	catch (e) {
+		if (fs.existsSync(projectPath)) {
+			if (fs.readdirSync(projectPath).length==0)
+				fs.rmdirSync(projectPath);
+		}
+
+		throw e;
+	}
+}
+
+postinit.priority=20;
+async function postinit(ev) {
+	if (!ev.options.install)
+		return;
+
+	if (projectNeedInstall(process.cwd())) {
+		console.log("Installing fresh dependencies...");
+		await runCommand("npm",["install"],{
+			stdio: "inherit"
+		});
+	}
+
+	else {
+		console.log("Project is up-to-date.");
+	}
+}
 
 let GIT_IGNORE=
 `node_modules
@@ -22,14 +70,34 @@ upload
 
 init.priority=5;
 export async function init(ev) {
+	let requiredVersion=">=20.0.0";
+	if (!semver.satisfies(process.version,requiredVersion))
+		throw new DeclaredError(
+			"Your Node.js version is too old, you are using "+process.version+
+			" you need "+requiredVersion+".");
+
+	if (!ev.options.createPackage &&
+			!fs.existsSync("package.json"))
+		throw new DeclaredError(
+			"This is not a katnip project, package.json doesn't exist. "+
+			" You can create a new project with 'katnip create'."
+		);
+
+	if (fs.existsSync("package.json") && ev.options.template)
+		throw new DeclaredError("Can not set template, package.json already exists.");
+
 	if (!fs.existsSync("package.json")) {
 	    let templateDep=ev.options.template;
+	    if (!templateDep)
+	    	templateDep="katnip-twentytwentyfour";
+
 	    let pkgResponse=await fetch("https://registry.npmjs.org/"+templateDep+"/latest");
-	    if (pkgResponse.status<200 || pkgResponse>=300)
-	        throw new Error(await pkgResponse.text());
+	    if (pkgResponse.status<200 || pkgResponse.status>=300)
+	        throw new DeclaredError("Error loading template: "+await pkgResponse.text());
 
 	    let pkgResult=await pkgResponse.json();
-	    if (!pkgResult.keywords.includes("katnip-template"))
+	    if (!pkgResult.keywords ||
+		    	!pkgResult.keywords.includes("katnip-template"))
 	    	throw new DeclaredError("Not a katnip template: "+templateDep);
 
 	    console.log("Using template: "+templateDep+" "+pkgResult.version);
@@ -39,7 +107,7 @@ export async function init(ev) {
 	    let packageJson={
 	        name: projectName,
 	        license: "UNLICENSED",
-	        private: "true",
+	        private: true,
 	        scripts: {
 	        	"start": "katnip dev",
 	        	"dev": "katnip dev",
@@ -61,30 +129,74 @@ export async function init(ev) {
 }
 
 export async function initcli(spec) {
-	spec.addCommand("dev","Start development server.");
+	spec.addCommand("dev","Start development server.",{
+		preCommand: argv=>{
+			if (argv.init)
+				return {
+					_: ["init"], 
+					createPackage: false,
+					install: argv.install
+				}
+		}
+	});
+
 	spec.addCommandOption("dev","port",{
 		description: "Port to listen to.",
 		default: 3000
 	});
+	spec.addCommandOption("dev","init",{
+		description: "Run init if needed.",
+		type: "boolean",
+		default: true
+	});
+	spec.addCommandOption("dev","install",{
+		description: "Install dependencies if needed.",
+		type: "boolean",
+		default: true
+	});
 
 	spec.addCommand("init","Initialize plugins.");
+	spec.addCommandOption("init","createPackage",{
+		description: "Create package.json if it doesn't exist.",
+		type: "boolean",
+		default: true
+	});
 	spec.addCommandOption("init","template",{
-		description: "Template to set as dependency.",
-		default: "katnip-twentytwentyfour"
+		description: "Template to set as dependency."
+	});
+	spec.addCommandOption("init","install",{
+		description: "Install dependencies on initialization.",
+		type: "boolean",
+		default: true
+	});
+
+	spec.addCommand("create","Create a new project.");
+	spec.addCommandOption("create","name",{
+		description: "Name of project to create. Required.",
+		positional: true,
+	});
+	spec.addCommandOption("create","template",{
+		description: "Template to set as dependency."
+	});
+	spec.addCommandOption("create","install",{
+		description: "Install dependencies.",
+		type: "boolean",
+		default: true
 	});
 }
 
 export async function registerHooks(hookRunner) {
+	hookRunner.on("init",postinit);
+
 	hookRunner.on("dev",predev);
 	hookRunner.on("dev",postdev);
 }
 
 predev.priority=1;
 async function predev(ev) {
-	let pkgPath=path.join(process.cwd(),"package.json");
-	if (!fs.existsSync(pkgPath))
+	if (!fs.existsSync("package.json"))
 		throw new DeclaredError(
-			"This is not a katnip project, this file doesn't exist: "+pkgPath+
+			"This is not a katnip project, package.json doesn't exist. "+
 			" You can create a new project with 'katnip create'."
 		);
 }

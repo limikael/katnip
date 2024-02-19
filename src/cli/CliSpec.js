@@ -1,10 +1,31 @@
 import {objectifyArgs} from "../utils/js-util.js";
+import HookEvent from "../hooks/HookEvent.js";
 
 class CliCommad {
-	constructor({name, description}) {
+	constructor({name, description, preCommand}) {
 		this.name=name;
 		this.description=description;
 		this.options=[];
+		this.preCommand=preCommand;
+	}
+
+	getPreCommand(options) {
+		if (!this.preCommand)
+			return;
+
+		if (typeof this.preCommand=="function")
+			return this.preCommand(options);
+
+		return this.preCommand;
+	}
+
+	getPositionalOptions() {
+		let positionalOptions=[];
+		for (let option of this.options)
+			if (option.positional)
+				positionalOptions.push(option);
+
+		return positionalOptions;
 	}
 }
 
@@ -14,9 +35,17 @@ class CliOption {
 	}
 
 	getHelpLine() {
-		let s="  --"+this.name;
-		if (this.type!="boolean")
-			s+="=...";
+		let s;
+
+		if (this.positional) {
+			s="  "+this.name;
+		}
+
+		else {
+			s="  --"+this.name;
+			if (this.type!="boolean")
+				s+="=...";
+		}
 
 		s=s.padEnd(20)+this.description;
 		if (this.default)
@@ -82,31 +111,42 @@ export default class CliSpec {
 
 	printCommandUsage(commandName) {
 		let command=this.getCommandByName(commandName);
+		let positionalOptions=command.getPositionalOptions();
 		console.log(command.description);
 		console.log();
 		console.log("Usage:");
-		console.log("  katnip "+command.name+" [options]");
+		console.log("  katnip "+command.name+
+			positionalOptions.map(o=>` <${o.name}>`).join()+
+			" [options]");
+		if (positionalOptions.length) {
+			console.log();
+			console.log("Arguments:")
+			for (let option of command.options)
+				if (option.positional)
+					console.log(option.getHelpLine());
+		}
 		if (command.options.length) {
 			console.log();
 			console.log("Options:")
 			for (let option of command.options)
-				console.log(option.getHelpLine());
+				if (!option.positional)
+					console.log(option.getHelpLine());
 		}
 		console.log();
 	}
 
-	checkArgv(argv) {
-		if (argv._.length!=1 || 
+	parseArgv(argv) {
+		if (argv._.length<1 || 
 				argv.help) {
 			this.printUsage(argv._[0]);
-			return false;
+			return;
 		}
 
 		if (!this.isCommand(argv._[0])) {
 			console.log("Unknown command: "+argv._[0]);
 			console.log();
 			this.printUsage(argv._[0]);
-			return false;
+			return;
 		}
 
 
@@ -118,16 +158,30 @@ export default class CliSpec {
 			];
 
 		let optionsByName=Object.fromEntries(options.map(o=>[o.name,o]));
-		let booleanArgs=this.getBooleanArgs();
 		for (let k in argv)
-			if (k!="_" && !optionsByName[k] && !booleanArgs.includes(k)) {
+			if (k!="_" && !optionsByName[k]) {
 				console.log("Unknown option: "+k);
 				console.log();
 				this.printUsage(argv._[0]);
-				return false;
+				return;
 			}
 
-		return true;
+		let ret={...argv};
+		for (let option of options) {
+			if (option.positional && ret._.length>1) {
+				ret[option.name]=ret._[1];
+				ret._=[ret._[0],...ret._.slice(2)];
+			}
+		}
+
+		if (ret._.length!=1) {
+			console.log("Unknown arguments: "+ret._.slice(1).join(" "));
+			console.log();
+			this.printUsage(argv._[0]);
+			return;
+		}
+
+		return ret;
 	}
 
 	isCommand(name) {
@@ -142,19 +196,19 @@ export default class CliSpec {
 				return command;
 	}
 
-	getBooleanArgs() {
-		let boolean=[];
+	getBooleanOptions() {
+		let booleanOptions=[];
 
 		for (let option of this.globalOptions)
 			if (option.type=="boolean")
-				boolean.push(option.name);
+				booleanOptions.push(option.name);
 
 		for (let command of this.commands)
 			for (let option of command.options)
 				if (option.type=="boolean")
-					boolean.push(option.name);
+					booleanOptions.push(option.name);
 
-		return boolean;
+		return booleanOptions;
 	}
 
 	populateDefault(argv) {
