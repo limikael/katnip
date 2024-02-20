@@ -7,9 +7,9 @@ import {DeclaredError, ResolvablePromise, Job} from "../utils/js-util.js";
 import path from "path";
 import {Worker} from "worker_threads";
 import {fileURLToPath} from 'url';
-import {projectNeedInstall, runCommand} from "../utils/node-util.js";
+import {projectNeedInstall, runCommand, workerPortRequest} from "../utils/node-util.js";
 import semver from "semver";
-
+import {parentPort} from "worker_threads";
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 export async function create(ev) {
@@ -21,7 +21,15 @@ export async function create(ev) {
 
 	fs.mkdirSync(ev.options.name);
 	let projectPath=path.resolve(ev.options.name);
-	process.chdir(ev.options.name);
+
+	if (parentPort)
+		await workerPortRequest(parentPort,{
+			type: "chdir",
+			chdir: ev.options.name
+		});
+
+	else
+		process.chdir(ev.options.name);
 
 	try {
 		await ev.hookRunner.emit(new HookEvent("init",{options: {
@@ -51,6 +59,7 @@ async function postinit(ev) {
 		await runCommand("npm",["install"],{
 			stdio: "inherit"
 		});
+		ev.didInstall=true;
 	}
 
 	else {
@@ -129,16 +138,7 @@ export async function init(ev) {
 }
 
 export async function initcli(spec) {
-	spec.addCommand("dev","Start development server.",{
-		preCommand: argv=>{
-			if (argv.init)
-				return {
-					_: ["init"], 
-					createPackage: false,
-					install: argv.install
-				}
-		}
-	});
+	spec.addCommand("dev","Start development server.");
 
 	spec.addCommandOption("dev","port",{
 		description: "Port to listen to.",
@@ -187,13 +187,25 @@ export async function initcli(spec) {
 
 export async function registerHooks(hookRunner) {
 	hookRunner.on("init",postinit);
-
 	hookRunner.on("dev",predev);
 	hookRunner.on("dev",postdev);
 }
 
 predev.priority=1;
 async function predev(ev) {
+	if (ev.options.init) {
+		let initEvent=new HookEvent("init",{options: {
+			...ev.options,
+			createPackage: false,
+		}});
+
+		await ev.hookRunner.emit(initEvent);
+		if (initEvent.didInstall) {
+			console.log("Restarting after init event...");
+			return "restart";
+		}
+	}
+
 	if (!fs.existsSync("package.json"))
 		throw new DeclaredError(
 			"This is not a katnip project, package.json doesn't exist. "+
