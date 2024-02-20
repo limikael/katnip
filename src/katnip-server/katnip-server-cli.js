@@ -49,24 +49,6 @@ export async function create(ev) {
 	}
 }
 
-postinit.priority=20;
-async function postinit(ev) {
-	if (!ev.options.install)
-		return;
-
-	if (projectNeedInstall(process.cwd())) {
-		console.log("Installing fresh dependencies...");
-		await runCommand("npm",["install"],{
-			stdio: "inherit"
-		});
-		ev.didInstall=true;
-	}
-
-	else {
-		console.log("Project is up-to-date.");
-	}
-}
-
 let GIT_IGNORE=
 `node_modules
 .target
@@ -135,6 +117,20 @@ export async function init(ev) {
 		console.log("Creating .gitignore");
 	    fs.writeFileSync(".gitignore",GIT_IGNORE);
 	}
+
+	if (ev.options.install) {
+		if (projectNeedInstall(process.cwd())) {
+			console.log("Installing fresh dependencies...");
+			await runCommand("npm",["install"],{
+				stdio: "inherit"
+			});
+			return "restart";
+		}
+
+		else {
+			console.log("Project is up-to-date.");
+		}
+	}
 }
 
 export async function initcli(spec) {
@@ -186,7 +182,7 @@ export async function initcli(spec) {
 }
 
 export async function registerHooks(hookRunner) {
-	hookRunner.on("init",postinit);
+	//hookRunner.on("init",postinit);
 	hookRunner.on("dev",predev);
 	hookRunner.on("dev",postdev);
 }
@@ -199,11 +195,13 @@ async function predev(ev) {
 			createPackage: false,
 		}});
 
-		await ev.hookRunner.emit(initEvent);
-		if (initEvent.didInstall) {
+		let result=await ev.hookRunner.emit(initEvent);
+		if (result=="restart") {
 			console.log("Restarting after init event...");
 			return "restart";
 		}
+		/*if (initEvent.didInstall) {
+		}*/
 	}
 
 	if (!fs.existsSync("package.json"))

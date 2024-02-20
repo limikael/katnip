@@ -39,7 +39,8 @@ class CliRunner {
 	parseArgv(argv) {
 		argv=this.cliSpec.parseArgv(argv);
 		if (!argv)
-			process.exit();
+			return;
+//			process.exit();
 
 		let katnipJsonFn=path.join(process.cwd(),"katnip.json");
 		if (fs.existsSync(katnipJsonFn))
@@ -62,10 +63,12 @@ try {
 	let cliRunner=new CliRunner();
 	await cliRunner.load();
 	let argv=cliRunner.parseCommandLine(workerData.argv);
-	let mainEv=cliRunner.createEvent(argv);
-	let result=await cliRunner.hookRunner.emit(mainEv);
-	if (Object(result)!==result) {
-		parentPort.postMessage(result);
+	if (argv) {
+		let mainEv=cliRunner.createEvent(argv);
+		let result=await cliRunner.hookRunner.emit(mainEv);
+		if (Object(result)!==result) {
+			parentPort.postMessage(result);
+		}
 	}
 }
 
