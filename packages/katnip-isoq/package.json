@@ -1,12 +1,12 @@
 {
   "name": "katnip-isoq",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "license": "MIT",
   "type": "module",
   "scripts": {},
   "dependencies": {
     "isoq": "^1.0.18",
-    "katnip": "^3.0.7"
+    "katnip": "^3.0.8"
   },
   "keywords": [
     "katnip-plugin",
