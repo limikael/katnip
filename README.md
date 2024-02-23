@@ -60,7 +60,7 @@ To get a better understanding, let's look at what some plugins do and in which p
 * katnip-tailwind hooks into the `cli` phase to listen to the `build` hook, in order to create a css file. It then also
 hooks into the `browser` phase, in order to load the generated css file.
 * katnip-quickmin, which is a database admin, hooks into the `cli` phase to listen for the `dev` or `deploy` hooks, to migrate the database schema. It then also hooks into the `server` phase, in order to serve the admin interface on the `fetch` hook.
-* katnip-cloudflare hooks into the `cli` phase in order to provide the `cfdeploy` command to deploy the project to cloudflare.
+* katnip-cloudflare hooks into the `cli` phase in order to provide the `cfdeploy` command to build the project and deploy it to cloudflare.
 
 The plugin katnip-twentytwentyfour is a kind of "meta" plugin, that doesn't add any functionality itsef, but rather just has a list of dependencies. The plugins it depends on are:
 
