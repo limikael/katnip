@@ -2,7 +2,7 @@
 
 Katnip is a plugin based, zero-configuration javascript web framework.
 
-You can think of Katnip as a command-line plugin runner. This means that it doesn't do much by itself, but rather just establishes a protocol for loading puligns and have them talk to each other. With the right plugins loaded, it then becomes a practical tool for building web-apps with tailored features without the fuss. It has a zero-configuration approach, which means that it is possible to get pligins to run and do thir jobs without any need for application-specific code or configuration. It's straightforward, efficient, and all about empowering the developer on a quick and streamlined development experience.
+You can think of Katnip as a command-line plugin runner. This means that it doesn't do much by itself, but rather just establishes a protocol for loading puligns and have them talk to each other. With the right plugins loaded, it then becomes a practical tool for building web-apps with tailored features without the fuss. It has a zero-configuration approach, which means that it is possible to get plugins to run and do their jobs without any need for application-specific code or configuration. It's straightforward, efficient, and all about empowering the developer to a quick and streamlined development experience.
 
 ## Getting started
 
