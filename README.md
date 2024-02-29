@@ -1,5 +1,5 @@
 # Introduction
-Welcome to the Next.js documentation!
+Welcome to the Katnip documentation!
 
 
 ## What is Katnip
