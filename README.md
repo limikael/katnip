@@ -1,4 +1,7 @@
 # Introduction
+Welcome to the Next.js documentation!
+
+
 ## What is Katnip
 You can think of Katnip as a command-line JavaScript plugin runner. It doesn't do much by itself. Its main function is to establish a protocol for loading plugins and to have them communicate with each other.
 ## So what are plugins?
