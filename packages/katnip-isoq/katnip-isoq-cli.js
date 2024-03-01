@@ -1,4 +1,4 @@
-import isoqBundler from "isoq/bundler";
+import Bundler from "isoq/bundler";
 import {findKatnipModules} from "katnip";
 import fs from "fs";
 import path from "path";
@@ -71,15 +71,17 @@ export async function build(buildContext) {
 
 	//console.log("**** isoq build platform: "+buildContext.platform);
 
+	let entryPoint=path.join(process.cwd(),"node_modules/.katnip/main.jsx")
 	let bundlerOptions={
-		entryPoint: path.join(process.cwd(),"node_modules/.katnip/main.jsx"),
+		out: ".target/isoq-request-handler.js"
 		//quiet: true
 	};
 
 	if (buildContext.platform=="node")
 		bundlerOptions.sourcemap=true;
 
-	await isoqBundler(bundlerOptions);
+	let bundler=new Bundler(entryPoint,bundlerOptions);
+	await bundler.bundle(); //isoqBundler(bundlerOptions);
 
-	buildContext.importModules.isoqRequestHandler="__ISOQ_MIDDLEWARE";
+	buildContext.importModules.isoqRequestHandler=path.resolve(".target/isoq-request-handler.js");
 }
