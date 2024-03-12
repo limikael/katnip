@@ -1,6 +1,6 @@
 {
   "name": "katnip-twentytwentyfour",
-  "version": "3.0.19",
+  "version": "3.0.25",
   "license": "MIT",
   "scripts": {},
   "type": "module",
@@ -11,8 +11,8 @@
   "dependencies": {
     "katnip": "^3.0.13",
     "katnip-cloudflare": "^3.0.17",
-    "katnip-isoq": "^3.0.15",
-    "katnip-quickmin": "^3.0.14",
+    "katnip-isoq": "^3.0.16",
+    "katnip-quickmin": "^3.0.20",
     "katnip-rpc": "^3.0.16",
     "katnip-static": "^3.0.13",
     "katnip-tailwind": "^3.0.14",

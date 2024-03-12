@@ -83,7 +83,7 @@ export async function dev(ev) {
 
 	await runCommand(quickminBin,quickminArgs,{
 		passthrough: true,
-		env: getWranglerEnvForEvent(ev)
+		//env: getWranglerEnvForEvent(ev)
 	});
 }
 
