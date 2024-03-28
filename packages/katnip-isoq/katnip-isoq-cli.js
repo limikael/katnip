@@ -63,6 +63,10 @@ export async function build(buildContext) {
 	let wrappers=findKatnipModules("isoq-wrapper",{
 		reqConditions: "isoq-wrapper"
 	});
+	wrappers=[...wrappers,...findKatnipModules("app-isoq-wrapper",{
+		reqConditions: "app-isoq-wrapper"
+	})];
+
 	//console.log("Isoq wrappers:",wrappers);
 
 	let source=createEntryPointSource(modulePaths[0],wrappers);

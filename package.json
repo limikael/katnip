@@ -1,6 +1,6 @@
 {
   "name": "katnip",
-  "version": "3.0.13",
+  "version": "3.0.14",
   "license": "MIT",
   "type": "module",
   "scripts": {},
@@ -15,6 +15,7 @@
   },
   "exports": {
     "workerd": "./src/exports/katnip-workerd.js",
-    "node": "./src/exports/katnip-node.js"
+    "node": "./src/exports/katnip-node.js",
+    "browser": "./src/exports/katnip-default.js"
   }
 }
