@@ -37,7 +37,7 @@ function expandExports(exportDefs) {
 		let childDefs=expandExports(exportDefs[k]);
 		for (let def of childDefs)
 			if (k.startsWith("."))
-				def.import=k;
+				def.importPath=k;
 
 			else if (k!="default")
 				def.conditions.push(k);
