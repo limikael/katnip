@@ -1,6 +1,6 @@
 {
   "name": "katnip-tailwind",
-  "version": "3.0.15",
+  "version": "3.0.16",
   "license": "MIT",
   "scripts": {},
   "keywords": [
@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "tailwindcss": "^3.4.1",
-    "katnip": "^3.0.14"
+    "katnip": "^3.0.15"
   }
 }
