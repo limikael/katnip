@@ -4,7 +4,13 @@ import path from "path-browserify";
 
 build.priority=15;
 export async function build(buildEv) {
-	let entryPoint=path.join(buildEv.cwd,"main.jsx");
+	let packageJsonPath=path.join(buildEv.cwd,"package.json");
+	let packageJson=JSON.parse(await buildEv.fsPromises.readFile(packageJsonPath,"utf8"));
+
+	if (!packageJson.exports.browser)
+		throw new Error("No app entry point.");
+
+	let entryPoint=path.join(buildEv.cwd,packageJson.exports.browser);
 	let bundlerOptions={
 		out: path.join(buildEv.cwd,".target/isoq-request-handler.js"),
 		fsPromises: buildEv.fsPromises,
