@@ -1,6 +1,6 @@
 {
   "name": "katnip-static",
-  "version": "3.0.17",
+  "version": "3.0.18",
   "license": "MIT",
   "keywords": [
     "katnip-plugin"
@@ -12,10 +12,12 @@
     "katnip": "^3.0.16"
   },
   "exports": {
-    "cli": "./katnip-static-cli.js",
-    "server": {
-      "node": "./katnip-static-server-node.js",
-      "workerd": "./katnip-static-server-workerd.js"
+    ".": {
+      "cli": "./katnip-static-cli.js",
+      "server": {
+        "node": "./katnip-static-server-node.js",
+        "workerd": "./katnip-static-server-workerd.js"
+      }
     },
     "./katnip-server-hooks": {
       "browser": "./katnip-static-server-browser.js"
