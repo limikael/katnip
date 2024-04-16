@@ -10,7 +10,8 @@ export async function fetch(req, ev) {
 
 	return await requestHandler(req,{
 		props: props,
-		localFetch: ev.localFetch
+		localFetch: ev.localFetch,
+		appPathname: ev.appPathname
 	});
 }
 

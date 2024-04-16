@@ -1,12 +1,12 @@
 {
   "name": "katnip-isoq",
-  "version": "3.0.22",
+  "version": "3.0.25",
   "license": "MIT",
   "type": "module",
   "scripts": {},
   "dependencies": {
-    "isoq": "^1.1.7",
-    "katnip": "^3.0.15",
+    "isoq": "^1.1.8",
+    "katnip": "^3.0.16",
     "path-browserify": "^1.0.1"
   },
   "keywords": [
@@ -14,8 +14,10 @@
     "katnip-template"
   ],
   "exports": {
-    "cli": "./katnip-isoq-cli.js",
-    "server": "./katnip-isoq-server.js",
+    ".": {
+      "cli": "./katnip-isoq-cli.js",
+      "server": "./katnip-isoq-server.js"
+    },
     "./katnip-project-hooks": {
       "browser": "./katnip-isoq-project-browser.js"
     },

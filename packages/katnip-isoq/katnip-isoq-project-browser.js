@@ -1,4 +1,3 @@
-import {testFunc} from "./test.js";
 import BrowserBundler from "isoq/browser-bundler";
 import path from "path-browserify";
 

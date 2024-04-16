@@ -1,7 +1,7 @@
 {
   "name": "katnip-watch",
   "scripts": {},
-  "version": "3.0.12",
+  "version": "3.0.13",
   "license": "MIT",
   "keywords": [
     "katnip-plugin"
@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "chokidar": "^3.6.0",
-    "katnip": "^3.0.15"
+    "katnip": "^3.0.16"
   }
 }
