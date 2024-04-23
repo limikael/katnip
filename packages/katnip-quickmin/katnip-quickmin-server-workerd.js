@@ -24,6 +24,10 @@ export async function start(ev) {
 	ev.data.quickminApi=quickminServer.api;
 }
 
+export async function clientProps(props, ev) {
+	props.quickminUser=await ev.data.quickminApi.getUserByRequest(ev.req);
+}
+
 fetch.priority=15;
 export async function fetch(req, ev) {
 	return await ev.data.quickminServer.handleRequest(req);
