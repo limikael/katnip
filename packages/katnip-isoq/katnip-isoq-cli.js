@@ -73,10 +73,12 @@ export async function build(buildContext) {
 	fs.mkdirSync("node_modules/.katnip",{recursive: true});
 	fs.writeFileSync("node_modules/.katnip/main.jsx",source);
 
+	//console.log("isoqIgnore: "+buildContext.options.isoqIgnore);
 	//console.log("**** isoq build platform: "+buildContext.platform);
 
 	let entryPoint=path.join(process.cwd(),"node_modules/.katnip/main.jsx")
 	let bundlerOptions={
+		ignore: buildContext.options.isoqIgnore,
 		out: ".target/isoq-request-handler.js"
 		//quiet: true
 	};
