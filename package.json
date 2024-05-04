@@ -1,15 +1,18 @@
 {
   "name": "katnip",
-  "version": "3.0.16",
+  "version": "3.0.17",
   "license": "MIT",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "test": "jasmine"
+  },
   "bin": {
     "katnip": "src/cli/katnip-cli.js"
   },
   "dependencies": {
     "find-node-modules": "^2.1.3",
     "minimist": "^1.2.8",
+    "path-browserify": "^1.0.1",
     "semver": "^7.6.0",
     "serve-fetch": "^1.0.3"
   },
@@ -17,5 +20,8 @@
     "workerd": "./src/exports/katnip-workerd.js",
     "node": "./src/exports/katnip-node.js",
     "browser": "./src/exports/katnip-default.js"
+  },
+  "devDependencies": {
+    "jasmine": "^5.1.0"
   }
 }

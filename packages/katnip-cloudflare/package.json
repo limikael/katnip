@@ -1,6 +1,6 @@
 {
   "name": "katnip-cloudflare",
-  "version": "3.0.20",
+  "version": "3.0.21",
   "license": "MIT",
   "type": "module",
   "scripts": {},
@@ -8,14 +8,16 @@
     "katnip-plugin"
   ],
   "exports": {
-    "cli": "./katnip-cloudflare-cli.js",
-    "server": {
+    "./katnip-project-hooks": {
+      "node": "./katnip-cloudflare-project.js"
+    },
+    "./katnip-server-hooks": {
       "workerd": "./katnip-cloudflare-server.js"
     }
   },
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "wrangler": "^3.28.2",
-    "katnip": "^3.0.16"
+    "katnip": "^3.0.17"
   }
 }

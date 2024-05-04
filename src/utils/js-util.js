@@ -27,11 +27,23 @@ export function arrayUnique(a) {
 	return a.filter(onlyUnique);
 }
 
+export function includesAll(a, all) {
+	for (let allItem of all)
+		if (!a.includes(allItem))
+			return false;
+
+	return true;
+}
+
+export function isPlainObject(o) {
+	return (o && [undefined, Object].includes(o.constructor));
+}
+
 export function objectifyArgs(params, fields) {
     let conf={};
 
     for (let i=0; i<params.length; i++) {
-        if (typeof params[i]=="object")
+        if (isPlainObject(params[i]))
             conf={...conf,...params[i]}
 
         else if (fields[i])
@@ -80,4 +92,10 @@ export function urlGetArgs(url) {
 export function urlGetParams(url) {
 	let u=new URL(url);
 	return Object.fromEntries(u.searchParams);
+}
+
+export function arrayFindDuplicate(arr) {
+	for (let i=0; i<arr.length; i++)
+		if (arr.slice(i+1).includes(arr[i]))
+			return arr[i];
 }

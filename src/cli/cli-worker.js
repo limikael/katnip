@@ -1,17 +1,39 @@
 import HookRunner from "../hooks/HookRunner.js";
 import HookEvent from "../hooks/HookEvent.js";
-import {findKatnipModules} from "./find-katnip-modules.js";
 import CliSpec from "./CliSpec.js";
 import minimist from "minimist";
 import {workerData, parentPort} from "worker_threads";
 import path from "path";
 import fs from "fs";
+import {fileURLToPath,pathToFileURL} from "url";
+import {resolveHookEntryPoints} from "../utils/npm-util.js";
+
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 class CliRunner {
 	async load() {
 		this.hookRunner=new HookRunner();
-		for (let fn of findKatnipModules("cli",{reqConditions: "cli"}))
-			this.hookRunner.addListenerModule(await import(fn));
+		let entrypoints=await resolveHookEntryPoints({
+			cwd: path.join(__dirname,"../katnip-cli"),
+			importPath: "katnip-project-hooks",
+			keyword: "katnip-plugin",
+			conditions: ["node"],
+			fs
+		});
+
+		entrypoints.push(...await resolveHookEntryPoints({
+			cwd: process.cwd(),
+			importPath: "katnip-project-hooks",
+			keyword: "katnip-plugin",
+			conditions: ["node"],
+			fs
+		}));
+
+		for (let fn of entrypoints) {
+			let importUrl=pathToFileURL(fn);
+			importUrl+="#?entrypoint="+encodeURIComponent(fn);
+			this.hookRunner.addListenerModule(await import(importUrl));
+		}
 
 		this.cliSpec=new CliSpec();
 		this.cliSpec.addGlobalOption("help","Get help for specified command.",{type: "boolean"});
@@ -59,7 +81,18 @@ class CliRunner {
 	}
 }
 
-try {
+export async function runCli(inArgv) {
+	let cliRunner=new CliRunner();
+	await cliRunner.load();
+	let argv=cliRunner.parseCommandLine(inArgv);
+	if (argv) {
+		let mainEv=cliRunner.createEvent(argv);
+		let result=await cliRunner.hookRunner.emit(mainEv);
+		return result;
+	}
+}
+
+/*try {
 	let cliRunner=new CliRunner();
 	await cliRunner.load();
 	let argv=cliRunner.parseCommandLine(workerData.argv);
@@ -79,4 +112,4 @@ catch (e) {
 		declared: e.declared
 	});
 	process.exit(1);
-}
+}*/

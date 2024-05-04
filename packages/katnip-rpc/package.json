@@ -8,10 +8,10 @@
     "katnip-plugin"
   ],
   "exports": {
-    "cli": "./katnip-rpc-cli.js",
-    "server": "./katnip-rpc-server.js",
-    "isoq-wrapper": "./katnip-rpc-isoq-wrapper.jsx",
-    "default": "./katnip-rpc.jsx"
+    "./katnip-project-hooks": "./katnip-rpc-project.js",
+    "./katnip-server-hooks": "./katnip-rpc-server.js",
+    "./isoq-wrapper": "./katnip-rpc-isoq-wrapper.jsx",
+    ".": "./katnip-rpc.jsx"
   },
   "dependencies": {
     "katnip": "^3.0.15",

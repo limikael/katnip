@@ -8,10 +8,19 @@ export async function fetch(req, ev) {
 	let props={};
 	await ev.hookRunner.emit("clientProps",props,ev);
 
-	return await requestHandler(req,{
-		props: props,
-		localFetch: ev.localFetch,
-		appPathname: ev.appPathname
-	});
+	try {
+		let res=await requestHandler(req,{
+			props: props,
+			localFetch: ev.localFetch,
+			appPathname: ev.appPathname
+		});
+
+		return res;
+	}
+
+	catch (e) {
+		console.log("Isoq err: ",e);
+		throw e;
+	}
 }
 

@@ -1,9 +1,11 @@
-import {Head} from "isoq";
+import {Head, useIsoContext} from "isoq";
 
 export default function({children}) {
+	let iso=useIsoContext();
+
 	return (<>
 		<Head>
-			<link href="/index.css" rel="stylesheet"/>
+			<link href={iso.getAppUrl("index.css")} rel="stylesheet"/>
 		</Head>
 		{children}
 	</>);

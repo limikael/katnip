@@ -6,7 +6,7 @@ import semver from "semver";
 import {Worker} from "worker_threads";
 import {DeclaredError} from "./js-util.js";
 
-export function resolveImport(cand, conditions) {
+/*export function resolveImport(cand, conditions) {
 	if (!path.isAbsolute(cand)) {
 		if (fs.existsSync(path.join(process.cwd(),cand)))
 			cand=path.join(process.cwd(),cand);
@@ -26,9 +26,9 @@ export function resolveImport(cand, conditions) {
 		return cand;
 
 	return resolveModuleEntryPoint(cand,conditions);
-}
+}*/
 
-function expandExports(exportDefs) {
+/*function expandExports(exportDefs) {
 	if (typeof exportDefs=="string")
 		return [{conditions: [], importPath: ".", path: exportDefs}];
 
@@ -90,7 +90,7 @@ export function resolveModuleEntryPoint(packageDir, conditions=[], args={}) {
 				return path.join(packageDir,exportDef.path);
 		}
 	}
-}
+}*/
 
 export async function runCommand(command, args=[], options={}) {
 	const child=spawn(command, args, options);
@@ -138,23 +138,6 @@ export function findNodeBin(cwd, name) {
 	}
 
 	throw new Error("Can't find binary: "+name);
-}
-
-export function projectNeedInstall(projectDir) {
-	let mainPackageJsonPath=path.join(projectDir,"package.json");
-	let mainPackageJson=JSON.parse(fs.readFileSync(mainPackageJsonPath,"utf8"));
-	for (let depName in mainPackageJson.dependencies) {
-		let depPackageJsonPath=path.join(path.join(projectDir,"node_modules",depName,"package.json"));
-		if (!fs.existsSync(depPackageJsonPath))
-			return true;
-
-		let depPackageJson=JSON.parse(fs.readFileSync(depPackageJsonPath,"utf8"));
-		let currentVersion=depPackageJson.version;
-		let requiredVersion=mainPackageJson.dependencies[depName];
-
-		if (!semver.satisfies(currentVersion,requiredVersion))
-			return true;
-	}
 }
 
 export function waitForWorker(worker) {

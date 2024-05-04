@@ -1,0 +1,11 @@
+{
+	"dependencies": {
+		"katnip": "123",
+		"katnip-isoq": "1234",
+		"@bla/aplugin": "test",
+		"noplugin": "awef"
+	},
+	"exports": {
+		"./myentry": "base-entry.js"
+	}
+}

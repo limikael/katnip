@@ -1,4 +1,4 @@
-import path from "path";
+/*import path from "path";
 import {fileURLToPath} from 'url';
 import minimist from "minimist";
 import {resolveModuleEntryPoint} from "../utils/node-util.js";
@@ -42,4 +42,4 @@ export function findKatnipModules(condition, args={}) {
 	}
 
 	return modulePaths;
-}
+}*/

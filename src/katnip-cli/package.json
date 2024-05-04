@@ -4,8 +4,8 @@
   "license": "MIT",
   "type": "module",
   "private": true,
+  "keywords": ["katnip-plugin"],
   "exports": {
-    "cli": "./katnip-server-cli.js"
-  },
-  "keywords": ["katnip-plugin"]
+    "./katnip-project-hooks": "./katnip-cli-project.js"
+  }
 }

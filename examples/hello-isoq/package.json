@@ -1,0 +1,17 @@
+{
+  "name": "hello-isoq",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "katnip dev"
+  },
+  "dependencies": {
+    "katnip": "^3.0.16",
+    "katnip-isoq": "^3.0.27"
+  },
+  "exports": {
+    "./isomain": "index.jsx"
+  }
+}

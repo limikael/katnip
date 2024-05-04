@@ -3,13 +3,21 @@ import http from "http";
 import HookRunner from "../hooks/HookRunner.js";
 import HookEvent from "../hooks/HookEvent.js";
 import {parentPort, workerData} from "worker_threads";
-import {resolveImport} from "../utils/node-util.js";
 import {ResolvablePromise} from "../utils/js-util.js";
-import {findKatnipModules} from "../cli/find-katnip-modules.js";
+import {resolveHookEntryPoints} from "../utils/npm-util.js";
 import {createNodeRequestListener} from "serve-fetch";
+import fs from "fs";
 
 let hookRunner=new HookRunner();
-for (let fn of findKatnipModules(["server","node"],{reqConditions: "server"}))
+let entryPoints=await resolveHookEntryPoints({
+	cwd: process.cwd(),
+	keyword: "katnip-plugin",
+	importPath: "katnip-server-hooks",
+	conditions: ["node"],
+	fs
+});
+
+for (let fn of entryPoints)
 	hookRunner.addListenerModule(await import(fn));
 
 let fetchEvent={};
@@ -18,8 +26,12 @@ fetchEvent.options=workerData.options;
 fetchEvent.data=workerData.data;
 fetchEvent.hookRunner=hookRunner;
 
-for (let k in workerData.importModules)
-	fetchEvent.importModules[k]=await import(resolveImport(workerData.importModules[k]));
+for (let k in workerData.importModules) {
+	if (!path.isAbsolute(workerData.importModules[k]))
+		throw new Error("Import module must be absolute: "+workerData.importModules[k]);
+
+	fetchEvent.importModules[k]=await import(workerData.importModules[k]);
+}
 
 await hookRunner.emit(new HookEvent("start",fetchEvent));
 

@@ -1,4 +1,4 @@
-import {BuildEvent, findKatnipModules, DeclaredError, runCommand, findNodeBin} from "katnip";
+import {BuildEvent, resolveHookEntryPoints, DeclaredError, runCommand, findNodeBin} from "katnip";
 import fs from "fs";
 import path from "path";
 import {fileURLToPath} from 'url';
@@ -48,13 +48,15 @@ export async function registerHooks(hookRunner) {
 
 precfdev.priority=1;
 async function precfdev(ev) {
-	console.log("Building as starting local cloudflare env...");
+	console.log("Building and starting local cloudflare env...");
 }
 
 export async function cfdev(ev) {
 	let buildEvent=new BuildEvent({
 		options: ev.options,
-		platform: "workerd"
+		platform: "workerd",
+		cwd: process.cwd(),
+		fs: fs
 	});
 
 	await ev.hookRunner.emit(buildEvent);
@@ -76,7 +78,9 @@ async function precfdeploy(ev) {
 export async function cfdeploy(ev) {
 	let buildEvent=new BuildEvent({
 		options: ev.options,
-		platform: "workerd"
+		platform: "workerd",
+		cwd: process.cwd(),
+		fs: fs
 	});
 
 	await ev.hookRunner.emit(buildEvent);
@@ -131,7 +135,7 @@ function prebuild(ev) {
 }
 
 build.priority=20;
-export function build(ev) {
+export async function build(ev) {
 	if (ev.platform=="workerd") {
 		let importStatements=[];
 		let importModuleNames=[];
@@ -143,7 +147,15 @@ export function build(ev) {
 		let listenerImports=[];
 		let listenerNames=[];
 
-		let importPaths=findKatnipModules(["server","workerd"],{reqConditions: "server"});
+		//let importPaths=findKatnipModules(["server","workerd"],{reqConditions: "server"});
+		let importPaths=await resolveHookEntryPoints({
+			cwd: process.cwd(),
+			importPath: "katnip-server-hooks",
+			keyword: "katnip-plugin",
+			conditions: ["workerd"],
+			fs
+		});
+
 		for (let [index,fn] of importPaths.entries()) {
 			listenerImports.push(`import * as listener${index} from "${fn}";`);
 			listenerNames.push(`listener${index}`);

@@ -1,0 +1,14 @@
+{
+  "name": "hello-components",
+  "scripts": {
+    "dev": "katnip dev"
+  },
+  "version": "1.0.0",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "katnip-isoq": "^3.0.27",
+    "katnip-components": "3.0.0"
+  }
+}

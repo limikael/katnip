@@ -1,6 +1,6 @@
 {
   "name": "katnip-quickmin",
-  "version": "3.0.27",
+  "version": "3.0.28",
   "type": "module",
   "scripts": {},
   "license": "MIT",
@@ -9,14 +9,14 @@
   ],
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
-    "katnip": "^3.0.16",
+    "katnip": "^3.0.17",
     "quickmin": "^0.0.43",
     "yaml": "^2.3.4"
   },
   "exports": {
-    "isoq-wrapper": "./katnip-quickmin-isoq-wrapper.jsx",
-    "cli": "./katnip-quickmin-cli.js",
-    "server": {
+    "./isoq-wrapper": "./katnip-quickmin-isoq-wrapper.jsx",
+    "./katnip-project-hooks": "./katnip-quickmin-project.js",
+    "./katnip-server-hooks": {
       "node": "./katnip-quickmin-server-node.js",
       "workerd": "./katnip-quickmin-server-workerd.js"
     }

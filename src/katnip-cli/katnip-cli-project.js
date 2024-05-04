@@ -1,13 +1,13 @@
 import HookRunner from "../hooks/HookRunner.js";
 import HookEvent from "../hooks/HookEvent.js";
-import {findKatnipModules} from "../cli/find-katnip-modules.js";
 import BuildEvent from "../hooks/BuildEvent.js";
 import fs from "fs";
 import {DeclaredError, ResolvablePromise, Job} from "../utils/js-util.js";
 import path from "path";
 import {Worker} from "worker_threads";
 import {fileURLToPath} from 'url';
-import {projectNeedInstall, runCommand, workerPortRequest} from "../utils/node-util.js";
+import {runCommand, workerPortRequest} from "../utils/node-util.js";
+import {projectNeedInstall} from "../utils/npm-util.js";
 import semver from "semver";
 import {parentPort} from "worker_threads";
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
@@ -119,12 +119,8 @@ export async function init(ev) {
 	}
 
 	if (ev.options.install) {
-		if (projectNeedInstall(process.cwd())) {
-			console.log("Installing fresh dependencies...");
-			await runCommand("npm",["install"],{
-				stdio: "inherit"
-			});
-			return "restart";
+		if (await projectNeedInstall(process.cwd(),{fs})) {
+			throw new DeclaredError("Project install is not up-to-date.");
 		}
 
 		else {
@@ -146,7 +142,7 @@ export async function initcli(spec) {
 		default: true
 	});
 	spec.addCommandOption("dev","install",{
-		description: "Install dependencies if needed.",
+		description: "Check installation.",
 		type: "boolean",
 		default: true
 	});
@@ -214,7 +210,9 @@ async function predev(ev) {
 export async function dev(ev) {
 	let buildEvent=new BuildEvent({
 		options: ev.options,
-		platform: "node"
+		platform: "node",
+		cwd: process.cwd(),
+		fs: fs
 	});
 
 	await ev.hookRunner.emit(buildEvent);

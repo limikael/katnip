@@ -1,6 +1,6 @@
 {
   "name": "katnip-tailwind",
-  "version": "3.0.20",
+  "version": "3.0.21",
   "license": "MIT",
   "scripts": {},
   "keywords": [
@@ -8,17 +8,15 @@
   ],
   "type": "module",
   "exports": {
-    ".": {
-      "cli": "./katnip-tailwind-cli.js",
-      "isoq-wrapper": "./katnip-tailwind-isoq-wrapper.jsx"
-    },
+    "./isoq-wrapper": "./katnip-tailwind-isoq-wrapper.jsx",
     "./katnip-project-hooks": {
+      "node": "./katnip-tailwind-project-node.js",
       "browser": "./katnip-tailwind-project-browser.js"
     }
   },
   "dependencies": {
     "@mhsdesign/jit-browser-tailwindcss": "^0.4.0",
-    "katnip": "^3.0.16",
+    "katnip": "^3.0.17",
     "minimatch": "^6.1.2",
     "path-browserify": "^1.0.1",
     "tailwindcss": "^3.4.1"
