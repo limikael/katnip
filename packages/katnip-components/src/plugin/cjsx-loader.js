@@ -1,7 +1,17 @@
 import * as txml from "txml/txml";
-//import fs from "fs";
 
-export function cjsxLoader({components, fs}) {
+function processCjsxNode(node) {
+	if (typeof node=="string")
+		return;
+
+	if (node.tagName.charAt(0)==node.tagName.charAt(0).toUpperCase())
+		node.tagName="components."+node.tagName;
+
+	for (let c of node.children)
+		processCjsxNode(c);
+}
+
+export function cjsxLoader({componentsImport, fs}) {
 	return {
 		name: "cjsx-loader",
 		setup: (build)=>{
@@ -11,8 +21,9 @@ export function cjsxLoader({components, fs}) {
 				let xmlRoot=xml[0];
 				let source="";
 
-				for (let component of components)
-					source+=`import {${component.name}} from "${component.import}";\n`;
+				source+=`import * as components from "${componentsImport}"\n`;
+				for (let c of xmlRoot.children)
+					processCjsxNode(c);
 
 				source+="let F=()=><>"+txml.stringify(xmlRoot.children)+"</>;\n";
 				source+=`F.type=${JSON.stringify(xmlRoot.tagName)};\n`;

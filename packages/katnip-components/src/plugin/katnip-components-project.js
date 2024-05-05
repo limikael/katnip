@@ -1,6 +1,7 @@
 import {cjsxLoader} from "./cjsx-loader.js";
 import path from "path-browserify";
 import {importUrlGetDirname, mkdirRecursive, rmRecursive} from "katnip";
+import {resolveHookEntryPoints} from "katnip";
 
 const __dirname=importUrlGetDirname(import.meta.url);
 
@@ -26,17 +27,33 @@ async function createEntryPointSource(ev) {
 
 export async function isoqEsbuildPlugins(plugins, ev) {
     let components=[];
-    ev.hookRunner.emit("cjsxComponents",components,ev);
 
-    plugins.push(cjsxLoader({components, fs: ev.fs}));
+    //console.log("************ in the plugin...");
+
+    let componentPaths=await resolveHookEntryPoints(ev.cwd,"katnip-components",{
+        fs: ev.fs,
+        keyword: "katnip-plugin"
+    });
+
+    let allComponentsSource="";
+    for (let componentPath of componentPaths)
+        allComponentsSource+=`export * from "${componentPath}";\n`;
+
+    let allComponentsFn=path.join(ev.cwd,"node_modules/.katnip/components.jsx");
+    await (ev.fs.promises.writeFile(allComponentsFn,allComponentsSource));
+
+    plugins.push(cjsxLoader({
+        componentsImport: allComponentsFn,
+        fs: ev.fs
+    }));
 }
 
-export async function cjsxComponents(components, ev) {
+/*export async function cjsxComponents(components, ev) {
     components.push({
         name: "Link",
         import: "katnip-components/components"
     });
-}
+}*/
 
 export async function build(ev) {
     let source=await createEntryPointSource(ev);
