@@ -117,8 +117,8 @@ export async function build(buildContext) {
 		//quiet: true
 	};
 
-	if (buildContext.platform=="node")
-		bundlerOptions.sourcemap=true;
+	/*if (buildContext.platform=="node")
+		bundlerOptions.sourcemap=true;*/
 
 	let bundler=new Bundler(entryPoint,bundlerOptions);
 	await bundler.bundle();

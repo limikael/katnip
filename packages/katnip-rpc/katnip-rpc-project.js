@@ -1,6 +1,6 @@
-import {findKatnipModules} from "katnip";
-import fs from "fs";
-import path from "path";
+import {resolveHookEntryPoints} from "katnip";
+//import fs from "fs";
+import path from "path-browserify";
 
 const API_JS=
 `export default class Api {
@@ -20,7 +20,7 @@ const API_JS=
 
 init.priority=15;
 export function init(ev) {
-	let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
+	/*let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
 	if (!packageJson.exports)
 		packageJson.exports={};
 
@@ -33,13 +33,16 @@ export function init(ev) {
 		console.log("Creating "+packageJson.exports.rpc);
 		fs.mkdirSync(path.dirname(packageJson.exports.rpc),{recursive: true});
 		fs.writeFileSync(packageJson.exports.rpc,API_JS);
-	}
+	}*/
 }
 
 export async function build(buildEv) {
-	let modulePaths=findKatnipModules("rpc",{
-		reqConditions: "rpc"
+	let modulePaths=await resolveHookEntryPoints(buildEv.cwd,"katnip-rpc-api",{
+		fs: buildEv.fs,
+		keyword: "katnip-plugin"
 	});
+
+	//console.log("rpc paths: ",modulePaths);
 
 	if (modulePaths.length>1)
 		throw new Error("More than one rpc module: "+JSON.stringify(modulePaths));
