@@ -1,11 +1,16 @@
 import manifestJSON from '__STATIC_CONTENT_MANIFEST';
 import {mimeTypes} from "./mime-types.js";
 
+//console.log(manifestJSON);
+
 const assetManifest=JSON.parse(manifestJSON);
 
 fetch.priority=5;
 export async function fetch(req, ev) {
     let assetName=new URL(req.url).pathname.slice(1);
+    if (assetName=="__assetmanifest")
+        return new Response(JSON.stringify(assetManifest));
+
     if (!assetManifest[assetName])
         return;
 
