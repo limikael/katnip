@@ -13,8 +13,7 @@ export function Link({renderMode, ...props}) {
 	return <a {...props}>{props.children}</a>
 }
 
+Link.styling=true;
 Link.controls={
-	href: {type: "text"},
-	class: {type: "textarea"},
-	style: {type: "textarea"},
+	href: {type: "text"}
 };
