@@ -1,4 +1,5 @@
 import * as txml from "txml/txml";
+import path from "path-browserify";
 
 function processCjsxNode(node) {
 	if (typeof node=="string")
@@ -27,6 +28,7 @@ export function cjsxLoader({componentsImport, fs}) {
 
 				source+="let F=()=><>"+txml.stringify(xmlRoot.children)+"</>;\n";
 				source+=`F.type=${JSON.stringify(xmlRoot.tagName)};\n`;
+				source+=`F.componentName=${JSON.stringify(path.basename(args.path,".cjsx"))};\n`;
 				for (let k in xmlRoot.attributes)
 					source+=`F.${k}=${JSON.stringify(xmlRoot.attributes[k])};\n`
 				source+="export default F;";

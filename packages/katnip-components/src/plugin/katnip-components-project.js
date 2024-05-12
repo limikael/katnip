@@ -2,14 +2,22 @@ import {cjsxLoader} from "./cjsx-loader.js";
 import path from "path-browserify";
 import {importUrlGetDirname, mkdirRecursive, rmRecursive} from "katnip";
 import {resolveHookEntryPoints} from "katnip";
+import {findMatchingFiles} from "../utils/fs-util.js";
 
 const __dirname=importUrlGetDirname(import.meta.url);
 
 async function createEntryPointSource(ev) {
-    let pageFiles=await ev.fs.promises.readdir(path.join(ev.cwd,"pages"));
+    let filePatters=[
+        "pages/**/*.cjsx",
+        "templates/**/*.cjsx",
+        "components/**/*.cjsx",
+    ];
+
+    let pageFiles=await findMatchingFiles(ev.cwd,filePatters,{fs: ev.fs});
+
     let imports=Object.fromEntries(pageFiles.map(pageFile=>{
-        let pageName=pageFile.replace(".cjsx","");
-        let pagePath=path.join(ev.cwd,"pages",pageFile);
+        let pageName=path.basename(pageFile,".cjsx");
+        let pagePath=path.join(ev.cwd,pageFile);
         return [pageName,pagePath];
     }));
 

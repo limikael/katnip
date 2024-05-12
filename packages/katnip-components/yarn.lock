@@ -134,6 +134,18 @@ ansi-styles@^4.0.0:
   dependencies:
     color-convert "^2.0.1"
 
+balanced-match@^1.0.0:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
+  integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+brace-expansion@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/brace-expansion/-/brace-expansion-2.0.1.tgz#1edc459e0f0c548486ecf9fc99f2221364b9a0ae"
+  integrity sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA==
+  dependencies:
+    balanced-match "^1.0.0"
+
 braces@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/braces/-/braces-3.0.2.tgz#3454e1a462ee8d599e236df336cd9ea4f8afe107"
@@ -312,17 +324,18 @@ isexe@^2.0.0:
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==
 
-isoq-router@^1.0.11:
-  version "1.0.11"
-  resolved "https://registry.yarnpkg.com/isoq-router/-/isoq-router-1.0.11.tgz#07ee6639a6c818e08da92c765a68991dacbf4f93"
-  integrity sha512-FPeQkyAPUMYDK3Nd5Nk97cSdOaa/CXsIFBxYMJAABTuoj9zG2JlFjFGhEk+MD4dPXLa37U4O7qt+uvihzJVNVg==
+isoq-router@^1.0.13:
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/isoq-router/-/isoq-router-1.0.13.tgz#9b0567166b3c1c7d8b8aac2608ad8e1cb85ad752"
+  integrity sha512-xo/8LI65pz6kSOn68aLIC3igezX4oWwOn4f5132q/Tw0Vul6qH7YAEFluLRZ/94BXtblZ1ZdNOvlwhE5wh1ezA==
   dependencies:
-    isoq "^1.1.10"
+    isoq "^1.1.11"
+    url-join "^5.0.0"
 
-isoq@^1.1.10:
-  version "1.1.10"
-  resolved "https://registry.yarnpkg.com/isoq/-/isoq-1.1.10.tgz#91ba788c8c3ff2ce35838c11e7296721470e2a80"
-  integrity sha512-w3pIUI6dTgKWDO4hYXUdXcezvgVtLirLv7EEYEu3WZf4AYcEJda27ZdTymPERJqFmBUP9rLLFOBGArUHTKsYJQ==
+isoq@^1.1.11:
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/isoq/-/isoq-1.1.11.tgz#1fd88d3069799cec2cba32610ece22316c89c52e"
+  integrity sha512-FgEANXBL4kkfnkTr4QuRWWiTLCurqPWXIrYyJXBN+eAMHBKD2FRTWv0/uXQEYnyZukdqfT94NhVrRpJVCuxkDw==
   dependencies:
     "@einheit/path-resolve" "^1.2.0"
     esbuild "^0.19.2"
@@ -334,22 +347,23 @@ isoq@^1.1.10:
     url-join "^5.0.0"
     yargs "^17.7.2"
 
-katnip-isoq@^3.0.21:
-  version "3.0.27"
-  resolved "https://registry.yarnpkg.com/katnip-isoq/-/katnip-isoq-3.0.27.tgz#21c8d50362dfdb6017eb7ab72b464b01df634b60"
-  integrity sha512-VQD7N6alFAW9sUXSo8L5myQgerQt0e3dgD8UH+THsLo5+9FfPCJxbEJtp7K2InB62NKAwBuOqBJvT03H7CW68w==
+katnip-isoq@^3.0.29:
+  version "3.0.29"
+  resolved "https://registry.yarnpkg.com/katnip-isoq/-/katnip-isoq-3.0.29.tgz#6f43a8c0e90f4fccc225ed5492d2c6b16795381c"
+  integrity sha512-vJOA05+MJxmkn23LzHCO72yhC/MTHc2U6yIdVzmldD9Lf4hXTNkdHEkzZ+xsOkaNk+WRb9h5Y0ID4oKz8sBRRg==
   dependencies:
-    isoq "^1.1.10"
-    katnip "^3.0.16"
+    isoq "^1.1.11"
+    katnip "^3.0.17"
     path-browserify "^1.0.1"
 
-katnip@^3.0.15, katnip@^3.0.16:
-  version "3.0.16"
-  resolved "https://registry.yarnpkg.com/katnip/-/katnip-3.0.16.tgz#fcd2ddbdcbf0e1e223133a244d012062fd7ef275"
-  integrity sha512-/lsezGMdACekfRcq/ftpopmNLM0V2iDrWNyVLcKvczGUhDRmhhRjGu2+tBLrz5mvdqJcZ/ZYzpdWL0zte0qdbQ==
+katnip@^3.0.17:
+  version "3.0.17"
+  resolved "https://registry.yarnpkg.com/katnip/-/katnip-3.0.17.tgz#4a08b972bea41301e2b25351b09f484df85f7de3"
+  integrity sha512-iAh3oDYSV3OTjwS8TcY7ZdUoJTY+pVlnvfMq3oVi0HVfuvB0kokXzQCQLo/ks/wYSc+/OQ7IWSkXBfF5xLpp4Q==
   dependencies:
     find-node-modules "^2.1.3"
     minimist "^1.2.8"
+    path-browserify "^1.0.1"
     semver "^7.6.0"
     serve-fetch "^1.0.3"
 
@@ -372,6 +386,13 @@ micromatch@^4.0.2:
   dependencies:
     braces "^3.0.2"
     picomatch "^2.3.1"
+
+minimatch@^9.0.4:
+  version "9.0.4"
+  resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-9.0.4.tgz#8e49c731d1749cbec05050ee5145147b32496a51"
+  integrity sha512-KqWh+VchfxcMNRAJjj2tnsSJdNbHsVgnkBhTNrW7AjVo6OvLtxw8zfT9oLw1JSohlFzJ8jCoTgaoXvJ+kHt6fw==
+  dependencies:
+    brace-expansion "^2.0.1"
 
 minimist@^1.2.8:
   version "1.2.8"
