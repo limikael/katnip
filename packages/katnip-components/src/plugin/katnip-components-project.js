@@ -9,8 +9,7 @@ const __dirname=importUrlGetDirname(import.meta.url);
 async function createEntryPointSource(ev) {
     let filePatters=[
         "pages/**/*.cjsx",
-        "templates/**/*.cjsx",
-        "components/**/*.cjsx",
+        "blocks/**/*.cjsx"
     ];
 
     let pageFiles=await findMatchingFiles(ev.cwd,filePatters,{fs: ev.fs});
