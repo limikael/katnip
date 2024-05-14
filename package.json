@@ -17,9 +17,12 @@
     "serve-fetch": "^1.0.3"
   },
   "exports": {
-    "workerd": "./src/exports/katnip-workerd.js",
-    "node": "./src/exports/katnip-node.js",
-    "browser": "./src/exports/katnip-default.js"
+    ".": {
+      "workerd": "./src/exports/katnip-workerd.js",
+      "node": "./src/exports/katnip-node.js",
+      "browser": "./src/exports/katnip-browser.js"
+    },
+    "./component-library-provider": "./src/components/component-library-provider.jsx"
   },
   "devDependencies": {
     "jasmine": "^5.1.0"

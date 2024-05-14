@@ -1,4 +1,5 @@
 import * as isoqRouter from "isoq-router";
+import {useComponentLibrary} from "katnip-components";
 
 export function Link({renderMode, ...props}) {
 	//console.log("renderMode="+renderMode);
@@ -16,4 +17,25 @@ export function Link({renderMode, ...props}) {
 Link.styling=true;
 Link.controls={
 	href: {type: "text"}
+};
+
+export function RibbonPage({header, footer, children}) {
+	let components=useComponentLibrary();
+	let Header=components[header];
+	let Footer=components[footer];
+	//console.log("ribbon page header: "+header);
+
+	return (
+		<div>
+			<Header/>
+			{children}
+			<Footer/>
+		</div>
+	);
+}
+
+RibbonPage.tags=["pageType"];
+RibbonPage.controls={
+	header: {type: "block"},
+	footer: {type: "block"},
 };
