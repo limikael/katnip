@@ -17,6 +17,7 @@
     "katnip-plugin"
   ],
   "exports": {
+    ".": "./src/plugin/component-library-provider.jsx",
     "./katnip-project-hooks": "./src/plugin/katnip-components-project.js",
     "./katnip-components": "./src/plugin/components.jsx"
   }
