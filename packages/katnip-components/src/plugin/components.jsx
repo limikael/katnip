@@ -1,5 +1,6 @@
 import * as isoqRouter from "isoq-router";
 import {useComponentLibrary} from "katnip-components";
+import {useState} from "react";
 
 export function Link({renderMode, ...props}) {
 	//console.log("renderMode="+renderMode);
@@ -20,10 +21,15 @@ Link.controls={
 };
 
 export function RibbonPage({header, footer, children}) {
+	let [val,setVal]=useState(123);
 	let components=useComponentLibrary();
+
 	let Header=components[header];
 	let Footer=components[footer];
-	//console.log("ribbon page header: "+header);
+
+	/*return (
+		<div>I'm a ribbon page: {val}</div>
+	);*/
 
 	return (
 		<div>
