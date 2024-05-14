@@ -10,6 +10,11 @@ export async function build(buildEv) {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html, body, #isoq {
+	height: 100%;
+	min-height: 100%;
+}
 `;
 
 	let modulePaths=await resolveHookEntryPoints(buildEv.cwd,"isomain",{
