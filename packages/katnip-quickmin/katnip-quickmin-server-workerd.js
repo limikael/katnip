@@ -26,6 +26,7 @@ export async function start(ev) {
 
 export async function clientProps(props, ev) {
 	props.quickminUser=await ev.data.quickminApi.getUserByRequest(ev.req);
+	props.quickminCookieName=ev.data.quickminConf.cookie;
 }
 
 fetch.priority=15;

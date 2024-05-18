@@ -1,14 +1,16 @@
 import QuickminServer from "quickmin/server";
-import {quickminSqliteDriver} from "quickmin/sqlite-driver";
-import {nodeStorageDriver} from "quickmin/node-storage";
-//import {localNodeBundle} from "quickmin/local-node-bundle";
+import quickminQqlDriver from "quickmin/qql-driver";
+//import {nodeStorageDriver} from "quickmin/node-storage";
+import urlJoin from "url-join";
 
 export async function start(ev) {
-	//console.log("starting qm server, drizzle ",drizzleSqliteDriver);
-	let quickminServer=new QuickminServer(ev.data.quickminConf,[
-		quickminSqliteDriver,
-		nodeStorageDriver,
-		//localNodeBundle
+	console.log("starting quickmin server: "+ev.appPathname);
+	let theConf={...ev.data.quickminConf};
+	theConf.apiPath=urlJoin(ev.appPathname,ev.data.quickminConf.apiPath);
+
+	let quickminServer=new QuickminServer(theConf,[
+		quickminQqlDriver,
+//		nodeStorageDriver
 	]);
 
 	ev.data.quickminServer=quickminServer;
@@ -22,5 +24,8 @@ export async function clientProps(props, ev) {
 
 fetch.priority=15;
 export async function fetch(req, ev) {
+	if (!ev.data.quickminServer)
+		await start(ev);
+
 	return await ev.data.quickminServer.handleRequest(req);
 }
