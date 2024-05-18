@@ -1,6 +1,6 @@
 {
   "name": "katnip-quickmin",
-  "version": "3.0.30",
+  "version": "3.0.31",
   "type": "module",
   "scripts": {},
   "license": "MIT",
@@ -10,7 +10,7 @@
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "katnip": "^3.0.18",
-    "quickmin": "^0.0.44",
+    "quickmin": "^0.0.45",
     "yaml": "^2.3.4"
   },
   "exports": {

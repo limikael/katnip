@@ -25,6 +25,9 @@ export async function build(ev) {
 	if (!conf.apiPath)
 		conf.apiPath="admin";
 
+	if (!conf.cookie)
+		conf.cookie="qmtoken";
+
 	if (conf.apiPath!="admin")
 		throw new Error("Only api path 'admin' supported for now...");
 

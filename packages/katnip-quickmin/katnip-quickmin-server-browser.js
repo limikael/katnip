@@ -1,6 +1,5 @@
 import QuickminServer from "quickmin/server";
 import quickminQqlDriver from "quickmin/qql-driver";
-//import {nodeStorageDriver} from "quickmin/node-storage";
 import urlJoin from "url-join";
 
 export async function start(ev) {
@@ -10,7 +9,6 @@ export async function start(ev) {
 
 	let quickminServer=new QuickminServer(theConf,[
 		quickminQqlDriver,
-//		nodeStorageDriver
 	]);
 
 	ev.data.quickminServer=quickminServer;
