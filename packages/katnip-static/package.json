@@ -1,6 +1,6 @@
 {
   "name": "katnip-static",
-  "version": "3.0.21",
+  "version": "3.0.22",
   "license": "MIT",
   "keywords": [
     "katnip-plugin"
@@ -9,7 +9,7 @@
   "type": "module",
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
-    "katnip": "^3.0.18"
+    "katnip": "^3.0.19"
   },
   "exports": {
     "./katnip-project-hooks": {
