@@ -1,4 +1,4 @@
-import {objectifyArgs, includesAll, arrayFindDuplicate} from "./js-util.js";
+import {objectifyArgs, includesAll, arrayFindDuplicate, arrayUnique} from "./js-util.js";
 import path from "path-browserify";
 import {exists} from "./fs-util.js";
 import semver from "semver";
@@ -135,6 +135,9 @@ export async function findKeywordDependencies(...args) {
 			}
 		}
 	}
+
+	// Not 100% sure why needed.
+	res=arrayUnique(res);
 
 	let pluginNames=res.map(dir=>path.basename(dir));
 	if (arrayFindDuplicate(pluginNames))

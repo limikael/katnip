@@ -1,7 +1,7 @@
 import QuickminServer from "quickmin/server";
 import {quickminSqliteDriver} from "quickmin/sqlite-driver";
 import {nodeStorageDriver} from "quickmin/node-storage";
-//import {localNodeBundle} from "quickmin/local-node-bundle";
+import {localNodeBundle} from "quickmin/local-node-bundle";
 
 export async function start(ev) {
 	//console.log("starting qm server, drizzle ",drizzleSqliteDriver);

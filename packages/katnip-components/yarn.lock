@@ -347,19 +347,19 @@ isoq@^1.1.11:
     url-join "^5.0.0"
     yargs "^17.7.2"
 
-katnip-isoq@^3.0.29:
-  version "3.0.29"
-  resolved "https://registry.yarnpkg.com/katnip-isoq/-/katnip-isoq-3.0.29.tgz#6f43a8c0e90f4fccc225ed5492d2c6b16795381c"
-  integrity sha512-vJOA05+MJxmkn23LzHCO72yhC/MTHc2U6yIdVzmldD9Lf4hXTNkdHEkzZ+xsOkaNk+WRb9h5Y0ID4oKz8sBRRg==
+katnip-isoq@^3.0.31:
+  version "3.0.31"
+  resolved "https://registry.yarnpkg.com/katnip-isoq/-/katnip-isoq-3.0.31.tgz#5cacfad9fe3dac7c25b19296bc4969bb9bccd8f3"
+  integrity sha512-lgwNqvuqOSVT26CDVMPXxXapQdZr5Pzu3BvyJAhtspr64R3z0mZGIfuO0Wp6OusLF/21FhqpPZ7gpC4S/Tfa1A==
   dependencies:
     isoq "^1.1.11"
-    katnip "^3.0.17"
+    katnip "^3.0.19"
     path-browserify "^1.0.1"
 
-katnip@^3.0.17:
-  version "3.0.17"
-  resolved "https://registry.yarnpkg.com/katnip/-/katnip-3.0.17.tgz#4a08b972bea41301e2b25351b09f484df85f7de3"
-  integrity sha512-iAh3oDYSV3OTjwS8TcY7ZdUoJTY+pVlnvfMq3oVi0HVfuvB0kokXzQCQLo/ks/wYSc+/OQ7IWSkXBfF5xLpp4Q==
+katnip@^3.0.19:
+  version "3.0.19"
+  resolved "https://registry.yarnpkg.com/katnip/-/katnip-3.0.19.tgz#734f1b5a393f14a93bb6ca4418d6e9214b80097f"
+  integrity sha512-JBTqd5u2cM6+zt1xF5S9U8KN6SdxA5L9HwVIAptq2XdHvsrYtiJHQpOP/023lHkzBd7xNHs9xn2c/gNBLeAq2Q==
   dependencies:
     find-node-modules "^2.1.3"
     minimist "^1.2.8"
@@ -431,6 +431,14 @@ pretty-format@^3.8.0:
   resolved "https://registry.yarnpkg.com/pretty-format/-/pretty-format-3.8.0.tgz#bfbed56d5e9a776645f4b1ff7aa1a3ac4fa3c385"
   integrity sha512-WuxUnVtlWL1OfZFQFuqvnvs6MiAGk9UNsBostyBOB0Is9wb5uRESevA6rnl/rkksXaGX3GzZhPup5d6Vp1nFew==
 
+qql@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/qql/-/qql-1.0.8.tgz#53a80129a994e12ac1d3c521d8928fd232656b31"
+  integrity sha512-5a7rMBZ9STdw9J51An78fPbjDS4f71qI6tIVBZA/xss6+UUmsRL7Y0rerFEGKv9SN54Hf7P6zyh8x3ENgPArvA==
+  dependencies:
+    sqlstring "^2.3.3"
+    sqlstring-sqlite "^0.1.1"
+
 "readable-stream@2 || 3":
   version "3.6.2"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.6.2.tgz#56a9b36ea965c00c5a93ef31eb111a0f11056967"
@@ -474,6 +482,16 @@ source-map@^0.7.4:
   version "0.7.4"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.4.tgz#a9bbe705c9d8846f4e08ff6765acf0f1b0898656"
   integrity sha512-l3BikUxvPOcn5E74dZiq5BGsTb5yEwhaTSzccU6t4sDOH8NWJCstKO5QT2CvtFoK6F0saL7p9xHAqHOlCPJygA==
+
+sqlstring-sqlite@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/sqlstring-sqlite/-/sqlstring-sqlite-0.1.1.tgz#c8c61810663f2e59a6b0d737b70a8752bda3a078"
+  integrity sha512-9CAYUJ0lEUPYJrswqiqdINNSfq3jqWo/bFJ7tufdoNeSK0Fy+d1kFTxjqO9PIqza0Kri+ZtYMfPVf1aZaFOvrQ==
+
+sqlstring@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/sqlstring/-/sqlstring-2.3.3.tgz#2ddc21f03bce2c387ed60680e739922c65751d0c"
+  integrity sha512-qC9iz2FlN7DQl3+wjwn3802RTyjCx7sDvfQEXchwa6CWOx07/WVfh91gBmQ9fahw8snwGEWU3xGzOt4tFyHLxg==
 
 stacktrace-parser@^0.1.10:
   version "0.1.10"

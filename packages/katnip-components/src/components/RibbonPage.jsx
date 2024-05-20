@@ -1,27 +1,6 @@
-import * as isoqRouter from "isoq-router";
 import {useComponentLibrary} from "katnip-components";
-import {useState} from "react";
 
-export function Link({renderMode, ...props}) {
-	//console.log("renderMode="+renderMode);
-
-	if (!renderMode)
-		return <isoqRouter.Link {...props}/>
-
-	props.onClick=null;
-	props.onclick=null;
-	props.href=null;
-
-	return <a {...props}>{props.children}</a>
-}
-
-Link.styling=true;
-Link.controls={
-	href: {type: "text"}
-};
-
-export function RibbonPage({header, footer, children, outer, inner}) {
-	let [val,setVal]=useState(123);
+export default function RibbonPage({header, footer, children, outer, inner}) {
 	let components=useComponentLibrary();
 
 	let Header=components[header];

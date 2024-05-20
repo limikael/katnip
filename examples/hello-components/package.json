@@ -8,7 +8,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "katnip-isoq": "^3.0.27",
-    "katnip-components": "^3.0.0"
+    "katnip-components": "^3.0.7",
+    "katnip-isoq": "^3.0.31",
+    "katnip-quickmin": "^3.0.34"
   }
 }
