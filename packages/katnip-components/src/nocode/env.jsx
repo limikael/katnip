@@ -5,7 +5,7 @@ import {VarState} from "./var.jsx";
 let EnvContext=createContext();
 
 class EnvState {
-	constructor({parent, actions, createVarStates, namespace}) {
+	constructor({parent, actions, declarations, createVarStates, namespace}) {
 		this.parent=parent;
 
 		this.namespace=namespace;
@@ -14,6 +14,14 @@ class EnvState {
 			let varStates=createVarStates();
 			for (let k in varStates)
 				this.addVar(k,varStates[k]);
+		}
+
+		if (declarations) {
+			if (typeof declarations=="string")
+				declarations=JSON.parse(declarations);
+
+			for (let k in declarations)
+				this.addVar(k,new VarState({value: declarations[k]}))
 		}
 
 		this.actions=actions;
@@ -66,9 +74,13 @@ class EnvState {
 	}
 }
 
-export function Env({actions, createVarStates, children, namespace, onChange}) {
+export function useEnv() {
+	return useContext(EnvContext);
+}
+
+function LiveEnv({actions, createVarStates, declarations, children, namespace, onChange}) {
 	let parent=useEnv();
-	let env=useConstructor(()=>new EnvState({actions, parent, createVarStates, namespace}));
+	let env=useConstructor(()=>new EnvState({actions, declarations, parent, createVarStates, namespace}));
 	env.onChange=onChange;
 
 	return (
@@ -78,6 +90,24 @@ export function Env({actions, createVarStates, children, namespace, onChange}) {
 	)
 }
 
-export function useEnv() {
-	return useContext(EnvContext);
+export function Env({renderMode, children, ...props}) {
+	switch (renderMode) {
+		case "editor":
+			return (<>
+				{children}
+			</>);
+			break;
+
+		default:
+			return (
+				<LiveEnv {...props}>
+					{children}
+				</LiveEnv>
+			);
+			break;
+	}
+}
+
+Env.controls={
+	declarations: {type: "textarea"}
 }

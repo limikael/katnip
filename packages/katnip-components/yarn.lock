@@ -555,6 +555,11 @@ url-join@^5.0.0:
   resolved "https://registry.yarnpkg.com/url-join/-/url-join-5.0.0.tgz#c2f1e5cbd95fa91082a93b58a1f42fecb4bdbcf1"
   integrity sha512-n2huDr9h9yzd6exQVnH/jU5mr+Pfx08LRXXZhkLLetAMESRj+anQsTAh940iMrIetKAmry9coFuZQ2jY8/p3WA==
 
+use-feather@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/use-feather/-/use-feather-1.0.3.tgz#4c26e331e711c6ee427955bc529d6440a19847df"
+  integrity sha512-JigGyHaxy9pcUwUVo9QBT0i6PLxvp6ghoHY2tPZGcFtaLf1nGs3LfW997aBgUGntljitho5CUjaRJJLuTls3TQ==
+
 util-deprecate@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
