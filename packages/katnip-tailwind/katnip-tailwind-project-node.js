@@ -43,36 +43,44 @@ export function init(ev) {
 }
 
 export function initcli(spec) {
-	spec.addGlobalOption("publicDir",{
+	/*spec.addGlobalOption("publicDir",{
 		description: "Directory to serve as plain static assets.",
 		default: "public"
-	});
+	});*/
 }
 
 export async function build(ev) {
 	console.log("Building tailwind...");
 	let tailwind=await findNodeBin(process.cwd(),"tailwind");
-	/*if (!tailwind)
-		tailwind=await findNodeBin(__dirname,"tailwind");
-
 	if (!tailwind)
-		throw new Error("Can't find tailwind binary");*/
+		throw new Error("Can't find tailwind binary");
+
+	let input=path.join(__dirname,"default-index.css");
 
 	let modulePaths=await resolveHookEntryPoints(ev.cwd,"isomain",{
 		fs: ev.fs,
 		keyword: "katnip-plugin"
 	});
 
-	if (modulePaths.length!=1)
-		throw new Error("Expected 1 browser entry point, found "+modulePaths.length);
+	if (modulePaths.length==1) {
+		let mainParts=path.parse(modulePaths[0]);
+		input=path.join(mainParts.dir,mainParts.name+".css");
+	}
 
-	let mainParts=path.parse(modulePaths[0]);
-	let input=path.join(mainParts.dir,mainParts.name+".css");
-	let output=path.join(ev.options.publicDir,mainParts.name+".css");
+	else if (modulePaths.length) {
+		throw new Error("Expected 0 or 1 browser entry point, found "+modulePaths.length);
+	}
+
+	let output=path.join(ev.cwd,".target/index.css");
+	if (ev.options.publicDir)
+		output=path.join(ev.options.publicDir,"index.css");
 
 	await runCommand(tailwind,[
 		"--minify",
 		"-i",input,
 		"-o",output
 	],{passthrough: true});
+
+	if (!ev.options.publicDir)
+		ev.data.indexCss=await ev.fs.promises.readFile(output);
 }
