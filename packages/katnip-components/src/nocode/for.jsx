@@ -21,8 +21,13 @@ function LiveFor({children, in: inVar, where, render, namespace, ...props}) {
 	let env=useEnv();
 	let collection=env.getVar(inVar);
 	let whereExpr={};
-	if (where)
-		whereExpr=JSON.parse(where);
+	if (where) {
+		if (typeof where=="string")
+			whereExpr=JSON.parse(where);
+
+		else
+			whereExpr=where;
+	}
 
 	let exprVals=useExprs(Object.values(whereExpr));
 	let whereClause={};

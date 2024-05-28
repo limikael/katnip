@@ -4,7 +4,7 @@ import {jsonClone, arrayUnique} from "../utils/js-util.js";
 import {useState, useCallback, useLayoutEffect} from "react";
 
 export class VarState extends EventTarget {
-	constructor({value, type, fields, qql}) {
+	constructor({value, type, fields, qql}={}) {
 		super();
 		this.value=value;
 		this.type=type;

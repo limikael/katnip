@@ -26,7 +26,7 @@ function Carousel({pageIndex, children}) {
 	if (!pageIndex)
 		pageIndex=0;
 
-	console.log(pageIndex);
+	//console.log(pageIndex);
 
 	feather.setTarget(-pageIndex*dimensions[0]);
 

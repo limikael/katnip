@@ -5,7 +5,7 @@ import {VarState} from "./var.jsx";
 let EnvContext=createContext();
 
 class EnvState {
-	constructor({parent, actions, declarations, createVarStates, namespace}) {
+	constructor({parent, actions, declarations, varStates, createVarStates, namespace}) {
 		this.parent=parent;
 
 		this.namespace=namespace;
@@ -22,6 +22,11 @@ class EnvState {
 
 			for (let k in declarations)
 				this.addVar(k,new VarState({value: declarations[k]}))
+		}
+
+		if (varStates) {
+			for (let k in varStates)
+				this.addVar(k,varStates[k]);
 		}
 
 		this.actions=actions;
@@ -78,9 +83,9 @@ export function useEnv() {
 	return useContext(EnvContext);
 }
 
-function LiveEnv({actions, createVarStates, declarations, children, namespace, onChange}) {
+function LiveEnv({actions, varStates, createVarStates, declarations, children, namespace, onChange}) {
 	let parent=useEnv();
-	let env=useConstructor(()=>new EnvState({actions, declarations, parent, createVarStates, namespace}));
+	let env=useConstructor(()=>new EnvState({actions, varStates, declarations, parent, createVarStates, namespace}));
 	env.onChange=onChange;
 
 	return (
