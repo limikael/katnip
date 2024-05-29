@@ -83,7 +83,7 @@ export function useEnv() {
 	return useContext(EnvContext);
 }
 
-function LiveEnv({actions, varStates, createVarStates, declarations, children, namespace, onChange}) {
+export function Env({actions, varStates, createVarStates, declarations, children, namespace, onChange}) {
 	let parent=useEnv();
 	let env=useConstructor(()=>new EnvState({actions, varStates, declarations, parent, createVarStates, namespace}));
 	env.onChange=onChange;
@@ -95,24 +95,7 @@ function LiveEnv({actions, varStates, createVarStates, declarations, children, n
 	)
 }
 
-export function Env({renderMode, children, ...props}) {
-	switch (renderMode) {
-		case "editor":
-			return (<>
-				{children}
-			</>);
-			break;
-
-		default:
-			return (
-				<LiveEnv {...props}>
-					{children}
-				</LiveEnv>
-			);
-			break;
-	}
-}
-
+Env.editorPreview=({children})=><>{children}</>;
 Env.controls={
 	declarations: {type: "textarea"}
 }

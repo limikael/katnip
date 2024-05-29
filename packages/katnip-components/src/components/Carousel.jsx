@@ -50,7 +50,7 @@ function Carousel({pageIndex, children}) {
 	</>);
 }
 
-export function LiveForCarousel({indexVar, children, ...props}) {
+export function ForCarousel({indexVar, children, ...props}) {
 	let indexVarState=useVar(indexVar);
 
 	let renderCarousel=children=>
@@ -65,24 +65,7 @@ export function LiveForCarousel({indexVar, children, ...props}) {
 	);
 }
 
-export function ForCarousel({renderMode, children, ...props}) {
-	switch (renderMode) {
-		case "editor":
-			return (<>
-				{children}
-			</>);
-			break;
-
-		default:
-			return (
-				<LiveForCarousel {...props}>
-					{children}
-				</LiveForCarousel>
-			);
-			break;
-	}
-}
-
+ForCarousel.editorPreview=({children})=><>{children}</>;
 ForCarousel.controls={
 	in: {},
 	indexVar: {},

@@ -112,12 +112,12 @@ export function useExprs(exprs) {
 	return exprs;
 }
 
-export function Var({name, ...props}) {
+/*export function Var({name, ...props}) {
 	let env=useEnv();
 	useConstructor(()=>{
 		env.addVar(name, new VarState(props));
 	})
-}
+}*/
 
 /*export function Assign({var: varName, valueVar, transform}) {
 	let sourceVar=useVar(valueVar);

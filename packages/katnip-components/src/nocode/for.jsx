@@ -17,7 +17,7 @@ function createObjectVarStates(o, extra={}) {
 	return varStates;
 }
 
-function LiveFor({children, in: inVar, where, render, namespace, ...props}) {
+export function For({children, in: inVar, where, render, namespace, ...props}) {
 	let env=useEnv();
 	let collection=env.getVar(inVar);
 	let whereExpr={};
@@ -66,24 +66,7 @@ function LiveFor({children, in: inVar, where, render, namespace, ...props}) {
 	return (<>{renderedChildren}</>);
 }
 
-export function For({renderMode, children, ...props}) {
-	switch (renderMode) {
-		case "editor":
-			return (<>
-				{children}
-			</>);
-			break;
-
-		default:
-			return (
-				<LiveFor {...props}>
-					{children}
-				</LiveFor>
-			);
-			break;
-	}
-}
-
+For.editorPreview=({children})=><>{children}</>;
 For.controls={
 	in: {},
 	where: {type: "textarea"}

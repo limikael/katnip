@@ -1,17 +1,17 @@
 {
   "name": "katnip-components",
-  "version": "3.0.8",
+  "version": "3.0.9",
   "main": "index.js",
   "license": "MIT",
   "type": "module",
   "scripts": {},
   "dependencies": {
-    "isoq-router": "^1.0.13",
+    "isoq-router": "^1.0.14",
     "katnip": "^3.0.19",
-    "katnip-isoq": "^3.0.31",
+    "katnip-isoq": "^3.0.32",
     "minimatch": "^9.0.4",
     "path-browserify": "^1.0.1",
-    "qql": "^1.0.9",
+    "qql": "^1.0.10",
     "txml": "^5.1.1",
     "use-feather": "^1.0.3"
   },

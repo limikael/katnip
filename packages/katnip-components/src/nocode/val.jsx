@@ -1,7 +1,8 @@
 import {useVal, useVar, useExpr} from "./var.jsx";
 import {useEnv} from "./env.jsx";
+import {withEditorPreview} from "./editor-preview.jsx";
 
-function LiveVal({expr, Element, ...props}) {
+export function Val({expr, Element, ...props}) {
 	let val=useExpr(expr);
 	if (!Element)
 		Element="span";
@@ -9,24 +10,8 @@ function LiveVal({expr, Element, ...props}) {
 	return <Element {...props}>{val}</Element>;
 }
 
-export function Val({renderMode, expr, children, ...props}) {
-	switch (renderMode) {
-		case "editor":
-			return (<>
-				{expr}
-			</>);
-			break;
-
-		default:
-			return (
-				<LiveVal expr={expr} {...props}>
-					{children}
-				</LiveVal>
-			);
-			break;
-	}
-}
-
+Val.editorPreview=props=><span {...props}>{props.expr}</span>;
+Val.styling=true;
 Val.controls={
 	expr: {}
 }
@@ -39,4 +24,10 @@ export function ValInput({var: varName, ...props}) {
 				value={varState.get()}
 				onChange={ev=>varState.set(ev.target.value)}/>
 	);
+}
+
+ValInput.editorPreview=props=><input {...props} value={"$"+props.var}/>;
+ValInput.styling=true;
+ValInput.controls={
+	var: {}
 }

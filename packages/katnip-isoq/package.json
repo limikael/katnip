@@ -1,11 +1,11 @@
 {
   "name": "katnip-isoq",
-  "version": "3.0.31",
+  "version": "3.0.32",
   "license": "MIT",
   "type": "module",
   "scripts": {},
   "dependencies": {
-    "isoq": "^1.1.11",
+    "isoq": "^1.1.12",
     "katnip": "^3.0.19",
     "path-browserify": "^1.0.1"
   },

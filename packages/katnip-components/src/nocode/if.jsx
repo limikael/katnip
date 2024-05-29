@@ -48,3 +48,10 @@ export function If({var: varName, expr, test, children}) {
 
 	return (<></>);
 }
+
+If.editorPreview=props=><>{props.children}</>;
+If.controls={
+	test: {},
+	var: {},
+	expr: {},
+}
