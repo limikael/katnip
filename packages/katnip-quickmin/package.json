@@ -10,10 +10,13 @@
   "dependencies": {
     "@ltd/j-toml": "^1.38.0",
     "katnip": "^3.0.19",
+    "qql": "^1.0.9",
     "quickmin": "^0.0.48",
+    "quickmin-api": "^1.0.5",
     "yaml": "^2.3.4"
   },
   "exports": {
+    "./react": "./react-exports.jsx",
     "./isoq-wrapper": "./katnip-quickmin-isoq-wrapper.jsx",
     "./katnip-project-hooks": {
       "node": "./katnip-quickmin-project-node.js",

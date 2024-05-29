@@ -1,4 +1,4 @@
-import {useVal, useExpr} from "./var.jsx";
+import {useVal, useVar, useExpr} from "./var.jsx";
 import {useEnv} from "./env.jsx";
 
 function LiveVal({expr, Element, ...props}) {
@@ -29,4 +29,14 @@ export function Val({renderMode, expr, children, ...props}) {
 
 Val.controls={
 	expr: {}
+}
+
+export function ValInput({var: varName, ...props}) {
+	let varState=useVar(varName);
+
+	return (
+		<input {...props}
+				value={varState.get()}
+				onChange={ev=>varState.set(ev.target.value)}/>
+	);
 }
