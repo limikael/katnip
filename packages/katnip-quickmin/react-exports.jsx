@@ -1,2 +1,2 @@
 export {useQql} from "qql/react";
-export {useQuickminApi} from "quickmin-api/react";
+export {useQuickminApi, useQuickminUser, useQuickminLogout} from "quickmin-api/react";
