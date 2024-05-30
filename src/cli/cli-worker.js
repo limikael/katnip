@@ -7,6 +7,7 @@ import path from "path";
 import fs from "fs";
 import {fileURLToPath,pathToFileURL} from "url";
 import {resolveHookEntryPoints} from "../utils/npm-util.js";
+import JSON5 from "json5";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -64,12 +65,15 @@ class CliRunner {
 			return;
 //			process.exit();
 
-		let katnipJsonFn=path.join(process.cwd(),"katnip.json");
-		if (fs.existsSync(katnipJsonFn))
-			argv={
-				...JSON.parse(fs.readFileSync(katnipJsonFn,"utf8")),
-				...argv
-			};
+		let configFiles=["katnip.json","katnip.local.json"];
+		for (let configFile of configFiles) {
+			let katnipJsonFn=path.join(process.cwd(),configFile);
+			if (fs.existsSync(katnipJsonFn))
+				argv={
+					...JSON5.parse(fs.readFileSync(katnipJsonFn,"utf8")),
+					...argv
+				};
+		}
 
 		this.cliSpec.populateDefault(argv);
 		return argv;
