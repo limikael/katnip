@@ -1,6 +1,6 @@
 {
   "name": "katnip-static",
-  "version": "3.0.23",
+  "version": "3.0.24",
   "license": "MIT",
   "keywords": [
     "katnip-plugin"
@@ -13,7 +13,8 @@
   },
   "exports": {
     "./katnip-project-hooks": {
-      "node": "./katnip-static-project-node.js"
+      "node": "./katnip-static-project-node.js",
+      "browser": "./katnip-static-project-browser.js"
     },
     "./katnip-server-hooks": {
       "browser": "./katnip-static-server-browser.js",

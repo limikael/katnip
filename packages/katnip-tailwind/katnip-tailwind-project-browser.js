@@ -4,7 +4,7 @@ import path from "path-browserify";
 import {resolveHookEntryPoints} from "katnip";
 
 export async function build(buildEv) {
-	console.log("Building tailwind...");
+	console.log("Building tailwind, public="+buildEv.options.publicDir);
 
 	let input=`
 @tailwind base;
@@ -37,9 +37,6 @@ html, body, #isoq {
 
 	//console.log("tailwind input: "+input);
 
-	await mkdirRecursive(buildEv.fsPromises,path.join(buildEv.cwd,buildEv.options.publicDir));
-	let outputFn=path.join(buildEv.cwd,buildEv.options.publicDir,"index.css");
-
 	let conf=(await buildEv.import(path.join(buildEv.cwd,"tailwind.config.js"))).default;
 	let fileNames=await findMatchingFiles(buildEv.fsPromises,buildEv.cwd,conf.content);
 	let source="";
@@ -48,7 +45,15 @@ html, body, #isoq {
 	//console.log("tailwind source files:",fileNames);
 
 	let output=await jitBrowserTailwindcss(input,source,conf);
-	await buildEv.fsPromises.writeFile(outputFn,output);
+	if (buildEv.options.publicDir) {
+		await mkdirRecursive(buildEv.fsPromises,path.join(buildEv.cwd,buildEv.options.publicDir));
+		let outputFn=path.join(buildEv.cwd,buildEv.options.publicDir,"index.css");
+		await buildEv.fsPromises.writeFile(outputFn,output);
+	}
+
+	else {
+		buildEv.data.indexCss=output;
+	}
 
 	//console.log("Tailwind output: "+output);
 }
