@@ -50,6 +50,7 @@ export function If({var: varName, expr, test, children}) {
 }
 
 If.editorPreview=props=><>{props.children}</>;
+If.category="Logic";
 If.controls={
 	test: {},
 	var: {},

@@ -12,6 +12,7 @@ export function Val({expr, Element, ...props}) {
 
 Val.editorPreview=props=><span {...props}>{props.expr}</span>;
 Val.styling=true;
+Val.category="Interaction";
 Val.controls={
 	expr: {}
 }
@@ -27,6 +28,7 @@ export function ValInput({var: varName, ...props}) {
 }
 
 ValInput.editorPreview=props=><input {...props} value={"$"+props.var}/>;
+ValInput.category="Interaction";
 ValInput.styling=true;
 ValInput.controls={
 	var: {}

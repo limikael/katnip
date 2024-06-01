@@ -67,6 +67,7 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 }
 
 For.editorPreview=({children})=><>{children}</>;
+For.category="Logic";
 For.controls={
 	in: {},
 	where: {type: "textarea"}

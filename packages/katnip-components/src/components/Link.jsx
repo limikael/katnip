@@ -29,6 +29,7 @@ export default function Link({renderMode, children, ...props}) {
 }
 
 Link.styling=true;
+Link.category="Interaction";
 Link.controls={
 	href: {type: "text"}
 };

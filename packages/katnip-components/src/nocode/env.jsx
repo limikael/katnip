@@ -96,6 +96,7 @@ export function Env({actions, varStates, createVarStates, declarations, children
 }
 
 Env.editorPreview=({children})=><>{children}</>;
+Env.category="Logic";
 Env.controls={
 	declarations: {type: "textarea"}
 }

@@ -66,6 +66,7 @@ export function ForCarousel({indexVar, children, ...props}) {
 }
 
 ForCarousel.editorPreview=({children})=><>{children}</>;
+ForCarousel.category="Animation";
 ForCarousel.controls={
 	in: {},
 	indexVar: {},

@@ -26,6 +26,7 @@ export default function RibbonPage({header, footer, children, outer, inner}) {
 
 RibbonPage.wrap=false;
 RibbonPage.tags=["pageType"];
+RibbonPage.category="Layout";
 RibbonPage.controls={
 	header: {type: "block"},
 	footer: {type: "block"},
