@@ -51,6 +51,10 @@ export function If({var: varName, expr, test, children}) {
 
 If.editorPreview=props=><>{props.children}</>;
 If.category="Logic";
+If.icon = {
+	type: "material",
+	symbol: "keyboard_option_key"
+}
 If.controls={
 	test: {},
 	var: {},

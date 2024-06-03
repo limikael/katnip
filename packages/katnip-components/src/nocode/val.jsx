@@ -16,6 +16,11 @@ Val.category="Interaction";
 Val.controls={
 	expr: {}
 }
+Val.displayName = "TextValue"
+Val.icon = {
+	type: "material",
+	symbol: "match_word"
+} 
 
 export function ValInput({var: varName, ...props}) {
 	let varState=useVar(varName);
@@ -32,4 +37,9 @@ ValInput.category="Interaction";
 ValInput.styling=true;
 ValInput.controls={
 	var: {}
+}
+ValInput.displayName = "Input"
+ValInput.icon = {
+	type: "material",
+	symbol: "text_select_move_forward_character"
 }

@@ -27,6 +27,11 @@ export default function RibbonPage({header, footer, children, outer, inner}) {
 RibbonPage.wrap=false;
 RibbonPage.tags=["pageType"];
 RibbonPage.category="Layout";
+RibbonPage.displayName = "PageFrame";
+RibbonPage.icon = {
+	type: "material",
+	symbol: "toolbar"
+}
 RibbonPage.controls={
 	header: {type: "block"},
 	footer: {type: "block"},

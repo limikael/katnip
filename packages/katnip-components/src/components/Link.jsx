@@ -30,6 +30,10 @@ export default function Link({renderMode, children, ...props}) {
 
 Link.styling=true;
 Link.category="Interaction";
+Link.icon = {
+	type: "material",
+	symbol: "add_link"
+}
 Link.controls={
 	href: {type: "text"}
 };

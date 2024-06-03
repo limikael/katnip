@@ -97,6 +97,10 @@ export function Env({actions, varStates, createVarStates, declarations, children
 
 Env.editorPreview=({children})=><>{children}</>;
 Env.category="Logic";
+Env.icon = {
+	type: "material",
+	symbol: "inbox_customize"
+}
 Env.controls={
 	declarations: {type: "textarea"}
 }

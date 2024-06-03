@@ -72,3 +72,9 @@ ForCarousel.controls={
 	indexVar: {},
 	where: {type: "textarea"}
 }
+
+ForCarousel.displayName = "Carousel"
+ForCarousel.icon = {
+	type: "material",
+	symbol: "view_carousel"
+}
