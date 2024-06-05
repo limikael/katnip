@@ -14,7 +14,7 @@ export default function RibbonPage({header, footer, children, outer, inner}) {
 			<div>
 				<Header/>
 			</div>
-			<div {...inner} style="flex: 1 1 0%;">
+			<div {...inner} style="flex: 1 1 0;">
 				{children}
 			</div>
 			<div>
