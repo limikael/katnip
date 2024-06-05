@@ -3,8 +3,10 @@ import {parse as parseYaml} from "yaml";
 import {fileURLToPath} from 'url';
 import path from "path";
 import {findNodeBin, runCommand} from "katnip";
-import QuickminServer from "quickmin/server";
+import {QuickminServer, quickminCanonicalizeConf} from "quickmin/server";
 import * as TOML from "@ltd/j-toml";
+import {quickminSqliteDriver} from "quickmin/sqlite-driver";
+import {nodeStorageDriver} from "quickmin/node-storage";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -76,24 +78,28 @@ export async function cfdeploy(ev) {
 }
 
 export async function dev(ev) {
-	let quickminBin=await findNodeBin(__dirname,"quickmin");
-	let quickminArgs=["migrate"];
-	if (ev.options.risky)
-		quickminArgs.push("--risky");
+	console.log("Migrating local db.");
 
-	await runCommand(quickminBin,quickminArgs,{
-		passthrough: true,
-		//env: getWranglerEnvForEvent(ev)
+	let server=new QuickminServer(ev.data.quickminConf,[
+		quickminSqliteDriver,
+		nodeStorageDriver
+	]);
+	await server.sync({
+		risky: ev.options.risky
 	});
 }
 
 build.priority=15;
 export async function build(ev) {
-	let conf=parseYaml(fs.readFileSync("quickmin.yaml","utf8"));
+	let confText=fs.readFileSync("quickmin.yaml","utf8");
+	let conf=quickminCanonicalizeConf(confText);
+	await ev.hookRunner.emit("quickminConf",conf,ev);
+	if (!conf.cookie)
+		conf.cookie="qmtoken";
+
 	ev.data.quickminConf=conf;
 
-	conf={...conf};
-	let server=new QuickminServer(conf);
+	let server=new QuickminServer({...ev.data.quickminConf});
 	console.log("Quickmin storage used: "+server.isStorageUsed());
 
 	if (ev.platform=="workerd") {

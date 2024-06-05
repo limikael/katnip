@@ -1,6 +1,6 @@
 import {parse as parseYaml} from "yaml";
 import path from "path-browserify";
-import QuickminServer from "quickmin/server";
+import {QuickminServer, quickminCanonicalizeConf} from "quickmin/server";
 import quickminQqlDriver from "quickmin/qql-driver";
 import * as TOML from "@ltd/j-toml";
 import {qqlDriverSqlJs} from "qql";
@@ -12,16 +12,14 @@ export async function build(ev) {
 	if (!ev.sql)
 		throw new Error("no db availble!!!");
 
+	let conf=quickminCanonicalizeConf();
 	let confFn=path.join(ev.cwd,"quickmin.yaml");
-	if (!await exists(confFn,{fs:ev.fs}))
-		throw new Error("No quickmin.yaml file found! If you don't want to use a database, disable the katnip-quickmin plugin");
+	if (await exists(confFn,{fs:ev.fs})) {
+		let confText=await ev.fs.promises.readFile(confFn,"utf8");
+		conf=quickminCanonicalizeConf(confText);
+	}
 
-	let conf=parseYaml(await ev.fs.promises.readFile(confFn,"utf8"));
-	if (!conf)
-		conf={};
-
-	if (!conf.collections)
-		conf.collections={};
+	await ev.hookRunner.emit("quickminConf",conf,ev);
 
 	if (!conf.adminUser && !conf.adminPass) {
 		conf.adminUser="admin";

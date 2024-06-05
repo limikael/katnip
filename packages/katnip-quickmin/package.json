@@ -17,6 +17,7 @@
   },
   "exports": {
     "./react": "./react-exports.jsx",
+    "./server": "./server-exports.js",
     "./isoq-wrapper": "./katnip-quickmin-isoq-wrapper.jsx",
     "./katnip-project-hooks": {
       "node": "./katnip-quickmin-project-node.js",
