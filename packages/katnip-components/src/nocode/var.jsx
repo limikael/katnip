@@ -4,12 +4,16 @@ import {jsonClone, arrayUnique} from "../utils/js-util.js";
 import {useState, useCallback, useLayoutEffect} from "react";
 
 export class VarState extends EventTarget {
-	constructor({value, type, fields, qql}={}) {
+	constructor({value, type, fields, qql, sessionStorageKey}={}) {
 		super();
 		this.value=value;
 		this.type=type;
 		this.fields=fields;
 		this.qql=qql;
+		this.sessionStorageKey=sessionStorageKey;
+
+		if (this.sessionStorageKey && globalThis.sessionStorage)
+			this.value=JSON.parse(globalThis.sessionStorage.getItem(this.sessionStorageKey));
 	}
 
 	set(value) {
@@ -17,6 +21,9 @@ export class VarState extends EventTarget {
 			return;
 
 		this.value=value;
+		if (this.sessionStorageKey && globalThis.sessionStorage)
+			globalThis.sessionStorage.setItem(this.sessionStorageKey,JSON.stringify(this.value));
+
 		this.dispatchEvent(new Event("change"));
 	}
 

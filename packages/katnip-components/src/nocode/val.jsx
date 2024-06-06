@@ -22,6 +22,29 @@ Val.icon = {
 	symbol: "match_word"
 } 
 
+export function ValRichText({expr, ...props}) {
+	let val=useExpr(expr);
+
+	return (
+		<div
+	  		dangerouslySetInnerHTML={{__html: val}}
+	  		{...props}
+	    />
+	);
+}
+
+ValRichText.editorPreview=props=><span {...props}>{props.expr}</span>;
+ValRichText.styling=true;
+ValRichText.category="Interaction";
+ValRichText.controls={
+	expr: {}
+}
+ValRichText.displayName = "RichTextValue"
+ValRichText.icon = {
+	type: "material",
+	symbol: "match_word"
+} 
+
 export function ValInput({var: varName, ...props}) {
 	let varState=useVar(varName);
 
