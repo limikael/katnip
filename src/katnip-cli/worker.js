@@ -36,6 +36,19 @@ for (let k in workerData.importModules) {
 await hookRunner.emit(new HookEvent("start",fetchEvent));
 
 async function handleFetch(req) {
+	if (req.headers.get("x-forwarded-proto")) {
+		let forwarded=req.headers.get("x-forwarded-proto");
+		let u=new URL(req.url);
+
+		u.protocol=forwarded+":";
+
+		//console.log("forwarded: "+forwarded);
+		//console.log("proto: "+u.protocol);
+		//console.log(u.toString());
+
+		req=new Request(u.toString(),req);
+	}
+
 	let ev={
 		req: req, 
 		localFetch: handleFetch,

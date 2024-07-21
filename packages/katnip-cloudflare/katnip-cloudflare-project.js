@@ -9,10 +9,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export async function initcli(spec) {
 	spec.addCommand("cfdev","Start wrangler development server.");
 	spec.addCommand("cfdeploy","Deploy to Cloudflare Workers.");
-	spec.addGlobalOption("publicDir",{
+	/*spec.addGlobalOption("publicDir",{
 		description: "Directory to serve as plain static assets.",
 		default: "public"
-	});
+	});*/
 }
 
 export async function init(ev) {

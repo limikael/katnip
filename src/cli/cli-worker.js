@@ -22,13 +22,15 @@ class CliRunner {
 			fs
 		});
 
-		entrypoints.push(...await resolveHookEntryPoints({
-			cwd: process.cwd(),
-			importPath: "katnip-project-hooks",
-			keyword: "katnip-plugin",
-			conditions: ["node"],
-			fs
-		}));
+		if (fs.existsSync(path.join(process.cwd(),"package.json"))) {
+			entrypoints.push(...await resolveHookEntryPoints({
+				cwd: process.cwd(),
+				importPath: "katnip-project-hooks",
+				keyword: "katnip-plugin",
+				conditions: ["node"],
+				fs
+			}));
+		}
 
 		for (let fn of entrypoints) {
 			let importUrl=pathToFileURL(fn);
@@ -95,25 +97,3 @@ export async function runCli(inArgv) {
 		return result;
 	}
 }
-
-/*try {
-	let cliRunner=new CliRunner();
-	await cliRunner.load();
-	let argv=cliRunner.parseCommandLine(workerData.argv);
-	if (argv) {
-		let mainEv=cliRunner.createEvent(argv);
-		let result=await cliRunner.hookRunner.emit(mainEv);
-		if (Object(result)!==result) {
-			parentPort.postMessage(result);
-		}
-	}
-}
-
-catch (e) {
-	parentPort.postMessage({
-		type: "error",
-		message: e.message,
-		declared: e.declared
-	});
-	process.exit(1);
-}*/

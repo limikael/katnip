@@ -12,6 +12,9 @@ export async function fetch(req, ev) {
 	let indexCssPath=urlJoin(appPathname,"index.css");
 	let u=new URL(req.url);
 
+	/*console.log("ipath: "+indexCssPath);
+	console.log(ev.data.indexCss);*/
+
 	if (u.pathname==indexCssPath && ev.data.indexCss)
 		return new Response(ev.data.indexCss,{
 			headers: {

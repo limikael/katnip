@@ -43,10 +43,6 @@ export function init(ev) {
 }
 
 export function initcli(spec) {
-	/*spec.addGlobalOption("publicDir",{
-		description: "Directory to serve as plain static assets.",
-		default: "public"
-	});*/
 }
 
 export async function build(ev) {
@@ -82,5 +78,5 @@ export async function build(ev) {
 	],{passthrough: true});
 
 	if (!ev.options.publicDir)
-		ev.data.indexCss=await ev.fs.promises.readFile(output);
+		ev.data.indexCss=await ev.fs.promises.readFile(output,"utf8");
 }
