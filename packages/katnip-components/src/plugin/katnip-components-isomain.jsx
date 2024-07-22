@@ -2,7 +2,7 @@ import {Env} from "../nocode/env.jsx";
 import {Var, VarState} from "../nocode/var.jsx";
 import {useIsoContext} from "isoq";
 
-export default function({schema, children}) {
+export function Wrapper({schema, children}) {
 	let iso=useIsoContext();
 
 	function createVarStates() {

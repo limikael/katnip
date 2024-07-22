@@ -37,63 +37,65 @@ export async function init(ev) {
 	}
 }
 
-function createEntryPointSource(main, wrappers) {
-	//console.log(wrappers);
-
+function createEntryPointSource(mods) {
 	let source="";
-	for (let [index,wrapper] of wrappers.entries())
-		source+=`import Wrapper${index} from "${wrapper}";\n`;
 
-	source+=`import Main from "${main}";\n\n`
-	source+=`export default function(props) {\n`;
-	source+=`  return (\n`;
-	for (let i=0; i<wrappers.length; i++)
-		source+=`    <Wrapper${i} {...props}>\n`;
+	let isoqModules=[];
+	for (let i=0; i<mods.length; i++) {
+		source+=`import * as isoqModule${i} from "${mods[i]}";\n`
+		isoqModules.push(`isoqModule${i}`);
+	}
 
-	source+=`    <Main {...props}/>\n`;
-	for (let i=wrappers.length-1; i>=0; i--)
-		source+=`    </Wrapper${i}>\n`;
+	source+=`let isoqModules=[${isoqModules}];\n`;
 
-	source+=`  );\n`;
-	source+=`}\n`;
+	source+=`
+		let mains=[];
+		for (let mod of isoqModules) {
+			if (mod.default)
+				mains.push(mod.default);
+		}
+
+		let wrappers=[];
+		for (let mod of isoqModules) {
+			if (mod.Wrapper) {
+				if (!mod.Wrapper.priority)
+					mod.Wrapper.priority=10;
+
+				wrappers.push(mod.Wrapper);
+			}
+		}
+
+		// Reverse order, since lower should be outer
+		wrappers.sort((a,b)=>b.priority-a.priority);
+
+		export default function(props) {
+			let main=[];
+			for (let Main of mains)
+				main.push(<Main {...props}/>);
+
+			for (let Wrapper of wrappers)
+				main=<Wrapper {...props}>{main}</Wrapper>;
+
+			return <>{main}</>
+		}
+	`;
 
 	return source;
 }
 
 build.priority=15;
 export async function build(buildContext) {
-	let isoqEntryPoint=buildContext.options.isoqEntryPoint;
-
-	if (!isoqEntryPoint) {
-		//console.error("awefawefewfawef");
-
-		let modulePaths=await resolveHookEntryPoints(buildContext.cwd,"isomain",{
-			fs: buildContext.fs,
-			keyword: "katnip-plugin"
-		});
-
-		if (modulePaths.length!=1) {
-			throw new Error("Expected one browser entry point, found "+modulePaths.length);
-		}
-
-		isoqEntryPoint=modulePaths[0];
-	}
-
-	//console.log("ep: "+isoqEntryPoint);
-
-	let wrappers=await resolveHookEntryPoints(buildContext.cwd,"isoq-wrapper",{
+	let modulePaths=await resolveHookEntryPoints(buildContext.cwd,"isomain",{
 		fs: buildContext.fs,
 		keyword: "katnip-plugin"
 	});
 
-	wrappers=[...wrappers,...await resolveHookEntryPoints(buildContext.cwd,"app-isoq-wrapper",{
-		fs: buildContext.fs,
-		keyword: "katnip-plugin"
-	})];
+	await buildContext.hookRunner.emit("isoqModules",modulePaths,buildContext);
 
-	//console.log("Isoq wrappers:",wrappers);
+	//console.log("modulePaths: ",modulePaths);
+	let source=createEntryPointSource(modulePaths);
+	//console.log(source);
 
-	let source=createEntryPointSource(isoqEntryPoint,wrappers);
 	await mkdirRecursive(path.join(buildContext.cwd,"node_modules/.katnip"),{
 		fs: buildContext.fs
 	});

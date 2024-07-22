@@ -1,6 +1,6 @@
 {
   "name": "katnip-twentytwentyfour",
-  "version": "3.0.32",
+  "version": "3.0.33",
   "license": "MIT",
   "scripts": {},
   "type": "module",
@@ -9,14 +9,14 @@
     "katnip-template"
   ],
   "dependencies": {
-    "katnip": "^3.0.20",
-    "katnip-cloudflare": "^3.0.24",
-    "katnip-isoq": "^3.0.34",
-    "katnip-quickmin": "^3.0.40",
-    "katnip-rpc": "^3.0.22",
-    "katnip-static": "^3.0.25",
-    "katnip-tailwind": "^3.0.28",
-    "katnip-watch": "^3.0.17",
-    "katnip-components": "^3.0.14"
+    "katnip": "^3.0.23",
+    "katnip-cloudflare": "^3.0.26",
+    "katnip-isoq": "^3.0.39",
+    "katnip-quickmin": "^3.0.43",
+    "katnip-rpc": "^3.0.25",
+    "katnip-static": "^3.0.27",
+    "katnip-tailwind": "^3.0.31",
+    "katnip-watch": "^3.0.19",
+    "katnip-components": "^3.0.15"
   }
 }

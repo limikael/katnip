@@ -1,6 +1,6 @@
 {
   "name": "katnip-quickmin",
-  "version": "3.0.42",
+  "version": "3.0.43",
   "type": "module",
   "scripts": {},
   "license": "MIT",
@@ -18,7 +18,7 @@
   "exports": {
     "./react": "./react-exports.jsx",
     "./server": "./server-exports.js",
-    "./isoq-wrapper": "./katnip-quickmin-isoq-wrapper.jsx",
+    "./isomain": "./katnip-quickmin-isomain.jsx",
     "./katnip-project-hooks": {
       "node": "./katnip-quickmin-project-node.js",
       "browser": "./katnip-quickmin-project-browser.js"

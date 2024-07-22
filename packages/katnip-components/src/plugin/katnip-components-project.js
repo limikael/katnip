@@ -58,11 +58,15 @@ export async function isoqEsbuildPlugins(plugins, ev) {
     }));
 }
 
+export async function isoqModules(modules, ev) {
+    modules.push(path.join(ev.cwd,"node_modules/.katnip/main-components.jsx"));
+}
+
 export async function build(ev) {
     await mkdirRecursive(path.join(ev.cwd,"node_modules/.katnip"),{fs:ev.fs});
 
     await makeAllComponentsJsx(ev);
     await createEntryPointSource(ev);
 
-    ev.options.isoqEntryPoint=path.join(ev.cwd,"node_modules/.katnip/main-components.jsx");
+    //ev.options.isoqEntryPoint=path.join(ev.cwd,"node_modules/.katnip/main-components.jsx");
 }

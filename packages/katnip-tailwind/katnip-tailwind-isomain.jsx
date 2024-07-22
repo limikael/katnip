@@ -1,6 +1,7 @@
 import {Head, useIsoContext} from "isoq";
 
-export default function({children}) {
+Wrapper.priority=20;
+export function Wrapper({children}) {
 	let iso=useIsoContext();
 
 	return (<>

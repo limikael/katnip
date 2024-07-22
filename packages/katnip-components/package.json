@@ -1,14 +1,14 @@
 {
   "name": "katnip-components",
-  "version": "3.0.14",
+  "version": "3.0.15",
   "main": "index.js",
   "license": "MIT",
   "type": "module",
   "scripts": {},
   "dependencies": {
     "isoq-router": "^1.0.15",
-    "katnip": "^3.0.20",
-    "katnip-isoq": "^3.0.34",
+    "katnip": "^3.0.23",
+    "katnip-isoq": "^3.0.39",
     "minimatch": "^9.0.4",
     "path-browserify": "^1.0.1",
     "qql": "^1.0.10",
@@ -23,6 +23,6 @@
     "./katnip-project-hooks": "./src/plugin/katnip-components-project.js",
     "./katnip-server-hooks": "./src/plugin/katnip-components-server.js",
     "./katnip-components": "./src/components/index.jsx",
-    "./app-isoq-wrapper": "./src/plugin/katnip-components-isoq-wrapper.jsx"
+    "./isomain": "./src/plugin/katnip-components-isomain.jsx"
   }
 }

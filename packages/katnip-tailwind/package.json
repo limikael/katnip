@@ -1,6 +1,6 @@
 {
   "name": "katnip-tailwind",
-  "version": "3.0.30",
+  "version": "3.0.31",
   "license": "MIT",
   "scripts": {},
   "keywords": [
@@ -8,7 +8,7 @@
   ],
   "type": "module",
   "exports": {
-    "./isoq-wrapper": "./katnip-tailwind-isoq-wrapper.jsx",
+    "./isomain": "./katnip-tailwind-isomain.jsx",
     "./katnip-project-hooks": {
       "node": "./katnip-tailwind-project-node.js",
       "browser": "./katnip-tailwind-project-browser.js"
