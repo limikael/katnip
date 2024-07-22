@@ -11,6 +11,27 @@ import {projectNeedInstall} from "../utils/npm-util.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
+export async function lstemplates(ev) {
+	console.log("Available Templates:");
+
+	let url=new URL("https://registry.npmjs.com/-/v1/search?size=20");
+	url.searchParams.set("text","keywords:katnip-template");
+	let response=await fetch(url);
+    if (response.status<200 || response.status>=300)
+        throw new DeclaredError("Error listing template2: "+await pkgResponse.text());
+
+	let result=await response.json();
+	for (let pkg of result.objects) {
+		let desc="(no description)";
+		if (pkg.package.description)
+			desc=pkg.package.description;
+
+		console.log(("  "+pkg.package.name).padEnd(28)+desc);
+	}
+
+	console.log();
+}
+
 export async function create(ev) {
 	if (!ev.options.name)
 		throw new DeclaredError("Need project name.");
@@ -163,6 +184,10 @@ export async function initcli(spec) {
 		default: true
 	});
 
+	spec.addCommand("lstemplates","List available templates.",{
+		projectMode: false
+	});
+
 	spec.addCommand("create","Create a new project.",{
 		projectMode: false
 	});
@@ -171,7 +196,7 @@ export async function initcli(spec) {
 		positional: true,
 	});
 	spec.addCommandOption("create","template",{
-		description: "Template to set as dependency."
+		description: "Template to set as dependency, use lstemplates to list available templates."
 	});
 	spec.addCommandOption("create","install",{
 		description: "Package manager to use, one of npm, yarn or none.",

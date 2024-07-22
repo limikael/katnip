@@ -61,7 +61,7 @@ class CliOption {
 				s+="=...";
 		}
 
-		s=s.padEnd(20)+this.description;
+		s=s.padEnd(22)+this.description;
 		if (this.default)
 			s+=" Default: "+this.default;
 
@@ -119,7 +119,7 @@ export default class CliSpec {
 		for (let command of this.commands) {
 			if (this.projectMode==command.projectMode &&
 					command.cli)
-				console.log(("  katnip "+command.name).padEnd(20)+command.description);
+				console.log(("  katnip "+command.name).padEnd(22)+command.description);
 		}
 
 		if (this.globalOptions.length) {
