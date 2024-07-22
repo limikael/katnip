@@ -22,7 +22,9 @@ class CliRunner {
 			fs
 		});
 
+		let projectMode=false;
 		if (fs.existsSync(path.join(process.cwd(),"package.json"))) {
+			projectMode=true;
 			entrypoints.push(...await resolveHookEntryPoints({
 				cwd: process.cwd(),
 				importPath: "katnip-project-hooks",
@@ -38,7 +40,7 @@ class CliRunner {
 			this.hookRunner.addListenerModule(await import(importUrl));
 		}
 
-		this.cliSpec=new CliSpec();
+		this.cliSpec=new CliSpec({projectMode});
 		this.cliSpec.addGlobalOption("help","Get help for specified command.",{type: "boolean"});
 		this.cliSpec.addGlobalOption("version","Print version.",{type: "boolean"});
 
@@ -65,7 +67,6 @@ class CliRunner {
 		argv=this.cliSpec.parseArgv(argv);
 		if (!argv)
 			return;
-//			process.exit();
 
 		let configFiles=["katnip.json","katnip.local.json"];
 		for (let configFile of configFiles) {

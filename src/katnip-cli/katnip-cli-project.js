@@ -8,8 +8,7 @@ import {Worker} from "worker_threads";
 import {fileURLToPath} from 'url';
 import {runCommand, workerPortRequest} from "../utils/node-util.js";
 import {projectNeedInstall} from "../utils/npm-util.js";
-import semver from "semver";
-import {parentPort} from "worker_threads";
+
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 export async function create(ev) {
@@ -20,64 +19,10 @@ export async function create(ev) {
 		throw new DeclaredError("Already exists: "+ev.options.name);
 
 	fs.mkdirSync(ev.options.name);
-	let projectPath=path.resolve(ev.options.name);
-
-	if (parentPort)
-		await workerPortRequest(parentPort,{
-			type: "chdir",
-			chdir: ev.options.name
-		});
-
-	else
-		process.chdir(ev.options.name);
+	process.chdir(ev.options.name);
+	let projectPath=process.cwd();
 
 	try {
-		await ev.hookRunner.emit(new HookEvent("init",{options: {
-			createPackage: true,
-			install: ev.options.install,
-			template: ev.options.template
-		}}));
-	}
-
-	catch (e) {
-		if (fs.existsSync(projectPath)) {
-			if (fs.readdirSync(projectPath).length==0)
-				fs.rmdirSync(projectPath);
-		}
-
-		throw e;
-	}
-}
-
-let GIT_IGNORE=
-`node_modules
-.target
-.wrangler
-public/*.css
-public/*.js
-upload
-*.db
-`;
-
-init.priority=5;
-export async function init(ev) {
-	let requiredVersion=">=20.0.0";
-	if (!semver.satisfies(process.version,requiredVersion))
-		throw new DeclaredError(
-			"Your Node.js version is too old, you are using "+process.version+
-			" you need "+requiredVersion+".");
-
-	if (!ev.options.createPackage &&
-			!fs.existsSync("package.json"))
-		throw new DeclaredError(
-			"This is not a katnip project, package.json doesn't exist. "+
-			" You can create a new project with 'katnip create'."
-		);
-
-	if (fs.existsSync("package.json") && ev.options.template)
-		throw new DeclaredError("Can not set template, package.json already exists.");
-
-	if (!fs.existsSync("package.json")) {
 	    let templateDep=ev.options.template;
 	    if (!templateDep)
 	    	templateDep="katnip-twentytwentyfour";
@@ -111,14 +56,68 @@ export async function init(ev) {
 
 	    packageJson.dependencies[templateDep]="^"+pkgResult.version;
 	    fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
-	}
 
-	if (!fs.existsSync(".gitignore")) {
 		console.log("Creating .gitignore");
 	    fs.writeFileSync(".gitignore",GIT_IGNORE);
+
+	    switch (ev.options.install) {
+		    case "yarn":
+		    	console.log("Installing with yarn...");
+		    	await runCommand("yarn",["install"],{stdio: "inherit"});
+		    	break;
+
+		    case "npm":
+		    	console.log("Installing with npm...");
+		    	await runCommand("npm",["install"],{stdio: "inherit"});
+		    	break;
+
+		    case "none":
+		    	console.log("Skipping installation.");
+		    	break;
+
+		    default:
+		    	throw new DeclaredError("Unknown install option: "+ev.options.install);
+		    	break;
+	    }
+
+	    if (ev.options.install!="none") {
+	    	console.log("Project created and installed! Start with:");
+	    	console.log();
+	    	console.log("  cd "+projectName);
+	    	console.log("  "+ev.options.install+" start");
+	    	console.log();
+	    }
 	}
 
-	if (ev.options.install) {
+	catch (e) {
+		if (fs.existsSync(projectPath)) {
+			if (fs.readdirSync(projectPath).length==0)
+				fs.rmdirSync(projectPath);
+		}
+
+		throw e;
+	}
+}
+
+let GIT_IGNORE=
+`node_modules
+.target
+.wrangler
+public/*.css
+public/*.js
+upload
+*.db
+`;
+
+init.priority=5;
+export async function init(ev) {
+	if (!fs.existsSync("package.json"))
+		throw new DeclaredError(
+			"This is not a katnip project, package.json doesn't exist. "+
+			" You can create a new project with 'katnip create'."
+		);
+
+	if (ev.options.checkInstall) {
 		if (await projectNeedInstall(process.cwd(),{fs})) {
 			throw new DeclaredError("Project install is not up-to-date.");
 		}
@@ -127,10 +126,20 @@ export async function init(ev) {
 			console.log("Project is up-to-date.");
 		}
 	}
+
+	ev.cwd=process.cwd();
+	ev.fs=fs;
 }
 
+initcli.priority=5;
 export async function initcli(spec) {
-	spec.addCommand("dev","Start development server.");
+	spec.addCommand("build","Build project.",{
+		cli: false
+	});
+
+	spec.addCommand("dev","Start development server.",{
+		inheritOptions: "build"
+	});
 
 	spec.addCommandOption("dev","port",{
 		description: "Port to listen to.",
@@ -141,28 +150,22 @@ export async function initcli(spec) {
 		type: "boolean",
 		default: true
 	});
-	spec.addCommandOption("dev","install",{
-		description: "Check installation.",
+	spec.addCommandOption("dev","checkInstall",{
+		description: "Check installation dependencies.",
 		type: "boolean",
 		default: true
 	});
 
 	spec.addCommand("init","Initialize plugins.");
-	spec.addCommandOption("init","createPackage",{
-		description: "Create package.json if it doesn't exist.",
-		type: "boolean",
-		default: true
-	});
-	spec.addCommandOption("init","template",{
-		description: "Template to set as dependency."
-	});
-	spec.addCommandOption("init","install",{
-		description: "Install dependencies on initialization.",
+	spec.addCommandOption("init","checkInstall",{
+		description: "Install installation dependencies.",
 		type: "boolean",
 		default: true
 	});
 
-	spec.addCommand("create","Create a new project.");
+	spec.addCommand("create","Create a new project.",{
+		projectMode: false
+	});
 	spec.addCommandOption("create","name",{
 		description: "Name of project to create. Required.",
 		positional: true,
@@ -171,14 +174,12 @@ export async function initcli(spec) {
 		description: "Template to set as dependency."
 	});
 	spec.addCommandOption("create","install",{
-		description: "Install dependencies.",
-		type: "boolean",
-		default: true
+		description: "Package manager to use, one of npm, yarn or none.",
+		default: "npm"
 	});
 }
 
 export async function registerHooks(hookRunner) {
-	//hookRunner.on("init",postinit);
 	hookRunner.on("dev",predev);
 	hookRunner.on("dev",postdev);
 }
@@ -191,13 +192,7 @@ async function predev(ev) {
 			createPackage: false,
 		}});
 
-		let result=await ev.hookRunner.emit(initEvent);
-		if (result=="restart") {
-			console.log("Restarting after init event...");
-			return "restart";
-		}
-		/*if (initEvent.didInstall) {
-		}*/
+		await ev.hookRunner.emit(initEvent);
 	}
 
 	if (!fs.existsSync("package.json"))
@@ -231,9 +226,12 @@ async function postdev(ev) {
 
 	let startedPromise=new ResolvablePromise();
 	let stoppedPromise=new ResolvablePromise();
+	let currentPromise;
+
 	let worker=new Worker(path.join(__dirname,"worker.js"),{
 		workerData: workerData
 	});
+
 	worker.on("message",(message)=>{
 		switch (message) {
 			case "started":
@@ -251,11 +249,17 @@ async function postdev(ev) {
 		}
 	});
 
+	worker.on("error",(e)=>{
+		worker.terminate();
+		currentPromise.reject(e);
+	});
+
+	currentPromise=startedPromise;
 	await startedPromise;
-	//console.log("Worker started...");
 
 	return new Job(async ()=>{
-		//console.log("Stopping worker...");
+		console.log("Stopping worker...");
+		currentPromise=startedPromise;
 		worker.postMessage("stop");
 		await stoppedPromise;
 	});

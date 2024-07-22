@@ -5,45 +5,42 @@ import fs from "fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const INDEX_CSS=
-`@tailwind base;
-@tailwind components;
-@tailwind utilities;
-`;
-
 const TAILWIND_CONFIG_JS=
 `module.exports = {
   content: ["./src/**/*.jsx"],
   theme: {
     extend: {
-    }
-  }
+    },
+    colors: {
+      black: "#000000",
+      white: "#ffffff",
+    },
+  },
 }
 `;
 
 init.priority=15;
 export function init(ev) {
-    /*let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
-    if (!packageJson.exports?.browser)
-        throw new DeclaredError("No browser entry point in package.json");
-
-    let mainParts=path.parse(packageJson.exports.browser);
-    let input=path.join(mainParts.dir,mainParts.name+".css");
-
-    if (!fs.existsSync(input)) {
-        console.log("Creating "+input);
-        fs.writeFileSync(input,INDEX_CSS);
-    }
-
     let tailwindConfigFile="tailwind.config.js";
     if (!fs.existsSync(tailwindConfigFile)) {
         console.log("Creating "+tailwindConfigFile);
         fs.writeFileSync(tailwindConfigFile,TAILWIND_CONFIG_JS);
-    }*/
+    }
 }
 
 export function initcli(spec) {
+    spec.addCommandOption("build","css","Input css file for tailwind (optional).");
+    spec.addCommandOption("build","cssDirectives","Include default tailwind css directives.",{
+        type: "boolean",
+        default: true
+    });
 }
+
+let TAILWIND_CSS_DIRECTIVES=`
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+`;
 
 export async function build(ev) {
     console.log("Building tailwind...");
@@ -51,32 +48,26 @@ export async function build(ev) {
     if (!tailwind)
         throw new Error("Can't find tailwind binary");
 
-    let input=path.join(__dirname,"default-index.css");
+    let inputCss="";
+    if (ev.options.cssDirectives!==false)
+        inputCss+=TAILWIND_CSS_DIRECTIVES;
 
-    let modulePaths=await resolveHookEntryPoints(ev.cwd,"isomain",{
-        fs: ev.fs,
-        keyword: "katnip-plugin"
-    });
+    if (ev.options.css)
+        inputCss+=fs.readFileSync(ev.options.css,"utf8");
 
-    if (modulePaths.length==1) {
-        let mainParts=path.parse(modulePaths[0]);
-        input=path.join(mainParts.dir,mainParts.name+".css");
-    }
+    let inputFn=path.join(ev.cwd,".target/input.css");
+    fs.writeFileSync(inputFn,inputCss);
 
-    else if (modulePaths.length) {
-        throw new Error("Expected 0 or 1 browser entry point, found "+modulePaths.length);
-    }
-
-    let output=path.join(ev.cwd,".target/index.css");
+    let outputFn=path.join(ev.cwd,".target/index.css");
     if (ev.options.publicDir)
-        output=path.join(ev.options.publicDir,"index.css");
+        outputFn=path.join(ev.options.publicDir,"index.css");
 
     await runCommand(tailwind,[
         "--minify",
-        "-i",input,
-        "-o",output
+        "-i",inputFn,
+        "-o",outputFn
     ],{passthrough: true});
 
     if (!ev.options.publicDir)
-        ev.data.indexCss=await ev.fs.promises.readFile(output,"utf8");
+        ev.data.indexCss=await ev.fs.promises.readFile(outputFn,"utf8");
 }

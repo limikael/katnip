@@ -50,6 +50,7 @@ export async function dev(devEvent) {
 			console.log(e);
 		}
 
+		console.log("Watching for code changes...");
 		await changePromise;
 		console.log();
 		console.log("Change detected...");

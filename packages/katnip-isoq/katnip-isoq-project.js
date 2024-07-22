@@ -1,5 +1,5 @@
 import Bundler from "isoq/bundler";
-import {resolveHookEntryPoints, mkdirRecursive} from "katnip";
+import {resolveHookEntryPoints, mkdirRecursive, HookEvent} from "katnip";
 import path from "path-browserify";
 import {BuildEvent} from "katnip";
 
@@ -12,21 +12,29 @@ const INDEX_JSX=
 }
 `;
 
-export function init(ev) {
-	/*let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
-	if (!packageJson.exports)
-		packageJson.exports={};
+export async function init(ev) {
+	let scaffoldEv=ev.clone();
+	scaffoldEv.type="scaffold";
+	scaffoldEv.isomain=true;
 
-	if (!packageJson.exports.browser) {
-		packageJson.exports.browser="src/main/index.jsx";
-		fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
+	await ev.hookRunner.emit(scaffoldEv);
+
+	if (scaffoldEv.isomain) {
+		let packageJson=JSON.parse(ev.fs.readFileSync("package.json","utf8"));
+		if (!packageJson.exports)
+			packageJson.exports={};
+
+		if (!packageJson.exports["./isomain"]) {
+			packageJson.exports["./isomain"]="./src/main/index.jsx";
+			ev.fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
+		}
+
+		if (!ev.fs.existsSync(packageJson.exports["./isomain"])) {
+			console.log("Creating "+packageJson.exports["./isomain"]);
+			ev.fs.mkdirSync(path.dirname(packageJson.exports["./isomain"]),{recursive: true});
+			ev.fs.writeFileSync(packageJson.exports["./isomain"],INDEX_JSX);
+		}
 	}
-
-	if (!fs.existsSync(packageJson.exports.browser)) {
-		console.log("Creating "+packageJson.exports.browser);
-		fs.mkdirSync(path.dirname(packageJson.exports.browser),{recursive: true});
-		fs.writeFileSync(packageJson.exports.browser,INDEX_JSX);
-	}*/
 }
 
 function createEntryPointSource(main, wrappers) {

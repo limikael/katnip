@@ -67,7 +67,7 @@ let startedPromise=new ResolvablePromise();
 let listener=createNodeRequestListener(handleFetch);
 let server=http.createServer(listener);
 server.listen(workerData.options.port,(err)=>{
-	console.log("Listening to port: "+workerData.options.port);
+	console.log("**** Listening to port: "+workerData.options.port);
 	startedPromise.resolve();
 });
 
@@ -84,4 +84,7 @@ parentPort.on("message",async (message)=>{
 });
 
 await startedPromise;
+
+// Flush stdout.
+await new Promise(r=>process.stdout.write("",r));
 parentPort.postMessage("started");

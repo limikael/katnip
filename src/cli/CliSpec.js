@@ -7,14 +7,23 @@ import fs from "fs";
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 class CliCommad {
-	constructor({name, description, preCommand}) {
+	constructor({name, description, preCommand, projectMode, cli, inheritOptions}) {
+		if (projectMode===undefined)
+			projectMode=true;
+
+		if (cli===undefined)
+			cli=true;
+
+		this.inheritOptions=inheritOptions;
+		this.cli=cli;
 		this.name=name;
 		this.description=description;
 		this.options=[];
-		this.preCommand=preCommand;
+		//this.preCommand=preCommand;
+		this.projectMode=projectMode;
 	}
 
-	getPreCommand(options) {
+	/*getPreCommand(options) {
 		if (!this.preCommand)
 			return;
 
@@ -22,7 +31,7 @@ class CliCommad {
 			return this.preCommand(options);
 
 		return this.preCommand;
-	}
+	}*/
 
 	getPositionalOptions() {
 		let positionalOptions=[];
@@ -66,9 +75,10 @@ class CliOption {
 }
 
 export default class CliSpec {
-	constructor() {
+	constructor({projectMode}) {
 		this.commands=[];
 		this.globalOptions=[];
+		this.projectMode=projectMode;
 	}
 
 	addCommand(...args) {
@@ -99,9 +109,17 @@ export default class CliSpec {
 		console.log("Usage:");
 		console.log("  katnip <command> [options]");
 		console.log();
+		if (!this.projectMode) {
+			console.log("Note:")
+			console.log("  Not in project mode, functionality is limited.");
+			console.log();
+		}
+
 		console.log("Commands:")
 		for (let command of this.commands) {
-			console.log(("  katnip "+command.name).padEnd(20)+command.description);
+			if (this.projectMode==command.projectMode &&
+					command.cli)
+				console.log(("  katnip "+command.name).padEnd(20)+command.description);
 		}
 
 		if (this.globalOptions.length) {
@@ -130,13 +148,21 @@ export default class CliSpec {
 				if (option.positional)
 					console.log(option.getHelpLine());
 		}
-		if (command.options.length) {
+		if (command.options.length || command.inheritOptions) {
 			console.log();
 			console.log("Options:")
 			for (let option of command.options)
 				if (!option.positional)
 					console.log(option.getHelpLine());
+
+			if (command.inheritOptions) {
+				let inheritedCommand=this.getCommandByName(command.inheritOptions);
+				for (let option of inheritedCommand.options)
+					if (!option.positional)
+						console.log(option.getHelpLine());
+			}
 		}
+
 		console.log();
 	}
 
@@ -146,6 +172,11 @@ export default class CliSpec {
 			let packageJson=JSON.parse(fs.readFileSync(packageJsonPath,"utf8"));
 			console.log("Katnip version: "+packageJson.version);
 			return;
+		}
+
+		if (argv._[0]=="help") {
+			argv.help=true;
+			argv._.shift();
 		}
 
 		if (argv._.length<1 || 

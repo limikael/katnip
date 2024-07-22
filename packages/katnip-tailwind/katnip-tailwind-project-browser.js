@@ -17,7 +17,7 @@ html, body, #isoq {
 }
 `;
 
-	let modulePaths=await resolveHookEntryPoints(buildEv.cwd,"isomain",{
+	/*let modulePaths=await resolveHookEntryPoints(buildEv.cwd,"isomain",{
 		fs: buildEv.fs,
 		keyword: "katnip-plugin"
 	});
@@ -33,7 +33,7 @@ html, body, #isoq {
 		let mainParts=path.parse(modulePaths[0]);
 		let inputFn=path.join(mainParts.dir,mainParts.name+".css");
 		input=await buildEv.fsPromises.readFile(inputFn,"utf8");
-	}
+	}*/
 
 	//console.log("tailwind input: "+input);
 
