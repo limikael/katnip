@@ -5,6 +5,7 @@ import {useIsoContext} from "isoq";
 import urlJoin from "url-join";
 import {useRef} from "react";	
 
+Wrapper.priority=5;
 export function Wrapper({quickminUser, quickminCookieName, children}) {
     let iso=useIsoContext();
     let qqlRef=useRef();

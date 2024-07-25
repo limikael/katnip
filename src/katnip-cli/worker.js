@@ -74,10 +74,13 @@ server.listen(workerData.options.port,(err)=>{
 parentPort.on("message",async (message)=>{
 	switch (message) {
 		case "stop":
+			console.log("Received stop, stopping server...")
+			server.closeAllConnections();
 			let stopPromise=new ResolvablePromise();
 			server.close(stopPromise.resolve);
 			await stopPromise;
 			console.log("Worker done...");
+			await new Promise(r=>process.stdout.write("",r));
 			parentPort.postMessage("stopped");
 			break;
 	}
