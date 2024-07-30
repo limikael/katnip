@@ -4,12 +4,17 @@ import {nodeStorageDriver} from "quickmin/node-storage";
 import {localNodeBundle} from "quickmin/local-node-bundle";
 
 export async function start(ev) {
-	//console.log("starting qm server, drizzle ",drizzleSqliteDriver);
-	let quickminServer=new QuickminServer(ev.data.quickminConf,[
+	let drivers=[
 		quickminSqliteDriver,
 		nodeStorageDriver,
-		//localNodeBundle
-	]);
+	];
+
+	if (ev.options.qmLocalBundle) {
+		console.log("Loading quickmin bundle locally...");
+		drivers.push(localNodeBundle);
+	}
+
+	let quickminServer=new QuickminServer(ev.data.quickminConf,drivers);
 
 	ev.data.quickminServer=quickminServer;
 	ev.data.quickminApi=quickminServer.api;

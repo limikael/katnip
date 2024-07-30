@@ -18,6 +18,7 @@ export async function init(ev) {
 	scaffoldEv.isomain=true;
 
 	await ev.hookRunner.emit(scaffoldEv);
+	//console.log("ran scaffold",scaffoldEv);
 
 	if (scaffoldEv.isomain) {
 		let packageJson=JSON.parse(ev.fs.readFileSync("package.json","utf8"));
@@ -42,7 +43,8 @@ function createEntryPointSource(mods) {
 
 	let isoqModules=[];
 	for (let i=0; i<mods.length; i++) {
-		source+=`import * as isoqModule${i} from "${mods[i]}";\n`
+		source+=`import * as isoqModule${i} from "${mods[i]}";\n`;
+		source+=`export * from "${mods[i]}";\n`;
 		isoqModules.push(`isoqModule${i}`);
 	}
 

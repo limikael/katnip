@@ -70,3 +70,7 @@ export async function build(ev) {
 
     //ev.options.isoqEntryPoint=path.join(ev.cwd,"node_modules/.katnip/main-components.jsx");
 }
+
+export async function scaffold(ev) {
+    ev.isomain=false;
+}

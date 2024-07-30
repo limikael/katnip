@@ -1,0 +1,22 @@
+{
+  "name": "hello-quickmin",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "katnip dev",
+    "dev": "katnip dev",
+    "postinstall": "katnip init"
+  },
+  "type": "module",
+  "version": "1.0.0",
+  "dependencies": {
+    "katnip-isoq": "^3.0.42",
+    "katnip-quickmin": "^3.0.46",
+    "katnip-rpc": "^3.0.28",
+    "katnip-watch": "^3.0.22"
+  },
+  "exports": {
+    "./isomain": "./src/main/index.jsx",
+    "./katnip-rpc-api": "./src/main/Api.js"
+  }
+}

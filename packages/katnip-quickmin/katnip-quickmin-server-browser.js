@@ -5,6 +5,16 @@ import urlJoin from "url-join";
 export async function start(ev) {
 	console.log("starting quickmin server: "+ev.appPathname);
 	let theConf={...ev.data.quickminConf};
+
+	for (let collectionId in theConf.collections) {
+		let collection=theConf.collections[collectionId];
+		if (collection.actions) {
+			for (let action of collection.actions) {
+				action.url=urlJoin(ev.appPathname,action.url);
+			}
+		}
+	}
+
 	theConf.apiPath=urlJoin(ev.appPathname,ev.data.quickminConf.apiPath);
 
 	let quickminServer=new QuickminServer(theConf,[

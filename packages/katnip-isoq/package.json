@@ -1,12 +1,12 @@
 {
   "name": "katnip-isoq",
   "description": "Isomorphic rendering with single entry point.",
-  "version": "3.0.42",
+  "version": "3.0.43",
   "license": "MIT",
   "type": "module",
   "scripts": {},
   "dependencies": {
-    "isoq": "^1.1.13",
+    "isoq": "^1.1.14",
     "katnip": "^3.0.26",
     "path-browserify": "^1.0.1"
   },
