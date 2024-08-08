@@ -200,6 +200,12 @@ export default class CliSpec {
 				...this.getCommandByName(argv._[0]).options
 			];
 
+		let cmd=this.getCommandByName(argv._[0]);
+		if (cmd.inheritOptions) {
+			cmd=this.getCommandByName(cmd.inheritOptions)
+			options=[...options,...cmd.options];
+		}
+
 		let optionsByName=Object.fromEntries(options.map(o=>[o.name,o]));
 		for (let k in argv)
 			if (k!="_" && !optionsByName[k]) {

@@ -6,6 +6,13 @@ import {findMatchingFiles} from "../utils/fs-util.js";
 
 const __dirname=importUrlGetDirname(import.meta.url);
 
+export async function initcli(spec) {
+    spec.addCommandOption("build","exposeCjsxComponents",{
+        description: "Expose CJSX components.",
+        type: "boolean",
+    });
+}
+
 async function makeAllComponentsJsx(ev) {
     let components=[];
 
@@ -42,7 +49,10 @@ async function makeAllComponentsJsx(ev) {
 
 async function createEntryPointSource(ev) {
     let allComponentsFn=path.join(ev.cwd,"node_modules/.katnip/components.jsx");
-    let importSource=`import * as CJSX_COMPONENTS from "${allComponentsFn}"`;
+    let importSource=`import * as CJSX_COMPONENTS from "${allComponentsFn}";\n`;
+
+    if (ev.options.exposeCjsxComponents)
+        importSource+=`export * as CJSX_COMPONENTS from "${allComponentsFn}";\n`;
 
     let source=await ev.fs.promises.readFile(path.join(__dirname,"entrypoint-stub.jsx"),"utf8");
     source=source.replace("$$CJSX_IMPORTS$$",importSource);
@@ -63,6 +73,9 @@ export async function isoqModules(modules, ev) {
 }
 
 export async function build(ev) {
+    if (ev.options.exposeCjsxComponents)
+        ev.options.isoqExposeExports=true;
+
     await mkdirRecursive(path.join(ev.cwd,"node_modules/.katnip"),{fs:ev.fs});
 
     await makeAllComponentsJsx(ev);

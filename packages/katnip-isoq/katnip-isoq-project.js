@@ -12,6 +12,13 @@ const INDEX_JSX=
 }
 `;
 
+export async function initcli(spec) {
+	spec.addCommandOption("build","isoqExposeExports",{
+		description: "Expose isoq exports.",
+		type: "boolean",
+	});
+}
+
 export async function init(ev) {
 	let scaffoldEv=ev.clone();
 	scaffoldEv.type="scaffold";
@@ -125,7 +132,7 @@ export async function build(buildContext) {
 		esbuild: buildContext.esbuild,
 		tmpdir: path.join(buildContext.cwd,".tmp"),
 		isoqdir: path.join(buildContext.cwd,"node_modules/isoq"),
-
+		exposeExports: buildContext.options.isoqExposeExports
 		//quiet: true
 	};
 

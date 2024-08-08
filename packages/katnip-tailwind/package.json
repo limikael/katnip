@@ -1,6 +1,6 @@
 {
   "name": "katnip-tailwind",
-  "version": "3.0.35",
+  "version": "3.0.36",
   "license": "MIT",
   "scripts": {},
   "keywords": [
@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@mhsdesign/jit-browser-tailwindcss": "^0.4.0",
-    "isoq": "^1.1.14",
-    "katnip": "^3.0.26",
+    "isoq": "^1.1.15",
+    "katnip": "^3.0.27",
     "minimatch": "^6.1.2",
     "path-browserify": "^1.0.1",
     "tailwindcss": "^3.4.1",
