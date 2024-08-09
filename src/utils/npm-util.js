@@ -61,8 +61,15 @@ export async function resolveModuleEntryPoint(...args) {
 			return pkg.browser;
 		}
 
-		if (pkg.main)
-			return pkg.main;
+		if (pkg.main) {
+			if (await exists(path.join(cwd,pkg.main),{fs}))
+				return pkg.main;
+
+			if (await exists(path.join(cwd,pkg.main+".js"),{fs}))
+				return pkg.main+".js";
+
+			return;
+		}
 
 		if (!importPath &&
 				await exists(path.join(cwd,"index.js"),{fs}))

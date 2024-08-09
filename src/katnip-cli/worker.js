@@ -7,6 +7,7 @@ import {ResolvablePromise} from "../utils/js-util.js";
 import {resolveHookEntryPoints} from "../utils/npm-util.js";
 import {createNodeRequestListener} from "serve-fetch";
 import fs from "fs";
+import urlJoin from "url-join";
 
 let hookRunner=new HookRunner();
 let entryPoints=await resolveHookEntryPoints({
@@ -25,6 +26,12 @@ fetchEvent.importModules={};
 fetchEvent.options=workerData.options;
 fetchEvent.data=workerData.data;
 fetchEvent.hookRunner=hookRunner;
+
+let appPathname="/";
+if (fetchEvent.options.appPathname)
+	appPathname=urlJoin(appPathname,fetchEvent.options.appPathname);
+
+fetchEvent.appPathname=appPathname;
 
 for (let k in workerData.importModules) {
 	if (!path.isAbsolute(workerData.importModules[k]))

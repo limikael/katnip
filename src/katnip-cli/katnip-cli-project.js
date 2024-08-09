@@ -176,6 +176,9 @@ export async function initcli(spec) {
 		type: "boolean",
 		default: true
 	});
+	spec.addCommandOption("dev","appPathname",{
+		description: "Application root pathname.",
+	});
 
 	spec.addCommand("init","Initialize plugins.");
 	spec.addCommandOption("init","checkInstall",{
