@@ -45,15 +45,17 @@ html, body, #isoq {
 	//console.log("tailwind source files:",fileNames);
 
 	let output=await jitBrowserTailwindcss(input,source,conf);
+
+	console.log("tw build, publicDir="+buildEv.options.publicDir);
+
 	if (buildEv.options.publicDir) {
 		await mkdirRecursive(buildEv.fsPromises,path.join(buildEv.cwd,buildEv.options.publicDir));
 		let outputFn=path.join(buildEv.cwd,buildEv.options.publicDir,"index.css");
 		await buildEv.fsPromises.writeFile(outputFn,output);
 	}
 
-	else {
+    if (!buildEv.options.publicDir || buildEv.options.exposeIndexCss)
 		buildEv.data.indexCss=output;
-	}
 
 	//console.log("Tailwind output: "+output);
 }

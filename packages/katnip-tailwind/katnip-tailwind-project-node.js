@@ -68,6 +68,6 @@ export async function build(ev) {
         "-o",outputFn
     ],{passthrough: true});
 
-    if (!ev.options.publicDir)
+    if (!ev.options.publicDir || ev.options.exposeIndexCss)
         ev.data.indexCss=await ev.fs.promises.readFile(outputFn,"utf8");
 }
