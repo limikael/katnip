@@ -22,6 +22,9 @@ export async function start(ev) {
 
 	ev.data.quickminServer=quickminServer;
 	ev.data.quickminApi=quickminServer.api;
+	ev.data.qql=async (query)=>{
+		return await ev.data.quickminServer.qql.query(query);
+	}
 }
 
 export async function clientProps(props, ev) {

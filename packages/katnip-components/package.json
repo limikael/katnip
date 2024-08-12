@@ -1,6 +1,6 @@
 {
   "name": "katnip-components",
-  "version": "3.0.21",
+  "version": "3.0.22",
   "main": "index.js",
   "license": "MIT",
   "type": "module",

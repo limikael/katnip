@@ -15,7 +15,7 @@ export async function start(ev) {
 		drivers.push(localNodeBundle);
 	}
 
-	//console.log("starting quickmin server, appPathname="+ev.appPathname);
+	console.log("starting quickmin server, appPathname="+ev.appPathname);
 
 	let theConf={...ev.data.quickminConf};
 	if (ev.appPathname)
@@ -25,6 +25,9 @@ export async function start(ev) {
 
 	ev.data.quickminServer=quickminServer;
 	ev.data.quickminApi=quickminServer.api;
+	ev.data.qql=async (query)=>{
+		return await ev.data.quickminServer.qql.query(query);
+	}
 }
 
 export async function clientProps(props, ev) {
