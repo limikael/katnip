@@ -105,8 +105,10 @@ export async function resolveModuleDir(cwd, packageName, {fs}) {
 }
 
 export async function findKeywordDependencies(...args) {
-	let {cwd,keyword,dependenciesKey,fs,found,pkg}=
+	let {cwd,keyword,dependenciesKey,fs,found,pkg,devDependencies}=
 		objectifyArgs(args,["cwd","keyword"]);
+
+	//console.log("finding: "+cwd);
 
 	if (!keyword)
 		throw new Error("Keyword missing for findKeywordDependencies");
@@ -123,6 +125,10 @@ export async function findKeywordDependencies(...args) {
 	if (dependenciesKey && pkg[dependenciesKey])
 		dependencies=pkg[dependenciesKey];
 
+	if ((devDependencies || devDependencies===undefined) &&
+			pkg.devDependencies)
+		dependencies={...dependencies,...pkg.devDependencies};
+
 	let res=[];
 	for (let dependency in dependencies) {
 		let dependencyDir=await resolveModuleDir(cwd,dependency,{fs});
@@ -137,7 +143,8 @@ export async function findKeywordDependencies(...args) {
 					fs,
 					dependenciesKey,
 					found: [...found,...res],
-					pkg: dependencyPkg
+					pkg: dependencyPkg,
+					devDependencies: false
 				}));
 			}
 		}
