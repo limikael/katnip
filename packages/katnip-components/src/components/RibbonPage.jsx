@@ -6,7 +6,7 @@ export default function RibbonPage({header, footer, children, outer, inner}) {
 	let Header=components[header];
 	let Footer=components[footer];
 
-	console.log("************ HOT RELOAD RIBBON PAGE 4");
+	//console.log("************ HOT RELOAD RIBBON PAGE 4");
 
 	// flex flex-col min-h-[100%]
 	// flex-1
