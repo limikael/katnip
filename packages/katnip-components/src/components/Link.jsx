@@ -1,7 +1,7 @@
 import * as isoqRouter from "isoq-router";
 import {useExpr} from "../nocode/var.jsx";
 
-function LiveLink({children, href, ...props}) {
+export default function Link({children, href, ...props}) {
 	let hrefVal=useExpr(href);
 
 	return (
@@ -11,23 +11,11 @@ function LiveLink({children, href, ...props}) {
 	);
 }
 
-export default function Link({renderMode, children, ...props}) {
-	//console.log("renderMode="+renderMode);
-
-	if (!renderMode)
-		return (
-			<LiveLink {...props}>
-				{children}
-			</LiveLink>
-		);
-
-	props.onClick=null;
-	props.onclick=null;
-	props.href=null;
-
+Link.editorPreview=({children, onClick, onclick, href, ...props})=>{
 	return <a {...props}>{children}</a>
 }
 
+Link.containerType="children";
 Link.styling=true;
 Link.category="Interaction";
 Link.icon = {

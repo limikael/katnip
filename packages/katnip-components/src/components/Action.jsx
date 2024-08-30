@@ -19,24 +19,20 @@ function LiveAction({children, action, var: varName, ...props}) {
 	return <button onClick={handleClick} {...props}>{children}</button>
 }
 
-export function Action({renderMode, children, class: className, ...props}) {
-	switch (renderMode) {
-		case "editor":
-			return (<button class={className} {...props}>
-				{children}
-			</button>);
-			break;
-
-		default:
-			return (
-				<LiveAction class={className} {...props}>
-					{children}
-				</LiveAction>
-			);
-			break;
-	}
+export function Action({children, class: className, ...props}) {
+	return (
+		<LiveAction class={className} {...props}>
+			{children}
+		</LiveAction>
+	);
+	break;
 }
 
+Action.editorPreview=({children, class: className, ...props})=>{
+	return (<button class={className} {...props}>
+		{children}
+	</button>);
+};
 Action.styling=true;
 Action.controls={
 	action: {},

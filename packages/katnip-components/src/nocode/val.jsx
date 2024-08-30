@@ -1,6 +1,5 @@
 import {useVal, useVar, useExpr} from "./var.jsx";
 import {useEnv} from "./env.jsx";
-import {withEditorPreview} from "./editor-preview.jsx";
 
 export function Val({expr, Element, ...props}) {
 	let val=useExpr(expr);

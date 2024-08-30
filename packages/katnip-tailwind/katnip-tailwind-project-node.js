@@ -55,6 +55,7 @@ export async function build(ev) {
     if (ev.options.css)
         inputCss+=fs.readFileSync(ev.options.css,"utf8");
 
+    fs.mkdirSync(path.join(ev.cwd,".target"),{recursive: true});
     let inputFn=path.join(ev.cwd,".target/input.css");
     fs.writeFileSync(inputFn,inputCss);
 
