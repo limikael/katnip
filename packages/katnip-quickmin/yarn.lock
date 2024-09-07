@@ -568,6 +568,11 @@ jsbn@1.1.0:
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-1.1.0.tgz#b01307cb29b618a1ed26ec79e911f803c4da0040"
   integrity sha512-4bYVV3aAMtDTTu4+xsDYa6sy9GyJ69/amsu9sYF2zqjiEoZA5xJi3BrfX3uY+/IekIu7MwdObdbDWpoZdBv3/A==
 
+json5@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
+  integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
+
 jsrsasign@^11.1.0:
   version "11.1.0"
   resolved "https://registry.yarnpkg.com/jsrsasign/-/jsrsasign-11.1.0.tgz#195e788102731102fbf3e36b33fde28936f4bf57"
@@ -578,16 +583,18 @@ jwt-decode@^4.0.0:
   resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-4.0.0.tgz#2270352425fd413785b2faf11f6e755c5151bd4b"
   integrity sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==
 
-katnip@^3.0.19:
-  version "3.0.19"
-  resolved "https://registry.yarnpkg.com/katnip/-/katnip-3.0.19.tgz#734f1b5a393f14a93bb6ca4418d6e9214b80097f"
-  integrity sha512-JBTqd5u2cM6+zt1xF5S9U8KN6SdxA5L9HwVIAptq2XdHvsrYtiJHQpOP/023lHkzBd7xNHs9xn2c/gNBLeAq2Q==
+katnip@^3.0.30:
+  version "3.0.30"
+  resolved "https://registry.yarnpkg.com/katnip/-/katnip-3.0.30.tgz#7e02434213b0b381819dce1f0ea77f0f95af5381"
+  integrity sha512-qwZ4hpJRqFjE0aTaEWTZ2TwbdGO7OhO2Z+vuuksUIQ6GK+LEu8ypx8ZfoIHvx4ifdcXtUGzaBqLQPMrQk92hUQ==
   dependencies:
     find-node-modules "^2.1.3"
+    json5 "^2.2.3"
     minimist "^1.2.8"
     path-browserify "^1.0.1"
     semver "^7.6.0"
     serve-fetch "^1.0.3"
+    url-join "^5.0.0"
 
 lru-cache@^6.0.0:
   version "6.0.0"
@@ -862,25 +869,25 @@ pump@^3.0.0:
     end-of-stream "^1.1.0"
     once "^1.3.1"
 
-qql@^1.0.9:
-  version "1.0.9"
-  resolved "https://registry.yarnpkg.com/qql/-/qql-1.0.9.tgz#b0a2ca838651f8f8604d6deaa550ec36594b39dc"
-  integrity sha512-laUOkxFHoYAvalh1xacIr71tTQdQP6eQZSFAgywgnNFDoH5YeLIgyMPJcijWS5Xfcg7mFQE60EHjgINlRpUlQg==
+qql@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/qql/-/qql-1.0.10.tgz#08390c7c25124f1922d1ebae25b1905e0f8d5c1e"
+  integrity sha512-woZ9NZx1ttF7abqGLi1eEgU4e8s+S/MqqhK5iRjFjEHUxnrqWgTZnZqAGVu6S5oiOOL8g1VsSMDkopW+6O7rww==
   dependencies:
     sqlstring "^2.3.3"
     sqlstring-sqlite "^0.1.1"
 
-quickmin-api@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/quickmin-api/-/quickmin-api-1.0.5.tgz#a0ae51af23b614613d729bc0bbcc3cba713b4fc0"
-  integrity sha512-HH8IRkZmEFkMJXEK9r1qiRHkuiSbJDCyZmXJ22q9UGj1O6BfKvu5J0um/6741Z9J6g4z7XsJxKRYvfp+guCqtg==
+quickmin-api@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/quickmin-api/-/quickmin-api-1.0.6.tgz#58ff7af20c16b11715b526cc3d92240cb71be621"
+  integrity sha512-5FQA/wxrPIv5FENF+CEl40RlawCkEcf5rdpC9CLNRYaTufApoi2fByfqN2IcSzC5BUrJAVNUomB7p8Walc0SMA==
   dependencies:
     url-join "^5.0.0"
 
-quickmin@^0.0.48:
-  version "0.0.48"
-  resolved "https://registry.yarnpkg.com/quickmin/-/quickmin-0.0.48.tgz#40ae359c4d7a787559002e69764726670727c17a"
-  integrity sha512-/l6OeqEJ+GvLJP/Y9lGGWrywoXOTvcpAXnTZgJCFzLcvh3j+OVWwdiC1K4xVNn7O8/MYeCDqJYMkR+XonVxWkQ==
+quickmin@^0.0.56:
+  version "0.0.56"
+  resolved "https://registry.yarnpkg.com/quickmin/-/quickmin-0.0.56.tgz#4419dd7e44f16fe78bab0800275c86af79a4d331"
+  integrity sha512-R4L22jgH5OoNXWMr/QxFRAl1W0dTl03wcvcxoucqe2KddPkXApD+Kyvep3/U/Mq8eFDb/mM5YdsBk4bU9GNfBw==
   dependencies:
     "@hono/node-server" "^1.11.1"
     dayjs "^1.11.11"
@@ -889,8 +896,8 @@ quickmin@^0.0.48:
     jsrsasign "^11.1.0"
     jwt-decode "^4.0.0"
     minimatch "^9.0.4"
-    qql "^1.0.9"
-    quickmin-api "^1.0.5"
+    qql "^1.0.10"
+    quickmin-api "^1.0.6"
     sqlite3 "^5.1.7"
     txml "^5.1.1"
     url-join "^5.0.0"
