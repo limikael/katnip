@@ -2,6 +2,7 @@ import {parse as parseYaml} from "yaml";
 import path from "path-browserify";
 import {QuickminServer, quickminCanonicalizeConf} from "quickmin/server";
 import quickminQqlDriver from "quickmin/qql-driver";
+import fsStorage from "quickmin/fs-storage";
 import * as TOML from "@ltd/j-toml";
 import {qqlDriverSqlJs} from "qql";
 import {exists} from "katnip";
@@ -41,10 +42,17 @@ export async function build(ev) {
 	switch (ev.platform) {
 		case "browser":
 			conf.qqlDriver=qqlDriverSqlJs(ev.sql);
+			conf.fs=ev.fs;
+			conf.upload=path.join(ev.cwd,"upload");
 
 			ev.data.quickminConf=conf;
 
-			let server=new QuickminServer({...conf},[quickminQqlDriver]);
+			//console.log("starting with fs storage!!!!");
+
+			let server=new QuickminServer({...conf},[
+				quickminQqlDriver,
+				fsStorage
+			]);
 			await server.sync({});
 			break;
 
