@@ -29,7 +29,7 @@ export async function start(ev) {
 		drivers.push(localFsBundle);
 	}*/
 
-	theConf.bundleUrl="http://localhost:3000/admin/_dist/quickmin-bundle.js";
+	//theConf.bundleUrl="http://localhost:3000/admin/_dist/quickmin-bundle.js";
 
 	let quickminServer=new QuickminServer(theConf,drivers);
 
