@@ -1,4 +1,4 @@
-import {objectifyArgs, includesAll, arrayFindDuplicate, arrayUnique} from "./js-util.js";
+import {objectifyArgs, includesAll, arrayFindDuplicate, arrayUnique, splitPath} from "./js-util.js";
 import path from "path-browserify";
 import {exists} from "./fs-util.js";
 import semver from "semver";
@@ -161,8 +161,11 @@ export async function findKeywordDependencies(...args) {
 }
 
 export async function resolveHookEntryPoints(...args) {
-	let {cwd,importPath,conditions,keyword,dependenciesKey,fs}=
+	let {cwd,importPath,conditions,keyword,dependenciesKey,fs,dontResolve}=
 		objectifyArgs(args,["cwd","importPath","conditions"]);
+
+	if (!dontResolve)
+		dontResolve=[];
 
 	if (!keyword)
 		throw new Error("Keyword missing for resolveHookEntryPoints");
@@ -182,10 +185,29 @@ export async function resolveHookEntryPoints(...args) {
 		pkg
 	});
 
+	//console.log(keywordDeps);
+
 	for (let keywordDep of keywordDeps) {
 		let ep=await resolveModuleEntryPoint(keywordDep,importPath,conditions,{fs});
-		if (ep)
-			entryPoints.push(path.join(keywordDep,ep));
+		if (ep) {
+			let shouldResolve=true;
+			let keywordDepParts=splitPath(keywordDep);
+			let packageName=keywordDepParts[keywordDepParts.length-1];
+			for (let d of dontResolve) {
+				let dontResolveParts=splitPath(d);
+				if (dontResolveParts[0]==packageName &&
+						dontResolveParts[1]==importPath)
+					shouldResolve=false;
+			}
+
+			if (shouldResolve) {
+				entryPoints.push(path.join(keywordDep,ep));
+			}
+
+			else {
+				entryPoints.push(path.join(packageName,importPath));
+			}
+		}
 	}
 
 	return entryPoints;

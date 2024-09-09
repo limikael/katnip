@@ -37,8 +37,14 @@ describe("npm-utils",()=>{
 		let eps=await resolveHookEntryPoints(absPackageDir,{
 			fs: fs,
 			keyword: "katnip-plugin",
-			importPath: "myentry"
+			importPath: "myentry",
+/*			dontResolve: [
+				"katnip-isoq/myentry",
+//				"katnip-isoq/myentry2"
+			]*/
 		});
+
+		console.log(eps);
 
 		//console.log(eps);
 		expect(eps.length).toEqual(2);

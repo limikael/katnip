@@ -132,7 +132,8 @@ export async function build(buildContext) {
 		esbuild: buildContext.esbuild,
 		tmpdir: path.join(buildContext.cwd,".tmp"),
 		isoqdir: path.join(buildContext.cwd,"node_modules/isoq"),
-		exposeExports: buildContext.options.isoqExposeExports
+		exposeExports: buildContext.options.isoqExposeExports,
+		pathAliases: buildContext.options.isoqPathAliases
 		//quiet: true
 	};
 
