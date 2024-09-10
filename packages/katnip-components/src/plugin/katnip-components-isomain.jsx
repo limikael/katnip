@@ -1,5 +1,6 @@
-import {Env} from "../nocode/env.jsx";
-import {Var, VarState} from "../nocode/var.jsx";
+/*import {Env} from "../nocode/env.jsx";
+import {Var, VarState} from "../nocode/var.jsx";*/
+import {Env, VarState} from "katnip-components";
 import {useIsoContext} from "isoq";
 
 export function Wrapper({schema, children}) {

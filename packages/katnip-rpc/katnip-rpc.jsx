@@ -1,1 +1,1 @@
-export {useRpc} from "fullstack-rpc/react";
+export {useRpc, RpcProvider} from "fullstack-rpc/react";

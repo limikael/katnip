@@ -1,6 +1,9 @@
-import {QuickminApiProvider, QuickminUserProvider} from "quickmin/use-api";
-import {QqlProvider, useQql} from "qql/react";
-import {createQqlClient} from "qql";
+//import {QuickminApiProvider, QuickminUserProvider} from "quickmin/use-api";
+//import {QqlProvider, useQql} from "qql/react";
+//import {createQqlClient} from "qql";
+
+import {createQqlClient, QqlProvider, useQql, 
+		QuickminApiProvider, QuickminUserProvider} from "katnip-quickmin/react";
 import {useIsoContext} from "isoq";
 import urlJoin from "url-join";
 import {useRef} from "react";	
@@ -18,6 +21,7 @@ export function Wrapper({quickminUser, quickminCookieName, children}) {
 	    iso.qql=qqlRef.current;
     }
 
+    //console.log("quickmin client wrapper!!!");
     //console.log("qql provider, ssr="+iso.isSsr()+" appPathname="+iso.appPathname);
 
 	return (

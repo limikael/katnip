@@ -1,5 +1,5 @@
 import {useIsoContext} from "isoq";
-import {RpcProvider} from "fullstack-rpc/react";
+import {RpcProvider} from "katnip-rpc";
 
 export function Wrapper({children}) {
 	let iso=useIsoContext();

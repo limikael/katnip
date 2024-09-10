@@ -46,7 +46,7 @@ html, body, #isoq {
 
 	let output=await jitBrowserTailwindcss(input,source,conf);
 
-	console.log("tw build, publicDir="+buildEv.options.publicDir);
+	//console.log("tw build, publicDir="+buildEv.options.publicDir);
 
 	if (buildEv.options.publicDir) {
 		await mkdirRecursive(buildEv.fsPromises,path.join(buildEv.cwd,buildEv.options.publicDir));

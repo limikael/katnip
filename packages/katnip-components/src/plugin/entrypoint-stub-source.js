@@ -1,3 +1,4 @@
+export default `
 $$CJSX_IMPORTS$$
 
 import {PageRoute, ComponentLibraryProvider} from "katnip-components";
@@ -14,3 +15,4 @@ export default function() {
 		</ComponentLibraryProvider>
 	</>);
 }
+`;

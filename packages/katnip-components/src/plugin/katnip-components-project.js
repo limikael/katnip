@@ -3,8 +3,8 @@ import path from "path-browserify";
 import {importUrlGetDirname, mkdirRecursive, rmRecursive} from "katnip";
 import {resolveHookEntryPoints} from "katnip";
 import {findMatchingFiles} from "../utils/fs-util.js";
-
-const __dirname=importUrlGetDirname(import.meta.url);
+import ENTRYPOINT_STUB_SOURCE from "./entrypoint-stub-source.js";
+//const __dirname=importUrlGetDirname(import.meta.url);
 
 export async function initcli(spec) {
     spec.addCommandOption("build","exposeCjsxComponents",{
@@ -16,12 +16,14 @@ export async function initcli(spec) {
 async function makeAllComponentsJsx(ev) {
     let components=[];
 
-    console.log("making all components");
+    //console.log("making all components");
 
     let componentPaths=await resolveHookEntryPoints(ev.cwd,"katnip-components",{
         fs: ev.fs,
         keyword: "katnip-plugin"
     });
+
+    //console.log(componentPaths);
 
     let allComponentsSource="";
     for (let componentPath of componentPaths)
@@ -54,7 +56,8 @@ async function createEntryPointSource(ev) {
     if (ev.options.exposeCjsxComponents)
         importSource+=`export * as CJSX_COMPONENTS from "${allComponentsFn}";\n`;
 
-    let source=await ev.fs.promises.readFile(path.join(__dirname,"entrypoint-stub.jsx"),"utf8");
+    //let source=await ev.fs.promises.readFile(path.join(__dirname,"entrypoint-stub.jsx"),"utf8");
+    let source=ENTRYPOINT_STUB_SOURCE;
     source=source.replace("$$CJSX_IMPORTS$$",importSource);
 
     let entryPointFn=path.join(ev.cwd,"node_modules/.katnip/main-components.jsx");
