@@ -1,6 +1,6 @@
 {
   "name": "katnip-rpc",
-  "version": "3.0.32",
+  "version": "3.0.33",
   "type": "module",
   "license": "MIT",
   "scripts": {},
@@ -14,7 +14,7 @@
     ".": "./katnip-rpc.jsx"
   },
   "dependencies": {
-    "katnip": "^3.0.30",
+    "katnip": "^3.0.31",
     "fullstack-rpc": "^1.0.2"
   }
 }
