@@ -76,6 +76,7 @@ export async function cfdev(ev) {
 
 cfdev.cfdeploy=15;
 export async function cfdeploy(ev) {
+    console.log("Migrating schema on D1...");
     let quickminBin=await findNodeBin(__dirname,"quickmin");
     let quickminArgs=["migrate","--driver","wrangler"];
     if (ev.options.risky)
