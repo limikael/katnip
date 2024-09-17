@@ -15,7 +15,7 @@ export default function Img({src, ...props}) {
 Img.editorPreview=({src, ...props})=>{
 	let iso=useIsoContext();
 	let srcVal=src;
-	if (srcVal.includes("$"))
+	if (srcVal && srcVal.includes("$"))
 		srcVal="/projects_placeholder.png";
 
 	else if (srcVal)

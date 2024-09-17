@@ -3,6 +3,8 @@ import {splitPath} from "../utils/js-util.js";
 import {Env} from "../nocode/env.jsx";
 import {VarState} from "../nocode/var.jsx";
 import {urlGetArgs, useIsoContext} from "isoq";
+import {ComponentLibraryProvider, useComponentLibrary} from "katnip-components";
+import {Fragment} from "react";
 
 function RouteEnv({children, path}) {
 	let location=useLocation();
@@ -35,6 +37,13 @@ function RouteEnv({children, path}) {
 }
 
 export default function PageRoute({Page}) {
+	let componentLibrary=useComponentLibrary();
+	let PageType=componentLibrary[Page.pageType];
+	if (!PageType)
+		PageType=Fragment;
+
+	//console.log("this is the page route: ",Page);
+
 	let pageRoute=Page.route;
 	if (!pageRoute)
 		return;
@@ -45,7 +54,9 @@ export default function PageRoute({Page}) {
 	return (
 		<Route path={wildcardRoute.join("/")}>
 			<RouteEnv path={pageRoute}>
-				<Page/>
+				<PageType {...Page}>
+					<Page/>
+				</PageType>
 			</RouteEnv>
 		</Route>
 	);
