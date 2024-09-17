@@ -75,6 +75,22 @@ export async function isoqModules(modules, ev) {
     modules.push(path.join(ev.cwd,"node_modules/.katnip/main-components.jsx"));
 }
 
+export async function editorData(editorData, ev) {
+    if (!editorData.envSpec)
+        editorData.envSpec={};
+
+    if (editorData.quickminConf) {
+        let collectionsSpec=JSON.parse(JSON.stringify(editorData.quickminConf.collections));
+        for (let k in collectionsSpec)
+            collectionsSpec[k].type="collection"
+
+        editorData.envSpec={
+            ...editorData.envSpec,
+            ...collectionsSpec
+        };
+    }
+}
+
 export async function build(ev) {
     if (ev.options.exposeCjsxComponents)
         ev.options.isoqExposeExports=true;

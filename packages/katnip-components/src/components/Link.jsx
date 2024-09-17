@@ -22,6 +22,7 @@ Link.icon = {
 	type: "material",
 	symbol: "add_link"
 }
+Link.defaultProps={class: "min-h-4 min-w-4"};
 Link.controls={
 	href: {type: "text"}
 };

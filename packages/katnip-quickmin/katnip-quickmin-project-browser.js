@@ -78,3 +78,17 @@ export async function build(ev) {
 			break;
 	}
 }
+
+editorData.priority=5;
+export async function editorData(editorData, ev) {
+	let conf=quickminCanonicalizeConf();
+	let confFn=path.join(ev.cwd,"quickmin.yaml");
+	if (await exists(confFn,{fs:ev.fs})) {
+		let confText=await ev.fs.promises.readFile(confFn,"utf8");
+		conf=quickminCanonicalizeConf(confText);
+	}
+
+	await ev.hookRunner.emit("quickminConf",conf,ev);
+
+	editorData.quickminConf=conf;
+}

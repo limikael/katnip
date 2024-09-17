@@ -64,7 +64,7 @@ export function useVar(name) {
 	let env=useEnv();
 	let v;
 	if (name)
-		v=env.getVar(name);
+		v=env.getVar(name.replace("$",""));
 
 	useEventUpdate(v,"change");
 
@@ -77,6 +77,23 @@ export function useVal(name) {
 		return;
 
 	return v.get();
+}
+
+export function useCheckedExpr(expr) {
+	if (!expr)
+		expr="";
+
+	let matches=expr.match(/\$\w+/g);
+	if (!matches)
+		matches=[];
+
+	let vars=matches.map(x=>x.replace("$",""));
+	let vals=useVals(vars);
+
+	for (let i=0; i<vars.length; i++)
+		expr=String(expr).replace("$"+vars[i],vals[i]);
+
+	return expr;
 }
 
 export function useExpr(expr) {
@@ -118,21 +135,3 @@ export function useExprs(exprs) {
 
 	return exprs;
 }
-
-/*export function Var({name, ...props}) {
-	let env=useEnv();
-	useConstructor(()=>{
-		env.addVar(name, new VarState(props));
-	})
-}*/
-
-/*export function Assign({var: varName, valueVar, transform}) {
-	let sourceVar=useVar(valueVar);
-	let destVar=useVar(varName);
-
-	let v=sourceVar.get();
-	if (transform)
-		v=transform(v);
-
-	destVar.set(v);
-}*/

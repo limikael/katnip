@@ -154,8 +154,11 @@ export async function findKeywordDependencies(...args) {
 	res=arrayUnique(res);
 
 	let pluginNames=res.map(dir=>path.basename(dir));
-	if (arrayFindDuplicate(pluginNames))
-		throw new Error("Multiple instances of plugin: "+arrayFindDuplicate(pluginNames)+" all="+JSON.stringify(res));
+	if (arrayFindDuplicate(pluginNames)) {
+		let duplicate=arrayFindDuplicate(pluginNames);
+		let dupPaths=res.filter(dir=>path.basename(dir)==duplicate);
+		throw new Error("Multiple instances of plugin: "+arrayFindDuplicate(pluginNames)+" "+JSON.stringify(dupPaths));
+	}
 
 	return res;
 }

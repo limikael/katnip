@@ -1,48 +1,43 @@
 import {useVal, useVar, useExpr} from "./var.jsx";
 import {useEnv} from "./env.jsx";
+import {useIsoContext} from "isoq";
+import urlJoin  from "url-join";
 
 export function Val({expr, Element, ...props}) {
-	let val=useExpr(expr);
-	if (!Element)
-		Element="span";
+	let iso=useIsoContext();
+	let varState=useVar(expr);
+	/*if (!Element)
+		Element="span";*/
 
-	return <Element {...props}>{val}</Element>;
+	if (!varState)
+		return;
+
+	let val=varState.get();
+
+	switch (varState.type) {
+		case "richtext":
+			return (
+				<div dangerouslySetInnerHTML={{__html: val}} {...props}/>
+		    );
+			break;
+
+		case "text":
+		default:
+			return (
+				<span {...props}>{val}</span>
+			);
+			break;
+	}
 }
 
 Val.editorPreview=props=><span {...props}>{props.expr}</span>;
 Val.styling=true;
 Val.category="Interaction";
 Val.controls={
-	expr: {}
+	expr: {type: ["text","richtext"], expr: true}
 }
-Val.displayName = "TextValue"
-Val.icon = {
-	type: "material",
-	symbol: "match_word"
-} 
-
-export function ValRichText({expr, ...props}) {
-	let val=useExpr(expr);
-
-	return (
-		<div
-	  		dangerouslySetInnerHTML={{__html: val}}
-	  		{...props}
-	    />
-	);
-}
-
-ValRichText.editorPreview=props=><span {...props}>{props.expr}</span>;
-ValRichText.styling=true;
-ValRichText.category="Interaction";
-ValRichText.controls={
-	expr: {}
-}
-ValRichText.displayName = "RichTextValue"
-ValRichText.icon = {
-	type: "material",
-	symbol: "match_word"
-} 
+Val.displayName = "TextValue";
+Val.materialSymbol="match_word";
 
 export function ValInput({var: varName, ...props}) {
 	let varState=useVar(varName);

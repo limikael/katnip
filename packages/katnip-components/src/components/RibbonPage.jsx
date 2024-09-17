@@ -34,6 +34,7 @@ RibbonPage.icon = {
 	type: "material",
 	symbol: "toolbar"
 }
+RibbonPage.containerType="children";
 RibbonPage.controls={
 	header: {type: "block"},
 	footer: {type: "block"},

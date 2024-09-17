@@ -2,12 +2,22 @@ import {Env, useEnv} from "./env.jsx";
 import {useIsoMemo} from "isoq";
 import {VarState, useExprs} from "./var.jsx";
 
-function createObjectVarStates(o, extra={}) {
+function createObjectVarStates(o, fieldSpecs, extra={}) {
 	let varStates={};
-	for (let k in o)
+	for (let k in o) {
+		let type;
+		if (fieldSpecs[k])
+			type=fieldSpecs[k].type;
+
+		let value=o[k];
+		if (type=="image")
+			value="/admin/_content/"+value;
+
 		varStates[k]=new VarState({
-			value: o[k]
+			value: value,
+			type: type
 		});
+	}
 
 	for (let k in extra)
 		varStates[k]=new VarState({
@@ -18,6 +28,7 @@ function createObjectVarStates(o, extra={}) {
 }
 
 export function For({children, in: inVar, where, render, namespace, ...props}) {
+	inVar=inVar.replace("$","");
 	let env=useEnv();
 	let collection=env.getVar(inVar);
 	let whereExpr={};
@@ -28,6 +39,8 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 		else
 			whereExpr=where;
 	}
+
+	//console.log(collection.fields);
 
 	let exprVals=useExprs(Object.values(whereExpr));
 	let whereClause={};
@@ -54,7 +67,7 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 	if (items)
 		renderedChildren=items.map((row,index)=>
 			<Env key={row.id}
-					createVarStates={()=>createObjectVarStates(row,{index})}
+					createVarStates={()=>createObjectVarStates(row,collection.fields,{index})}
 					namespace={namespace}>
 				{children}
 			</Env>
@@ -66,14 +79,24 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 	return (<>{renderedChildren}</>);
 }
 
-For.editorPreview=({children})=><>{children}</>;
+For.editorPreview=({children})=><div style="min-width: 1em; min-height: 1em">{children}</div>;
 For.category="Logic";
 For.icon = {
 	type: "material",
 	symbol: "laps"
 }
+For.envSpec=(props, envSpec)=>{
+	let inVar=props.in?props.in:"";
+	inVar=inVar.replace("$","");
+	let collectionSpec=envSpec[inVar];
+	if (!collectionSpec)
+		return;
+
+	return collectionSpec.fields;
+}
+For.containerType="children";
 For.displayName = "Loop"
 For.controls={
-	in: {},
+	in: {type: "collection"},
 	where: {type: "textarea"}
 }
