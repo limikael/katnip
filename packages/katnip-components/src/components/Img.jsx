@@ -21,6 +21,9 @@ Img.editorPreview=({src, ...props})=>{
 	else if (srcVal)
 		srcVal=iso.getAppUrl(srcVal);
 
+	else
+		srcVal="/projects_placeholder.png";
+
 	return (
 		<img src={srcVal} {...props}/>
 	);
