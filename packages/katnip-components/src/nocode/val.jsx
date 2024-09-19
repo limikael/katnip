@@ -33,11 +33,11 @@ export function Val({expr, Element, ...props}) {
 Val.editorPreview=props=><span {...props}>{props.expr}</span>;
 Val.styling=true;
 Val.category="Interaction";
+Val.displayName = "TextValue";
+Val.materialSymbol="match_word";
 Val.controls={
 	expr: {type: ["text","richtext"], expr: true}
 }
-Val.displayName = "TextValue";
-Val.materialSymbol="match_word";
 
 export function ValInput({var: varName, ...props}) {
 	let varState=useVar(varName);
@@ -49,14 +49,11 @@ export function ValInput({var: varName, ...props}) {
 	);
 }
 
-ValInput.editorPreview=props=><input {...props} value={"$"+props.var}/>;
+ValInput.editorPreview=props=><input {...props} value={props.var}/>;
 ValInput.category="Interaction";
 ValInput.styling=true;
+ValInput.displayName = "Input";
+ValInput.materialSymbol="text_select_move_forward_character";
 ValInput.controls={
-	var: {}
-}
-ValInput.displayName = "Input"
-ValInput.icon = {
-	type: "material",
-	symbol: "text_select_move_forward_character"
+	var: {type: "text", expr: true}
 }

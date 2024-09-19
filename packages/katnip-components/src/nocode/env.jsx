@@ -37,6 +37,8 @@ class EnvState {
 	}
 
 	getVar(name) {
+		name=name.replace("$","");
+
 		if (name.includes(":")) {
 			let [namespace,localName]=name.split(":");
 			if (namespace==this.namespace &&
@@ -95,11 +97,22 @@ export function Env({actions, varStates, createVarStates, declarations, children
 	)
 }
 
-Env.editorPreview=({children})=><>{children}</>;
+Env.editorPreview=({children})=><div>{children}</div>;
+Env.containerType="children";
 Env.category="Logic";
-Env.icon = {
-	type: "material",
-	symbol: "inbox_customize"
+Env.materialSymbol="inbox_customize";
+Env.envSpec=({declarations})=>{
+	if (typeof declarations=="string")
+		declarations=JSON.parse(declarations);
+
+	if (!declarations)
+		return;
+
+	let envSpecDeclarations={};
+	for (let k in declarations)
+		envSpecDeclarations[k]={type: "text"};
+
+	return envSpecDeclarations;
 }
 Env.controls={
 	declarations: {type: "textarea"}

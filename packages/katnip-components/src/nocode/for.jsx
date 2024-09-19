@@ -47,12 +47,12 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 	for (let i=0; i<Object.keys(whereExpr).length; i++)
 		whereClause[Object.keys(whereExpr)[i]]=exprVals[i];
 
-	//console.log(whereClause);
+	//console.log("render for",whereClause);
 
 	let items=useIsoMemo(async ()=>await collection.qql({
 		manyFrom: inVar,
 		where: whereClause
-	}),[]);
+	}),[whereClause]);
 
 	if (!namespace)
 		namespace=inVar;
@@ -79,7 +79,7 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 	return (<>{renderedChildren}</>);
 }
 
-For.editorPreview=({children})=><div style="min-width: 1em; min-height: 1em">{children}</div>;
+For.editorPreview=({children})=><div>{children}</div>;
 For.category="Logic";
 For.icon = {
 	type: "material",
@@ -98,5 +98,5 @@ For.containerType="children";
 For.displayName = "Loop"
 For.controls={
 	in: {type: "collection"},
-	where: {type: "textarea"}
+	where: {type: "where", collectionVar: "in"}
 }

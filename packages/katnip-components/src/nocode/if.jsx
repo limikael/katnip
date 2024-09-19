@@ -1,6 +1,6 @@
 import {useVal, useVals, useExpr} from "./var.jsx";
 
-export function If({var: varName, expr, test, children}) {
+export function If({var: varName, expr, test, children, display}) {
 	let exprVal=useExpr(expr);
 	let varVal=useVal(varName);
 	if (!test)
@@ -44,19 +44,24 @@ export function If({var: varName, expr, test, children}) {
 	//console.log("var: ",varVal," expr: ",exprVal," typeof exprVal:",(typeof exprVal)," isTrue: ",isTrue);
 
 	if (isTrue)
-		return (<>{children}</>);
+		return (<div style={{display: display}}>{children}</div>);
 
-	return (<></>);
+	return (<div style={{display: display}}></div>);
 }
 
-If.editorPreview=props=><>{props.children}</>;
+If.editorPreview=({display, children})=><div style={{display}}>{children}</div>;
 If.category="Logic";
-If.icon = {
-	type: "material",
-	symbol: "keyboard_option_key"
-}
+If.materialSymbol="keyboard_option_key";
+If.defaultProps={test: "eq", display: "block"};
+If.containerType="children";
 If.controls={
-	test: {},
-	var: {},
-	expr: {},
+	test: {type: "select", options:{
+		"eq": "Equal",
+		"notEq": "Not equal",
+		"true": "True",
+		"notTrue": "False",
+	}},
+	var: {type: "expr", cond: ({test})=>["eq","notEq"].includes(test)},
+	expr: {type: "expr"},
+	display: {type: "select", options: ["block","inline-block"]}
 }
