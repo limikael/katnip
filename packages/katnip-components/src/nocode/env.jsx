@@ -115,5 +115,5 @@ Env.envSpec=({declarations})=>{
 	return envSpecDeclarations;
 }
 Env.controls={
-	declarations: {type: "textarea"}
+	declarations: {type: "declarations"}
 }

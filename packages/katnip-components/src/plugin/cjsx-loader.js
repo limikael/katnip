@@ -1,4 +1,5 @@
-import * as txml from "txml/txml";
+//import * as txml from "txml/txml";
+import {txmlParse, txmlStringify} from "../utils/txml-stringify.js";
 import path from "path-browserify";
 
 function processCjsxNode(node) {
@@ -18,7 +19,7 @@ export function cjsxLoader({componentsImport, fs}) {
 		setup: (build)=>{
 			build.onLoad({filter: /.*\.cjsx$/}, async args=>{
 				let text=await fs.promises.readFile(args.path,"utf8");
-				let xml=txml.parse(text);
+				let xml=txmlParse(text);
 				let xmlRoot=xml[0];
 				let source="";
 
@@ -26,7 +27,7 @@ export function cjsxLoader({componentsImport, fs}) {
 				for (let c of xmlRoot.children)
 					processCjsxNode(c);
 
-				source+="let F=()=><>"+txml.stringify(xmlRoot.children)+"</>;\n";
+				source+="let F=()=><>"+txmlStringify(xmlRoot.children)+"</>;\n";
 				source+=`F.type=${JSON.stringify(xmlRoot.tagName)};\n`;
 				source+=`F.componentName=${JSON.stringify(path.basename(args.path,".cjsx"))};\n`;
 				for (let k in xmlRoot.attributes)

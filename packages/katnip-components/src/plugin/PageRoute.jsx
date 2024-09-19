@@ -6,7 +6,7 @@ import {urlGetArgs, useIsoContext} from "isoq";
 import {ComponentLibraryProvider, useComponentLibrary} from "katnip-components";
 import {Fragment} from "react";
 
-function RouteEnv({children, path}) {
+function RouteEnv({children, path, declarations}) {
 	let location=useLocation();
 	let iso=useIsoContext();
 
@@ -29,8 +29,10 @@ function RouteEnv({children, path}) {
 		return varStates;
 	}
 
+	console.log("decl",declarations);
+
 	return (
-		<Env createVarStates={createVarStates}>
+		<Env createVarStates={createVarStates} declarations={declarations}>
 			{children}
 		</Env>
 	);
@@ -53,7 +55,7 @@ export default function PageRoute({Page}) {
 
 	return (
 		<Route path={wildcardRoute.join("/")}>
-			<RouteEnv path={pageRoute}>
+			<RouteEnv path={pageRoute} declarations={Page.declarations}>
 				<PageType {...Page}>
 					<Page/>
 				</PageType>

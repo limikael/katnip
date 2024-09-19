@@ -16,3 +16,16 @@ export function arrayUnique(a) {
 
 	return a.filter(onlyUnique);
 }
+
+export function arrayMove(array, initialIndex, finalIndex, num=1) {
+	if (finalIndex>initialIndex)
+		finalIndex--;
+
+	array.splice(finalIndex,0,...array.splice(initialIndex,num));
+
+	return array;
+}
+
+export function isStringy(s) {
+	return ((typeof s=="string") || (s instanceof String));
+}
