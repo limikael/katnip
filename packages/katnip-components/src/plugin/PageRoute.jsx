@@ -29,7 +29,7 @@ function RouteEnv({children, path, declarations}) {
 		return varStates;
 	}
 
-	console.log("decl",declarations);
+	//console.log("decl",declarations);
 
 	return (
 		<Env createVarStates={createVarStates} declarations={declarations}>

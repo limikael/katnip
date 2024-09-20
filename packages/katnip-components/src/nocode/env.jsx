@@ -85,7 +85,10 @@ export function useEnv() {
 	return useContext(EnvContext);
 }
 
-export function Env({actions, varStates, createVarStates, declarations, children, namespace, onChange}) {
+export function Env({actions, varStates, createVarStates, declarations, children, namespace, onChange, display}) {
+	if (!display)
+		display="block";
+
 	let parent=useEnv();
 	let env=useConstructor(()=>new EnvState({actions, varStates, declarations, parent, createVarStates, namespace}));
 	env.onChange=onChange;
@@ -101,6 +104,7 @@ Env.editorPreview=({children})=><div>{children}</div>;
 Env.containerType="children";
 Env.category="Logic";
 Env.materialSymbol="inbox_customize";
+Env.defaultProps={display: "block"};
 Env.envSpec=({declarations})=>{
 	if (typeof declarations=="string")
 		declarations=JSON.parse(declarations);
@@ -115,5 +119,6 @@ Env.envSpec=({declarations})=>{
 	return envSpecDeclarations;
 }
 Env.controls={
-	declarations: {type: "declarations"}
+	declarations: {type: "declarations"},
+	display: {type: "select", options: ["block","inline-block"]}
 }

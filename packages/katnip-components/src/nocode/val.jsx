@@ -30,9 +30,9 @@ export function Val({expr, Element, ...props}) {
 	}
 }
 
-Val.editorPreview=props=><span {...props}>{props.expr}</span>;
+Val.editorPreview=props=><span {...props}>{props.expr?props.expr:"<value>"}</span>;
 Val.styling=true;
-Val.category="Interaction";
+Val.category="Logic";
 Val.displayName = "TextValue";
 Val.materialSymbol="match_word";
 Val.controls={
@@ -49,8 +49,8 @@ export function ValInput({var: varName, ...props}) {
 	);
 }
 
-ValInput.editorPreview=props=><input {...props} value={props.var}/>;
-ValInput.category="Interaction";
+ValInput.editorPreview=props=><input {...props} value={props.var?props.var:"<input>"}/>;
+ValInput.category="Logic";
 ValInput.styling=true;
 ValInput.displayName = "Input";
 ValInput.materialSymbol="text_select_move_forward_character";

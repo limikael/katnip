@@ -17,7 +17,7 @@ Link.editorPreview=({children, onClick, onclick, href, ...props})=>{
 
 Link.containerType="children";
 Link.styling=true;
-Link.category="Interaction";
+Link.category="Layout";
 Link.icon = {
 	type: "material",
 	symbol: "add_link"
