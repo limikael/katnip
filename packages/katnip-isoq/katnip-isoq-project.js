@@ -124,6 +124,8 @@ export async function build(buildContext) {
 	if (buildContext.esbuildPlugins)
 		plugins.push(...buildContext.esbuildPlugins);
 
+	//console.log("public: "+buildContext.options.publicDir);
+
 	let bundlerOptions={
 		ignore: buildContext.options.isoqIgnore,
 		out: handlerOut,
@@ -136,6 +138,9 @@ export async function build(buildContext) {
 		pathAliases: buildContext.options.isoqPathAliases
 		//quiet: true
 	};
+
+	if (buildContext.options.publicDir)
+		bundlerOptions.contentdir=path.join(buildContext.cwd,buildContext.options.publicDir);
 
 	/*if (buildContext.platform=="node")
 		bundlerOptions.sourcemap=true;*/
