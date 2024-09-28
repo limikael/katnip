@@ -29,9 +29,9 @@ class EnvState {
 				this.addVar(k,varStates[k]);
 		}
 
-		this.actions=actions;
+		/*this.actions=actions;
 		if (!this.actions)
-			this.actions={};
+			this.actions={};*/
 
 		//console.log("const env, parent",parent);
 	}
@@ -70,7 +70,7 @@ class EnvState {
 			this.onChange(this);
 	}
 
-	getAction(name) {
+	/*getAction(name) {
 		if (this.actions[name])
 			return this.actions[name];
 
@@ -78,7 +78,7 @@ class EnvState {
 			return this.parent.getAction(name);
 
 		throw new Error("Unknown action: "+name);
-	}
+	}*/
 }
 
 export function useEnv() {

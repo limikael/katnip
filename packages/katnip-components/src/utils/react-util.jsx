@@ -29,27 +29,3 @@ export function useConstructor(fn) {
 
 	return value.current;
 }
-
-export function useResizeObserver(ref, fn) {
-	useLayoutEffect(()=>{
-		let resizeObserver=new ResizeObserver(fn);
-		resizeObserver.observe(ref.current);
-		return (()=>{
-			resizeObserver.disconnect();
-		});
-	},[ref,ref.current]);
-}
-
-export function useElementDimensions(ref) {
-	let [dimensions,setDimensions]=useState();
-
-	let updateDimensions=useCallback(()=>{
-		let el=ref.current;
-		setDimensions([el.clientWidth,el.clientHeight]);
-	},[ref,ref.current]);
-
-	useResizeObserver(ref,updateDimensions);
-	useLayoutEffect(updateDimensions,[ref,ref.current]);
-
-	return dimensions;
-}

@@ -1,4 +1,6 @@
 export {
 	Link, RibbonPage, Img, For, Val, ValInput,
-	Env, If, ForCarousel, Button, NumActions,
+	Env, If, Button, NumActions, Subscript
+	/*Repeat,*/ 
+	/* Carousel,*/
 } from "katnip-components";

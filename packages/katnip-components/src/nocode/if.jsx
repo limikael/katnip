@@ -63,5 +63,5 @@ If.controls={
 	}},
 	var: {type: "expr", cond: ({test})=>["eq","notEq"].includes(test)},
 	expr: {type: "expr"},
-	display: {type: "select", options: ["block","inline-block"]}
+	display: {type: "select", options: ["block","inline-block","contents"]}
 }

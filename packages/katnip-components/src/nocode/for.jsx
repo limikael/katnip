@@ -1,12 +1,35 @@
 import {Env, useEnv} from "./env.jsx";
 import {useIsoMemo} from "isoq";
-import {VarState, useExprs} from "./var.jsx";
+import {VarState, useExprs, useVar} from "./var.jsx";
+import {toChildArray} from 'preact';
+import {Fragment} from "react";
+
+export function useExpandChildren(children) {
+	children=toChildArray(children);
+	if (children.length==1 && 
+			typeof children[0].type=="function" &&
+			children[0].type.expandChildren) {
+		let child=children[0];
+		let fn=child.type;
+		let res=fn(child.props);
+
+		if (res.type==Fragment)
+			return res.props.children;
+
+		if (Array.isArray(res))
+			return res;
+
+		return [res];
+	}
+
+	return children;
+}
 
 function createObjectVarStates(o, fieldSpecs, extra={}) {
 	let varStates={};
 	for (let k in o) {
 		let type;
-		if (fieldSpecs[k])
+		if (fieldSpecs && fieldSpecs[k])
 			type=fieldSpecs[k].type;
 
 		let value=o[k];
@@ -27,10 +50,7 @@ function createObjectVarStates(o, fieldSpecs, extra={}) {
 	return varStates;
 }
 
-export function For({children, in: inVar, where, render, namespace, ...props}) {
-	inVar=inVar.replace("$","");
-	let env=useEnv();
-	let collection=env.getVar(inVar);
+function useWhere(where) {
 	let whereExpr={};
 	if (where) {
 		if (typeof where=="string")
@@ -47,21 +67,57 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 	for (let i=0; i<Object.keys(whereExpr).length; i++)
 		whereClause[Object.keys(whereExpr)[i]]=exprVals[i];
 
-	//console.log("render for",whereClause);
+	return whereClause;
+}
 
-	let items=useIsoMemo(async ()=>await collection.qql({
-		manyFrom: inVar,
-		where: whereClause
-	}),[whereClause]);
+/*export function Repeat({children, count: countExpr}) {
+	let count=useExpr(countExpr);
+
+	let renderedChildren=[];
+	for (let i=0; i<count; i++) {
+		renderedChildren.push(
+			<Env key={i} declarations={{index: i}}>
+				{children}
+			</Env>
+		)
+	}
+
+	return (<>{renderedChildren}</>);
+}*/
+
+export function For({children, in: inVar, where, render, namespace, setCount, setLastIndex, count: countExpr}) {
+	let env=useEnv();
+	let collection=useVar(inVar);
+	let countVar=useVar(countExpr);
+	let whereClause=useWhere(where);
+	let items=useIsoMemo(async ()=>{
+		if (!collection)
+			return;
+
+		if (collection.type!="collection")
+			return;
+
+		return await collection.qql({
+			manyFrom: inVar.replace("$",""),
+			where: whereClause
+		});
+	},[whereClause]);
+
+	if (collection && collection.type!="collection")
+		items=collection.get();
+
+	//console.log(items);
+
+	if (items) {
+		if (setCount)
+			env.getVar(setCount).set(items.length)
+
+		if (setLastIndex)
+			env.getVar(setLastIndex).set(items.length-1)
+	}
 
 	if (!namespace)
 		namespace=inVar;
-
-	if (collection.type!="collection")
-		throw new Error("Not a collection");
-
-	/*console.log(collection);
-	console.log(items);*/
 
 	let renderedChildren=[];
 	if (items)
@@ -73,13 +129,21 @@ export function For({children, in: inVar, where, render, namespace, ...props}) {
 			</Env>
 		);
 
-	if (render)
-		return render(renderedChildren);
+	else if (countVar) {
+		for (let i=0; i<countVar.get(); i++) {
+			renderedChildren.push(
+				<Env key={i} declarations={{index: i}}>
+					{children}
+				</Env>
+			)
+		}
+	}
 
 	return (<>{renderedChildren}</>);
 }
 
 For.editorPreview=({children})=><div>{children}</div>;
+For.expandChildren=true;
 For.category="Logic";
 For.icon = {
 	type: "material",

@@ -1,8 +1,9 @@
-import {VarState, useVar} from "./var.jsx";
-import {Env} from "./env.jsx";
+import {VarState, useVar, useExpr} from "./var.jsx";
+import {Env, useEnv} from "./env.jsx";
 
-export function NumActions({var: varName, children, display}) {
+export function NumActions({var: varName, children, display, min, max, maxExclusive}) {
 	let varState=useVar(varName);
+	let env=useEnv();
 
 	if (!display)
 		display="block";
@@ -15,19 +16,41 @@ export function NumActions({var: varName, children, display}) {
 		return num;
 	}
 
+	function safeSet(v) {
+		let minVal=0;
+		/*if (min)
+			minVal=env.getVar(min).get();*/
+
+		if (v<minVal)
+			v=minVal;
+
+		let maxVal;
+		if (max)
+			maxVal=env.getVar(max).get();
+
+		if (maxExclusive)
+			maxVal=env.getVar(maxExclusive).get()-1;
+
+		if (!isNaN(maxVal) && v>maxVal)
+			v=maxVal;
+
+		varState.set(v);
+	}
+
 	function createVarStates() {
 		let varStates={
 			increase: new VarState({
 				type: "action",
 				action: ()=>{
-					varState.set(safeGet()+1);
+					//console.log("increasing");
+					safeSet(safeGet()+1);
 				}
 			}),
 
 			decrease: new VarState({
 				type: "action",
 				action: ()=>{
-					varState.set(safeGet()-1);
+					safeSet(safeGet()-1);
 				}
 			}),
 		};

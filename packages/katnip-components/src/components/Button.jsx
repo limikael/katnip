@@ -4,8 +4,12 @@ import {useVar} from "../nocode/var.jsx";
 export default function Button({action, children, ...props}) {
 	let actionVar=useVar(action);
 
+	let fn;
+	if (actionVar)
+		fn=actionVar.action;
+
 	return (
-		<button {...props} onClick={actionVar.action}>
+		<button {...props} onClick={fn}>
 			{children}
 		</button>
 	);

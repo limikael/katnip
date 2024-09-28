@@ -1,4 +1,4 @@
-import {useVal, useVar, useExpr} from "./var.jsx";
+import {useVal, useVar, useExpr, useVars} from "./var.jsx";
 import {useEnv} from "./env.jsx";
 import {useIsoContext} from "isoq";
 import urlJoin  from "url-join";
@@ -41,9 +41,13 @@ Val.controls={
 
 export function ValInput({var: varName, ...props}) {
 	let varState=useVar(varName);
+	let Element="input";
+
+	if (props.type=="textarea")
+		Element="textarea";
 
 	return (
-		<input {...props}
+		<Element {...props}
 				value={varState.get()}
 				onChange={ev=>varState.set(ev.target.value)}/>
 	);
