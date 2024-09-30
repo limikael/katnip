@@ -6,6 +6,16 @@ import {ResolvablePromise} from "katnip";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+export function arrayify(a) {
+	if (Array.isArray(a))
+		return a;
+
+	if (a===undefined)
+		return [];
+
+	return [a];
+}
+
 dev.priority=5;
 export async function dev(devEvent) {
 	devEvent.stopPropagation();
@@ -17,6 +27,13 @@ export async function dev(devEvent) {
 		"**/katnip-cli.js","**/public","**/.target","**/.wrangler",
 		"**/wrangler.toml","**/upload"
 	];
+
+	if (devEvent.options.watchAddIgnore) {
+		let addIgnore=arrayify(devEvent.options.watchAddIgnore);
+		console.log("Adding watch ignore: "+JSON.stringify(addIgnore));
+
+		ignored=[...ignored,...addIgnore];
+	}
 
 	let watcher=chokidar.watch(watchDirs,{
 		ignored: ignored,

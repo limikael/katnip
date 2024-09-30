@@ -1,7 +1,7 @@
 {
   "name": "katnip-watch",
   "scripts": {},
-  "version": "3.0.28",
+  "version": "3.0.29",
   "license": "MIT",
   "keywords": [
     "katnip-plugin"

@@ -1,7 +1,7 @@
 {
   "name": "katnip-twentytwentyfour",
   "description": "Full katnip web app starter, including isomorphic rendering, tailwind, database and admin interface.",
-  "version": "3.0.66",
+  "version": "3.0.67",
   "license": "MIT",
   "scripts": {},
   "type": "module",
@@ -17,7 +17,7 @@
     "katnip-rpc": "^3.0.35",
     "katnip-static": "^3.0.37",
     "katnip-tailwind": "^3.0.48",
-    "katnip-watch": "^3.0.28",
+    "katnip-watch": "^3.0.29",
     "katnip-components": "^3.0.41"
   }
 }
