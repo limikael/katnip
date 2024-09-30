@@ -1,11 +1,16 @@
 import {urlGetArgs} from "katnip";
 import {RpcServer} from "fullstack-rpc/server";
+import urlJoin from "url-join";
 
 export async function start(ev) {
+	//console.log("************* start rpc server...");
+
 	if (!ev.importModules.rpc)
 		return;
 
-	ev.data.rpcServer=new RpcServer("rpc");
+	let rpcPath=urlJoin(ev.appPathname,"rpc");
+	//console.log("***** rpcpath: "+rpcPath);
+	ev.data.rpcServer=new RpcServer(rpcPath);
 }
 
 fetch.priority=15;

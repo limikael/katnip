@@ -14,6 +14,7 @@ async function handleFetch(req, env, ctx) {
 		envDataMap.set(env,envData);
 
 		await hookRunner.emit("start",{
+			appPathname: "/",
 			importModules: workerData.importModules,
 			options: workerData.options,
 			data: envData,
@@ -23,6 +24,7 @@ async function handleFetch(req, env, ctx) {
 	}
 
 	let ev={
+		appPathname: "/",
 		importModules: workerData.importModules,
 		options: workerData.options,
 		data: envDataMap.get(env),

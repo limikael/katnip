@@ -1,6 +1,12 @@
-<Page route="/" pageType="RibbonPage" header="Header" footer="Footer">
+<Page route="/" pageType="RibbonPage" header="Header" footer="Footer"
+		declarations='{"dict":["hello","world"],"index":0}'>
 	<div>
 		Hello World test...
+
+		<NumActions var="$index">
+			<Button action="decrease">Dec</Button>
+			<Button action="increase">Inc</Button>
+		</NumActions>
 
 		<!--
 		Here is the about page: <Link href="/about">about</Link> ...
