@@ -149,4 +149,7 @@ export async function build(buildContext) {
 	await bundler.bundle();
 
 	buildContext.importModules.isoqRequestHandler=handlerOut;
+
+	if (buildContext.importModuleOptions)
+		buildContext.importModuleOptions.isoqRequestHandler={bundle: false};
 }
