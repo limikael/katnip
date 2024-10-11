@@ -16,8 +16,21 @@ export function arrayify(a) {
 	return [a];
 }
 
+export async function initcli(spec) {
+    spec.addCommandOption("dev","watch",{
+        description: "Watch files and restart server.",
+        type: "boolean",
+	    default: true
+    });
+}
+
 dev.priority=5;
 export async function dev(devEvent) {
+	if (devEvent.options.watch===false) {
+		console.log("Skipping watch...");
+		return;
+	}
+
 	devEvent.stopPropagation();
 
 	let watchDirs=[process.cwd()];

@@ -12,7 +12,7 @@ export async function fetch(req, ev) {
     if (!jsonEq(prefixParts,appPathnameParts))
         return;
 
-    let contentFileCand=path.join(ev.options.publicDir,...urlParts);
+    let contentFileCand=path.join(/*ev.options.publicDir,*/...urlParts);
     for (let contentFile of ev.contentFiles)
         if (contentFile.name==contentFileCand) {
             let parsedUrl=new URL(req.url);
