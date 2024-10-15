@@ -1,11 +1,12 @@
 import {useVal, useVar, useExpr, useVars} from "./var.jsx";
+import {useVarExpr} from "./expr.js";
 import {useEnv} from "./env.jsx";
 import {useIsoContext} from "isoq";
 import urlJoin  from "url-join";
 
 export function Val({expr, Element, ...props}) {
 	let iso=useIsoContext();
-	let varState=useVar(expr);
+	let varState=useVarExpr(expr);
 	/*if (!Element)
 		Element="span";*/
 
@@ -39,8 +40,12 @@ Val.controls={
 	expr: {type: ["text","richtext"], expr: true}
 }
 
-export function ValInput({var: varName, ...props}) {
-	let varState=useVar(varName);
+export function ValInput({var: varName, expr, ...props}) {
+	if (!expr)
+		expr=varName;
+
+	let varState=useVarExpr(expr);
+	//let varState=useVar(varName);
 	let Element="input";
 
 	if (props.type=="textarea")

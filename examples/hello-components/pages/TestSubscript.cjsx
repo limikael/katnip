@@ -1,20 +1,16 @@
 <Page route="/subscript"
-		declarations='{"dict":["hello","world"],"index":0}'>
+		declarations='{"dict":["hello","world"],"index":0,"hello":"hello world"}'>
 	<div>
 		<div>
 			Testing subscript, the index: <Val expr="$index"/>
 		</div>
 
 		<div>
-			With the subscript comp:
-			<Subscript var="$reffed" in="$dict" field="$index">
-				<Val expr="$reffed"/>
-			</Subscript>
+			Testing subscript, the value: <Val expr="pos $index\: $dict[$index]"/>
 		</div>
 
 		<div>
-			With ast:
-			<Val ast='{"token": "var", "var": "index"}'/>
+			Input <ValInput expr="$dict[$index]"/>
 		</div>
 
 		<div>

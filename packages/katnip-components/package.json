@@ -4,7 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+    "test": "jasmine"
+  },
   "dependencies": {
     "isoq-router": "^1.0.24",
     "katnip": "^3.0.32",
