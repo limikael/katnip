@@ -13,7 +13,8 @@ export function Wrapper({schema, children}) {
 			varStates[collectionId]=new VarState({
 				qql: iso.qql,
 				type: "collection",
-				fields: schema[collectionId].fields
+				fields: schema[collectionId].fields,
+				collectionId: collectionId
 			});
 		}
 

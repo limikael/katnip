@@ -4,13 +4,14 @@ import {jsonClone, arrayUnique} from "../utils/js-util.js";
 import {useState, useCallback, useLayoutEffect} from "react";
 
 export class VarState extends EventTarget {
-	constructor({value, type, fields, qql, sessionStorageKey, action}={}) {
+	constructor({value, type, fields, qql, sessionStorageKey, action, collectionId}={}) {
 		super();
 		this.value=value;
 		this.type=type;
 		this.fields=fields;
 		this.qql=qql;
 		this.action=action;
+		this.collectionId=collectionId;
 		this.sessionStorageKey=sessionStorageKey;
 
 		if (this.sessionStorageKey && globalThis.sessionStorage)

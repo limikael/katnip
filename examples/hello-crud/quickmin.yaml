@@ -1,0 +1,12 @@
+
+jwtSecret: "changeme"
+adminUser: "admin"
+adminPass: "admin"
+apiPath: "admin"
+
+collections:
+  pages:
+    access: [public,admin]
+    fields:
+      <Text id="title" listable/>
+      <Text id="content" multiline fullWidth/>
