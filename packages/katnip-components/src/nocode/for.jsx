@@ -1,6 +1,7 @@
 import {Env, useEnv} from "./env.jsx";
 import {useIsoMemo} from "isoq";
-import {VarState, useExprs, useVar} from "./var.jsx";
+import {VarState} from "./var.jsx";
+import {useVarExpr, useVarExprs} from "./expr.jsx";
 import {toChildArray} from 'preact';
 import {Fragment} from "react";
 
@@ -62,33 +63,18 @@ function useWhere(where) {
 
 	//console.log(collection.fields);
 
-	let exprVals=useExprs(Object.values(whereExpr));
+	let exprVars=useVarExprs(Object.values(whereExpr));
 	let whereClause={};
 	for (let i=0; i<Object.keys(whereExpr).length; i++)
-		whereClause[Object.keys(whereExpr)[i]]=exprVals[i];
+		whereClause[Object.keys(whereExpr)[i]]=exprVars[i].get();
 
 	return whereClause;
 }
 
-/*export function Repeat({children, count: countExpr}) {
-	let count=useExpr(countExpr);
-
-	let renderedChildren=[];
-	for (let i=0; i<count; i++) {
-		renderedChildren.push(
-			<Env key={i} declarations={{index: i}}>
-				{children}
-			</Env>
-		)
-	}
-
-	return (<>{renderedChildren}</>);
-}*/
-
 export function For({children, in: inVar, where, render, namespace, setCount, setLastIndex, count: countExpr}) {
 	let env=useEnv();
-	let collection=useVar(inVar);
-	let countVar=useVar(countExpr);
+	let collection=useVarExpr(inVar,{assignable: true});
+	let countVar=useVarExpr(countExpr);
 	let whereClause=useWhere(where);
 	let items=useIsoMemo(async ()=>{
 		if (!collection)

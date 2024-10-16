@@ -1,5 +1,4 @@
-import {useVal, useVar, useExpr, useVars} from "./var.jsx";
-import {useVarExpr} from "./expr.js";
+import {useVarExpr} from "./expr.jsx";
 import {useEnv} from "./env.jsx";
 import {useIsoContext} from "isoq";
 import urlJoin  from "url-join";

@@ -1,9 +1,11 @@
 import {useIsoContext} from "isoq";
-import {useExpr, useCheckExpr} from "../nocode/var.jsx";
+//import {useExpr, useCheckExpr} from "../nocode/var.jsx";
+import {useVarExpr} from "../nocode/expr.jsx";
 
 export default function Img({src, ...props}) {
 	let iso=useIsoContext();
-	let srcVal=useExpr(src);
+	let srcVar=useVarExpr(src);
+	let srcVal=srcVar.get();
 	if (srcVal)
 		srcVal=iso.getAppUrl(srcVal);
 

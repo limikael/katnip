@@ -56,7 +56,7 @@ export function useVars(varNames) {
 	return vars;
 }
 
-export function useVals(varNames) {
+/*export function useVals(varNames) {
 	let vars=useVars(varNames);
 	return vars.map(v=>v.get());
 }
@@ -135,4 +135,4 @@ export function useExprs(exprs) {
 	});
 
 	return exprs;
-}
+}*/

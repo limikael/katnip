@@ -1,11 +1,11 @@
 import * as isoqRouter from "isoq-router";
-import {useExpr} from "../nocode/var.jsx";
+import {useVarExpr} from "../nocode/expr.jsx";
 
 export default function Link({children, href, ...props}) {
-	let hrefVal=useExpr(href);
+	let hrefVar=useVarExpr(href);
 
 	return (
-		<isoqRouter.Link href={hrefVal} {...props}>
+		<isoqRouter.Link href={hrefVar.get()} {...props}>
 			{children}
 		</isoqRouter.Link>
 	);

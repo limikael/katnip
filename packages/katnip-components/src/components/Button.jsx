@@ -1,8 +1,8 @@
 import {useIsoContext} from "isoq";
-import {useVar} from "../nocode/var.jsx";
+import {useVarExpr} from "../nocode/expr.jsx";
 
 export default function Button({action, children, ...props}) {
-	let actionVar=useVar(action);
+	let actionVar=useVarExpr(action,{assignable: true});
 
 	let fn;
 	if (actionVar)

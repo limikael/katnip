@@ -33,6 +33,9 @@ class SubscriptVarState {
 function getAstVarNames(ast) {
 	let varNames;
 
+	if (!ast)
+		return [];
+
 	switch (ast.type) {
 		case "expr":
 			varNames=[];
@@ -95,15 +98,28 @@ function getAstVal(ast, varsByName) {
 	return getAstVar(ast,varsByName).get();
 }
 
-export function useVarExpr(expr) {
+export function useVarExpr(expr, options={}) {
 	let tplParser=new TemplateLiteralParser();
-	let ast=tplParser.parse(expr);
+	let ast=tplParser.parse(expr,options);
 	let varNames=arrayUnique(getAstVarNames(ast));
 	//console.log("var names: "+varNames);
 	let vars=useVars(varNames);
 	let varsByName=Object.fromEntries(varNames.map((_,i)=>[varNames[i],vars[i]]));
 	//console.log(varsByName);
 
+	if (!ast)
+		return;
+
 	let varState=getAstVar(ast,varsByName);
 	return varState;
+}
+
+export function useVarExprs(exprs, options={}) {
+	let tplParser=new TemplateLiteralParser();
+	let asts=exprs.map(expr=>tplParser.parse(expr,options));
+	let varNames=arrayUnique(asts.map(ast=>getAstVarNames(ast)).flat());
+	let vars=useVars(varNames);
+	let varsByName=Object.fromEntries(varNames.map((_,i)=>[varNames[i],vars[i]]));
+
+	return asts.map(ast=>getAstVar(ast,varsByName));
 }

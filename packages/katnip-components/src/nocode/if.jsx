@@ -1,8 +1,13 @@
-import {useVal, useVals, useExpr} from "./var.jsx";
+//import {useVal, useVals, useExpr} from "./var.jsx";
+import {useVarExpr} from "./expr.jsx";
 
-export function If({var: varName, expr, test, children, display}) {
-	let exprVal=useExpr(expr);
-	let varVal=useVal(varName);
+export function If({expr, var: varName, test, children, display}) {
+	let leftVar=useVarExpr(expr);
+	let leftVal=leftVar.get();
+	let rightVar=useVarExpr(varName);
+
+	/*let exprVal=useExpr(expr);
+	let varVal=useVal(varName);*/
 	if (!test)
 		test="true";
 
@@ -13,11 +18,11 @@ export function If({var: varName, expr, test, children, display}) {
 			break;*/
 
 		case "eq":
-			isTrue=(varVal==exprVal);
+			isTrue=(leftVar.get()==rightVar.get());
 			break;
 
 		case "notEq":
-			isTrue=(varVal!=exprVal);
+			isTrue=(leftVar.get()!=rightVar.get());
 			break;
 
 		/*case "empty":
@@ -25,15 +30,15 @@ export function If({var: varName, expr, test, children, display}) {
 			break;*/
 
 		case "true":
-			if (exprVal==="false")
-				exprVal=false;
-			isTrue=!!exprVal;
+			if (leftVal==="false")
+				leftVal=false;
+			isTrue=!!leftVal;
 			break;
 
 		case "notTrue":
-			if (exprVal==="false")
-				exprVal=false;
-			isTrue=!exprVal;
+			if (leftVal==="false")
+				leftVal=false;
+			isTrue=!leftVal;
 			break;
 
 		default:

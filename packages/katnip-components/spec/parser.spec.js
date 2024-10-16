@@ -52,4 +52,28 @@ describe("tokenizer",()=>{
 		expect(ast).toEqual({"type":"concat","parts":[{"type":"literal","value":"hello "},{"type":"expr","var":"people","ref":[{"type":"expr","var":"id","ref":[]},{"type":"field","name":"name"}]},{"type":"literal","value":", how are you?"}]});
 		//console.log(JSON.stringify(ast))//,null,2));
 	});
+
+	it("can make sure something is assignable",()=>{
+		let tplParser=new TemplateLiteralParser();
+		let ast=tplParser.parse("$var");
+		expect(ast).toEqual({ type: 'expr', var: 'var', ref: [] });
+		//console.log(ast);
+
+		let ast2=tplParser.parse("var");
+		expect(ast2).toEqual({ type: 'literal', value: 'var' });
+
+		let ast3=tplParser.parse("var",{assignable: true});
+		expect(ast3).toEqual({ type: 'expr', var: 'var', ref: [] });
+		//console.log(ast3);
+
+		let ast4=tplParser.parse("",{assignable: true});
+		//console.log(ast4);
+		expect(ast4).toBe(undefined);
+	});
+
+	it("can parse undefined",()=>{
+		let tplParser=new TemplateLiteralParser();
+		expect(tplParser.parse(undefined)).toEqual({type: "concat", parts: []});
+		expect(tplParser.parse(undefined,{assignable: true})).toEqual(undefined);
+	})
 });

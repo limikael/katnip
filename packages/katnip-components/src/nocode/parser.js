@@ -14,11 +14,46 @@ export class TemplateLiteralParser {
 		this.expressionParser=new ExpressionParser();
 	}
 
-	parse(s) {
+	parse(s, options={}) {
+		if (!s) {
+			if (options.assignable)
+				return;
+
+			return {
+				type: "concat",
+				parts: []
+			};
+		}
+
 		this.tokens=this.tokenizer.tokenize(s);
 		this.position=0;
 
-		return this.parseExpressionOrConcat();
+		let ast=this.parseExpressionOrConcat();
+		if (options.assignable) {
+			switch (ast.type) {
+				case "concat":
+					if (!ast.parts.length)
+						ast=undefined;
+
+					else
+						throw new Error("Not an assignable expression: "+s);
+					break;
+
+				case "expr":
+					break;
+
+				case "literal":
+					ast={
+						type: "expr",
+						var: ast.value,
+						ref: []
+					};
+					break;
+			}
+			//console.log(ast.type);
+		}
+
+		return ast;
 	}
 
 	currentToken() {

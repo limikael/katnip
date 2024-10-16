@@ -1,8 +1,9 @@
-import {VarState, useVar, useExpr} from "./var.jsx";
+import {VarState} from "./var.jsx";
+import {useVarExpr} from "./expr.jsx";
 import {Env, useEnv} from "./env.jsx";
 
 export function NumActions({var: varName, children, display, min, max, maxExclusive}) {
-	let varState=useVar(varName);
+	let varState=useVarExpr(varName);
 	let env=useEnv();
 
 	if (!display)
