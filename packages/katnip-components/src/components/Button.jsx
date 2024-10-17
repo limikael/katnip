@@ -1,15 +1,23 @@
 import {useIsoContext} from "isoq";
-import {useVarExpr} from "../nocode/expr.jsx";
+import {useVarExprs} from "../nocode/expr.jsx";
 
 export default function Button({action, children, ...props}) {
-	let actionVar=useVarExpr(action,{assignable: true});
+	if (!action)
+		action="";
 
-	let fn;
-	if (actionVar)
-		fn=actionVar.action;
+	let actionArray=action.split(",").map(s=>s.trim()).filter(s=>!!s);
+	let actionVars=useVarExprs(actionArray,{assignable: true});
+
+	async function handleClick() {
+		let ev=new Event("action",{cancelable: true});
+		for (let actionVar of actionVars) {
+			if (!ev.defaultPrevented)
+				await actionVar.action(ev);
+		}
+	}
 
 	return (
-		<button {...props} onClick={fn}>
+		<button {...props} onClick={handleClick}>
 			{children}
 		</button>
 	);

@@ -6,6 +6,8 @@ let EnvContext=createContext();
 
 class EnvState {
 	constructor({parent, actions, declarations, varStates, createVarStates, namespace}) {
+		//console.log("creating env", actions);
+
 		this.parent=parent;
 
 		this.namespace=namespace;
@@ -29,11 +31,10 @@ class EnvState {
 				this.addVar(k,varStates[k]);
 		}
 
-		/*this.actions=actions;
-		if (!this.actions)
-			this.actions={};*/
-
-		//console.log("const env, parent",parent);
+		if (actions) {
+			for (let k in actions)
+				this.addVar(k,new VarState({action: actions[k]}));
+		}
 	}
 
 	getVar(name) {
