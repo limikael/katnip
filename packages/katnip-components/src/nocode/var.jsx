@@ -14,6 +14,9 @@ export class VarState extends EventTarget {
 		this.collectionId=collectionId;
 		this.sessionStorageKey=sessionStorageKey;
 
+		if (this.action)
+			this.type="action";
+
 		if (this.sessionStorageKey && globalThis.sessionStorage)
 			this.value=JSON.parse(globalThis.sessionStorage.getItem(this.sessionStorageKey));
 	}
