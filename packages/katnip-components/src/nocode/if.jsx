@@ -11,6 +11,9 @@ export function If({expr, var: varName, test, children, display}) {
 	if (!test)
 		test="true";
 
+	/*if (test=="eq" && !rightVar)
+		test="true";*/
+
 	let isTrue;
 	switch (test) {
 		/*case "notEmpty":
@@ -47,6 +50,7 @@ export function If({expr, var: varName, test, children, display}) {
 	}
 
 	//console.log("var: ",varVal," expr: ",exprVal," typeof exprVal:",(typeof exprVal)," isTrue: ",isTrue);
+	//console.log("test: ",test," isTrue:",isTrue);
 
 	if (isTrue)
 		return (<div style={{display: display}}>{children}</div>);

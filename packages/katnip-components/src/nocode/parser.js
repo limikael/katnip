@@ -4,7 +4,7 @@ export class TemplateLiteralParser {
 	constructor() {
 		this.tokenizer=new Tokenizer({
 			literal: /(?:[^$\\]|\\.)+/,
-			expr: /(\$[A-Za-z0-9\[\]:\$]+)\\?/
+			expr: /(\$[A-Za-z0-9\[\]:_\$]*[A-Za-z0-9\[\]_\$]+)\\?/
 		});
 
 		this.tokenizer.setTokenOptions({
@@ -118,6 +118,7 @@ export class ExpressionParser {
 			id: /[A-Za-z0-9_]+/,
 			left_bracket: "[",
 			right_bracket: "]",
+			colon: ":",
 		})
 	}
 
@@ -159,12 +160,18 @@ export class ExpressionParser {
 		if (this.match("dollar")) {
 			this.nextToken();
 			let variable=this.consume("id");
-
-			return ({
+			let ast={
 				type: "expr",
-				var: variable,
-				ref: this.parseRef()
-			});
+				var: variable
+			};
+
+			if (this.match("colon")) {
+				this.consume("colon");
+				ast.namespace=this.consume("id");
+			}
+
+			ast.ref=this.parseRef();
+			return ast;
 		}
 
 		else throw new Error("Expeced $ at beginning of expr.");

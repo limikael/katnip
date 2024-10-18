@@ -42,6 +42,10 @@ describe("tokenizer",()=>{
 		let ast=exParser.parse("$hello[$i[5]][world]");
 		//console.log(JSON.stringify(ast/*,null,2*/));
 		expect(ast).toEqual({"type":"expr","var":"hello","ref":[{"type":"expr","var":"i","ref":[{"type":"field","name":"5"}]},{"type":"field","name":"world"}]});
+
+		let ast2=exParser.parse("$hello:world");
+		expect(ast2).toEqual({ type: 'expr', var: 'hello', namespace: 'world', ref: [] });
+		//console.log(ast2);
 	});
 
 	it("can parse template literals",()=>{
@@ -75,5 +79,11 @@ describe("tokenizer",()=>{
 		let tplParser=new TemplateLiteralParser();
 		expect(tplParser.parse(undefined)).toEqual({type: "concat", parts: []});
 		expect(tplParser.parse(undefined,{assignable: true})).toEqual(undefined);
-	})
+	});
+
+	it("doesn't end expressions with colon",()=>{
+		let tplParser=new TemplateLiteralParser();
+		let ast=tplParser.parse("hello $na_me: how are you?");
+		expect(ast.parts.length).toEqual(3);
+	});
 });
