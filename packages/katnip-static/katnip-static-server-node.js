@@ -32,6 +32,9 @@ export function fetch(req, ev) {
         if (mimeTypes[ext])
             headers.set("content-type",mimeTypes[ext]);
 
+        let stat=fs.statSync(cand);        
+        headers.set("content-length",stat.size);
+
         let body=createStreamBody(fs.createReadStream(cand));
         return new Response(body,{
             headers: headers
