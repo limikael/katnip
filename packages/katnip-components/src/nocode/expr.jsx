@@ -55,9 +55,6 @@ function getAstVarNames(ast) {
 			break;
 
 		case "literal":
-			return [];
-			break;
-
 		case "field":
 			return [];
 			break;
@@ -82,11 +79,8 @@ function getAstVar(ast, varsByName) {
 			return new VarState({value: partValues.join("")});
 
 		case "literal":
-			return new VarState({value: ast.value});
-			break;
-
 		case "field":
-			return new VarState({value: ast.name});
+			return new VarState({value: ast.value});
 			break;
 
 		default:

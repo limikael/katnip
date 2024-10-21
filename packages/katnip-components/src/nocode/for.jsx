@@ -5,7 +5,8 @@ import {useVarExpr, useVarExprs} from "./expr.jsx";
 import {toChildArray} from 'preact';
 import {Fragment, useState} from "react";
 import {arrayUnique} from "../utils/js-util.js";
-import {useEventListener} from "../utils/react-util.jsx";
+import {useEventListener, useConstructor} from "../utils/react-util.jsx";
+import {parseComponentExpr} from "../nocode/parser.js";
 
 export function useExpandChildren(children) {
 	children=toChildArray(children);
@@ -48,13 +49,9 @@ function useWhere(where) {
 	return whereClause;
 }
 
-function ItemEnv({item, index, collection, insert, namespace, whereClause, children}) {
-	async function handleInsert(varStates) {
-		let set={};
-		for (let fieldName in collection.fields) {
-			set[fieldName]=varStates[fieldName].get();
-		}
-
+function ItemEnv({item, index, collection, insert, whereClause, children, let: letExpr}) {
+	let letName=parseComponentExpr(letExpr,{grammar: "declarationName"});
+	async function handleInsert(set) {
 		set={...set,...whereClause};
 
 		await collection.qql({
@@ -65,12 +62,7 @@ function ItemEnv({item, index, collection, insert, namespace, whereClause, child
 		collection.dispatchEvent(new Event("change"));
 	}
 
-	async function handleSave(varStates) {
-		let set={};
-		for (let fieldName in collection.fields) {
-			set[fieldName]=varStates[fieldName].get();
-		}
-
+	async function handleSave(set) {
 		await collection.qql({
 			update: collection.collectionId,
 			set: set,
@@ -80,7 +72,7 @@ function ItemEnv({item, index, collection, insert, namespace, whereClause, child
 		collection.dispatchEvent(new Event("change"));
 	}
 
-	async function handleDelete(varStates) {
+	async function handleDelete() {
 		await collection.qql({
 			deleteFrom: collection.collectionId,
 			where: {id: item.id}
@@ -91,40 +83,61 @@ function ItemEnv({item, index, collection, insert, namespace, whereClause, child
 
 	function createVarStates() {
 		let varStates={};
+		let declarationItem={...item};
 
-		let fieldNames=Object.keys(item);
+		let fieldNames=Object.keys(declarationItem);
 		if (collection.fields)
 			fieldNames=arrayUnique([
 				...fieldNames,
 				...Object.keys(collection.fields)
 			]);
 
+		for (let fieldName of fieldNames)
+			if (!declarationItem.hasOwnProperty(fieldName))
+				declarationItem[fieldName]=undefined;
+
 		for (let fieldName of fieldNames) {
-			let type;
-			if (collection.fields && collection.fields[fieldName])
-				type=collection.fields[fieldName].type;
-
-			let value=item[fieldName];
-			if (type=="image")
-				value="/admin/_content/"+value;
-
-			varStates[fieldName]=new VarState({
-				value: value,
-				type: type
-			});
+			if (collection.fields[fieldName]?.type=="image" &&
+					declarationItem[fieldName])
+				declarationItem[fieldName]="/admin/_content/"+declarationItem[fieldName];
 		}
 
-		varStates.index=new VarState({value: index});
+		function getItem() {
+			let currentItem={};
 
-		if (collection.type=="collection") {
-			if (insert) {
-				varStates.save=new VarState({action: ()=>handleInsert(varStates)})
+			if (letName) {
+				for (let k of fieldNames)
+					currentItem[k]=varStates[letName].get()[k];
 			}
 
 			else {
-				varStates.save=new VarState({action: ()=>handleSave(varStates)});
-				varStates.delete=new VarState({action: ()=>handleDelete(varStates)});
+				for (let k of fieldNames)
+					currentItem[k]=varStates[k].get();
 			}
+
+			return currentItem;
+		}
+
+		if (collection.type=="collection") {
+			if (insert) {
+				declarationItem.save=()=>handleInsert(getItem());
+			}
+
+			else {
+				declarationItem.save=()=>handleSave(getItem());
+				declarationItem.delete=()=>handleDelete(getItem());
+			}
+		}
+
+		declarationItem.index=index;
+
+		if (letName) {
+			varStates[letName]=new VarState({value: declarationItem});
+		}
+
+		else {
+			for (let k in declarationItem)
+				varStates[k]=new VarState({value: declarationItem[k]})
 		}
 
 		return varStates;
@@ -137,9 +150,10 @@ function ItemEnv({item, index, collection, insert, namespace, whereClause, child
 }
 
 export function For({children, in: inVar, where, namespace,
-		setCount, setLastIndex, count: countExpr, insert}) {
+		setCount, setLastIndex, count: countExpr, insert,
+		let: letExpr}) {
 	let env=useEnv();
-	let collection=useVarExpr(inVar,{assignable: true});
+	let collection=useVarExpr(inVar,{grammar: "assignable"});
 	let countVar=useVarExpr(countExpr);
 	let whereClause=useWhere(where);
 	let [refreshCount,setRefreshCount]=useState(1);
@@ -175,9 +189,6 @@ export function For({children, in: inVar, where, namespace,
 			env.getVar(setLastIndex).set(items.length-1)
 	}
 
-	if (!namespace)
-		namespace=inVar;
-
 	if (items) {
 		return (<>
 			{items.map((item,index)=>
@@ -189,7 +200,8 @@ export function For({children, in: inVar, where, namespace,
 						namespace={namespace}
 						insert={insert}
 						whereClause={whereClause}
-						children={children}/>
+						children={children}
+						let={letExpr}/>
 			)}
 		</>);
 	}
@@ -213,22 +225,31 @@ For.expandChildren=true;
 For.category="Logic";
 For.materialSymbol="laps";
 For.envSpec=(props, envSpec)=>{
+	let inName=parseComponentExpr(props.in,{grammar: "declarationName"});
+	if (!inName)
+		return;
+
 	let spec={
 		save: {type: "action"},
 		delete: {type: "action"},
 	};
 
-	let inVar=props.in?props.in:"";
-	inVar=inVar.replace("$","");
-	let collectionSpec=envSpec[inVar];
+	let collectionSpec=envSpec[inName];
 	if (collectionSpec)
-		spec={...spec, ...collectionSpec.fields};
+		spec={...spec, id: {}, ...collectionSpec.fields};
+
+	let letName=parseComponentExpr(props.let,{grammar: "declarationName"});
+	if (letName)
+		spec={
+			[letName]: {type: "object", fields: spec}
+		}
 
 	return spec;
 }
 For.containerType="children";
 For.displayName = "Loop"
 For.controls={
+    let: {type: "text"},
 	in: {type: "collection"},
 	where: {type: "where", collectionVar: "in"}
 }

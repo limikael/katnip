@@ -6,13 +6,14 @@ export default function Button({action, children, ...props}) {
 		action="";
 
 	let actionArray=action.split(",").map(s=>s.trim()).filter(s=>!!s);
-	let actionVars=useVarExprs(actionArray,{assignable: true});
+	let actionVars=useVarExprs(actionArray,{grammar: "assignable"});
 
 	async function handleClick() {
 		let ev=new Event("action",{cancelable: true});
 		for (let actionVar of actionVars) {
 			if (!ev.defaultPrevented)
-				await actionVar.action(ev);
+//				await actionVar.action(ev);
+				await actionVar.get()(ev);
 		}
 	}
 

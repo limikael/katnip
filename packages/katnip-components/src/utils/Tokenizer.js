@@ -9,6 +9,9 @@ export default class Tokenizer {
 	}
 
 	tokenize(s) {
+		if (!s)
+			return [];
+
 		let tokens=[];
 
 		while (s.length) {

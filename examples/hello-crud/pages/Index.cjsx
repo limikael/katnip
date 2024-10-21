@@ -9,11 +9,11 @@
         </div>
       </For>
 
-      <For in="pages">
+      <For let="page" in="pages">
         <div class="mb-5 flex">
-          <ValInput var="$title" class="p-2 bg-lightblue text-black rounded-full grow"/>
-          <Button class="bg-niceblue text-white ms-5 p-2 rounded-full text-sm" action="save">Save</Button>
-          <Button class="bg-niceblue text-white ms-5 p-2 rounded-full text-sm" action="delete">Delete</Button>
+          <ValInput var="$page[title]" class="p-2 bg-lightblue text-black rounded-full grow"/>
+          <Button class="bg-niceblue text-white ms-5 p-2 rounded-full text-sm" action="$page[save]">Save</Button>
+          <Button class="bg-niceblue text-white ms-5 p-2 rounded-full text-sm" action="$page[delete]">Delete</Button>
         </div>
       </For>
     </div>

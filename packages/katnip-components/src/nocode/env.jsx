@@ -5,12 +5,11 @@ import {VarState} from "./var.jsx";
 let EnvContext=createContext();
 
 class EnvState {
-	constructor({parent, actions, declarations, varStates, createVarStates, namespace}) {
+	constructor({parent, actions, declarations, createDeclarations, varStates, createVarStates}) {
 		//console.log("creating env", actions);
 
 		this.parent=parent;
 
-		this.namespace=namespace;
 		this.variables={};
 		if (createVarStates) {
 			let varStates=createVarStates();
@@ -26,6 +25,13 @@ class EnvState {
 				this.addVar(k,new VarState({value: declarations[k]}))
 		}
 
+		if (createDeclarations) {
+			let createdDeclarations=createDeclarations();
+			//console.log(createdDeclarations);
+			for (let k in createdDeclarations)
+				this.addVar(k,new VarState({value: createdDeclarations[k]}))
+		}
+
 		if (varStates) {
 			for (let k in varStates)
 				this.addVar(k,varStates[k]);
@@ -38,19 +44,8 @@ class EnvState {
 	}
 
 	getVar(name) {
-		name=name.replace("$","");
-
-		if (name.includes(":")) {
-			let [namespace,localName]=name.split(":");
-			if (namespace==this.namespace &&
-					this.variables[localName])
-				return this.variables[localName];
-		}
-
-		else {
-			if (this.variables[name])
-				return this.variables[name];
-		}
+		if (this.variables[name])
+			return this.variables[name];
 
 		if (this.parent)
 			return this.parent.getVar(name);
@@ -86,12 +81,12 @@ export function useEnv() {
 	return useContext(EnvContext);
 }
 
-export function Env({actions, varStates, createVarStates, declarations, children, namespace, onChange, display}) {
+export function Env({actions, varStates, createVarStates, declarations, createDeclarations, children, onChange, display}) {
 	if (!display)
 		display="block";
 
 	let parent=useEnv();
-	let env=useConstructor(()=>new EnvState({actions, varStates, declarations, parent, createVarStates, namespace}));
+	let env=useConstructor(()=>new EnvState({actions, varStates, declarations, createDeclarations, parent, createVarStates}));
 	env.onChange=onChange;
 
 	return (

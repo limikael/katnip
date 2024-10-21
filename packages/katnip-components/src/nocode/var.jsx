@@ -6,6 +6,10 @@ import {useState, useCallback, useLayoutEffect} from "react";
 export class VarState extends EventTarget {
 	constructor({value, type, fields, qql, sessionStorageKey, action, collectionId}={}) {
 		super();
+
+		if (typeof value=="function")
+			action=value;
+
 		this.value=value;
 		this.type=type;
 		this.fields=fields;
@@ -14,8 +18,10 @@ export class VarState extends EventTarget {
 		this.collectionId=collectionId;
 		this.sessionStorageKey=sessionStorageKey;
 
-		if (this.action)
+		if (this.action) {
 			this.type="action";
+			this.value=this.action;
+		}
 
 		if (this.sessionStorageKey && globalThis.sessionStorage)
 			this.value=JSON.parse(globalThis.sessionStorage.getItem(this.sessionStorageKey));

@@ -14,46 +14,73 @@ export class TemplateLiteralParser {
 		this.expressionParser=new ExpressionParser();
 	}
 
-	parse(s, options={}) {
-		if (!s) {
-			if (options.assignable)
-				return;
+	makeExpr(ast) {
+		//console.log("make expr",ast)
 
-			return {
-				type: "concat",
-				parts: []
-			};
+		switch (ast.type) {
+			case "concat":
+				if (!ast.parts.length)
+					return;
+
+				throw new Error("Not an assignable expression: "+s);
+				break;
+
+			case "expr":
+				return ast;
+				break;
+
+			case "literal":
+				return ({
+					type: "expr",
+					var: ast.value,
+					ref: []
+				});
+				break;
+
+			default:
+				throw new Error("Unknown expr type");
+				break;
 		}
+	}
+
+	parse(s, options={}) {
+		//console.log("parse ",s);
 
 		this.tokens=this.tokenizer.tokenize(s);
 		this.position=0;
 
+		//console.log("got tokens");
+
+		if (!options.grammar)
+			options.grammar="templateLiteral";
+
 		let ast=this.parseExpressionOrConcat();
-		if (options.assignable) {
-			switch (ast.type) {
-				case "concat":
-					if (!ast.parts.length)
-						ast=undefined;
+		//console.log("got ast..");
 
-					else
-						throw new Error("Not an assignable expression: "+s);
-					break;
+		switch (options.grammar) {
+			case "declarationName":
+				ast=this.makeExpr(ast);
+				if (ast && ast.ref.length)
+					throw new Error("Not a declaration");
 
-				case "expr":
-					break;
+				if (!ast)
+					return;
 
-				case "literal":
-					ast={
-						type: "expr",
-						var: ast.value,
-						ref: []
-					};
-					break;
-			}
-			//console.log(ast.type);
+				return ast.var;
+				break;
+
+			case "assignable":
+				return this.makeExpr(ast);
+				break;
+
+			case "templateLiteral":
+				return ast;
+				break;
+
+			default:
+				throw new Error("Unknown grammar");
+				break;
 		}
-
-		return ast;
 	}
 
 	currentToken() {
@@ -165,10 +192,10 @@ export class ExpressionParser {
 				var: variable
 			};
 
-			if (this.match("colon")) {
+			/*if (this.match("colon")) {
 				this.consume("colon");
 				ast.namespace=this.consume("id");
-			}
+			}*/
 
 			ast.ref=this.parseRef();
 			return ast;
@@ -189,7 +216,7 @@ export class ExpressionParser {
 			else if (this.match("id")) {
 				res.push({
 					type: "field",
-					name: this.consume("id"),
+					value: this.consume("id"),
 				})
 			}
 
@@ -200,4 +227,9 @@ export class ExpressionParser {
 
 		return res;
 	}
+}
+
+export function parseComponentExpr(exprString, options) {
+	let tplParser=new TemplateLiteralParser();
+	return tplParser.parse(exprString,options);
 }
