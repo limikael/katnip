@@ -235,8 +235,15 @@ For.envSpec=(props, envSpec)=>{
 	};
 
 	let collectionSpec=envSpec[inName];
-	if (collectionSpec)
-		spec={...spec, id: {}, ...collectionSpec.fields};
+	if (collectionSpec) {
+		spec.id={};
+		for (let fieldName in collectionSpec.fields) {
+			let fieldSpec=collectionSpec.fields[fieldName];
+
+			if (fieldSpec.type.toLowerCase()!="referencemany")
+				spec[fieldName]=fieldSpec;
+		}
+	}
 
 	let letName=parseComponentExpr(props.let,{grammar: "declarationName"});
 	if (letName)
