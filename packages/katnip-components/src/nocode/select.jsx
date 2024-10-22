@@ -42,6 +42,7 @@ Select.editorPreview=({display, children, class: className})=><div style={{displ
 Select.styling=true;
 Select.category="Logic";
 Select.materialSymbol="list";
+Select.containerType="children";
 Select.controls={
 	value: {type: "expr"},
 	render: {type: "select", options: ["dropdown","custom"]},
@@ -80,6 +81,7 @@ export function Option({value, children}) {
 Option.editorPreview=({display, children})=><div style={{display}}>{children}</div>;
 Option.materialSymbol="tv_options_edit_channels";
 Option.category="Logic";
+Option.containerType="children";
 Option.controls={
 	value: {type: "expr"}
 };
