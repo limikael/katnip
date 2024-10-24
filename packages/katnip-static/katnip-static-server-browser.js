@@ -12,16 +12,6 @@ export async function fetch(req, ev) {
     if (!jsonEq(prefixParts,appPathnameParts))
         return;
 
-    /*let contentFileCand=path.join(/ *ev.options.publicDir,* /...urlParts);
-    for (let contentFile of ev.contentFiles)
-        if (contentFile.name==contentFileCand) {
-            let parsedUrl=new URL(req.url);
-            let contentUrl=urlJoin(parsedUrl.origin,"admin/_content",contentFile.file);
-            //console.log("found content file: ",contentFile,"->",contentUrl);
-
-            return Response.redirect(contentUrl);
-        }*/
-
     let cand=path.join(ev.cwd,ev.options.publicDir,...urlParts);
     if (!await exists(ev.fsPromises,cand))
         return;
