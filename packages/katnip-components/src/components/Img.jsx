@@ -16,18 +16,23 @@ export default function Img({src, ...props}) {
 
 Img.editorPreview=({src, ...props})=>{
 	let iso=useIsoContext();
-	let srcVal=src;
-	if (srcVal && srcVal.includes("$"))
-		srcVal="/projects_placeholder.png";
+	src=iso.useBuilderUrl(src);
+/*	let Comp="img";
 
-	else if (srcVal)
-		srcVal=iso.getAppUrl(srcVal);
+	if (!src || src.includes("$")) {
+		src="/projects_placeholder.png";
+	}
 
-	else
-		srcVal="/projects_placeholder.png";
+	else {
+		Comp=iso.BuilderImg;
+	}
 
 	return (
-		<img src={srcVal} {...props}/>
+		<Comp src={src} {...props}/>
+	);*/
+
+	return (
+		<img src={src} {...props}/>
 	);
 }
 

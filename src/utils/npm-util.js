@@ -174,6 +174,7 @@ export async function resolveHookEntryPoints(...args) {
 		throw new Error("Keyword missing for resolveHookEntryPoints");
 
 	let pkgJson=await fs.promises.readFile(path.join(cwd,"package.json"));
+	//console.log("parsing pkg in",cwd,pkgJson);
 	let pkg=JSON.parse(pkgJson);
 
 	let entryPoints=[];
