@@ -47,6 +47,10 @@ export async function clientProps(props, ev) {
 	props.quickminCookieName=ev.data.quickminConf.cookie;
 }
 
+export async function cron(ev) {
+	await ev.data.quickminServer.garbageCollect();
+}
+
 fetch.priority=15;
 export async function fetch(req, ev) {
 	if (!ev.data.quickminServer)
