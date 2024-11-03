@@ -17,19 +17,6 @@ export default function Img({src, ...props}) {
 Img.editorPreview=({src, ...props})=>{
 	let iso=useIsoContext();
 	src=iso.useBuilderUrl(src);
-/*	let Comp="img";
-
-	if (!src || src.includes("$")) {
-		src="/projects_placeholder.png";
-	}
-
-	else {
-		Comp=iso.BuilderImg;
-	}
-
-	return (
-		<Comp src={src} {...props}/>
-	);*/
 
 	return (
 		<img src={src} {...props}/>

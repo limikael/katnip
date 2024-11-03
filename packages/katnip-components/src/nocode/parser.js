@@ -3,8 +3,8 @@ import Tokenizer from "../utils/Tokenizer.js";
 export class TemplateLiteralParser {
 	constructor() {
 		this.tokenizer=new Tokenizer({
-			literal: /(?:[^$\\]|\\.)+/,
-			expr: /(\$[A-Za-z0-9\[\]:_\$]*[A-Za-z0-9\[\]_\$]+)\\?/
+			literal: /(?:[^{\\]|\\.)+/,
+			expr: /{([^}]*)}/,
 		});
 
 		this.tokenizer.setTokenOptions({
@@ -30,9 +30,12 @@ export class TemplateLiteralParser {
 				break;
 
 			case "literal":
+				if (!ast.value.trim())
+					return;
+
 				return ({
 					type: "expr",
-					var: ast.value,
+					var: ast.value.trim(),
 					ref: []
 				});
 				break;
@@ -141,11 +144,10 @@ export class TemplateLiteralParser {
 export class ExpressionParser {
 	constructor() {
 		this.tokenizer=new Tokenizer({
-			dollar: "$",
 			id: /[A-Za-z0-9_]+/,
 			left_bracket: "[",
 			right_bracket: "]",
-			colon: ":",
+			dot: ".",
 		})
 	}
 
@@ -173,6 +175,9 @@ export class ExpressionParser {
 
 	consume(type) {
 		let token=this.currentToken();
+		if (!token)
+			throw new Error("Unexpected end of input.");
+
 		if (token.type===type) {
 			this.nextToken();
 			return token.value;
@@ -184,45 +189,36 @@ export class ExpressionParser {
 	}
 
 	parseExpression() {
-		if (this.match("dollar")) {
-			this.nextToken();
-			let variable=this.consume("id");
-			let ast={
-				type: "expr",
-				var: variable
-			};
+		if (!this.match("id"))
+			throw new Error("Expected id.");
 
-			/*if (this.match("colon")) {
-				this.consume("colon");
-				ast.namespace=this.consume("id");
-			}*/
+		let variable=this.consume("id");
+		let ast={
+			type: "expr",
+			var: variable
+		};
 
-			ast.ref=this.parseRef();
-			return ast;
-		}
-
-		else throw new Error("Expeced $ at beginning of expr.");
+		ast.ref=this.parseRef();
+		return ast;
 	}
 
 	parseRef() {
 		let res=[];
 
-		while (this.match("left_bracket")) {
-			this.consume("left_bracket");
-			if (this.match("dollar")) {
+		while (this.match("left_bracket") || this.match("dot")) {
+			if (this.match("left_bracket")) {
+				this.consume("left_bracket");
 				res.push(this.parseExpression());
+				this.consume("right_bracket");
 			}
 
-			else if (this.match("id")) {
+			else {
+				this.consume("dot");
 				res.push({
 					type: "field",
 					value: this.consume("id"),
 				})
 			}
-
-			else throw new Error("Expected expr of field.");
-
-			this.consume("right_bracket");
 		}
 
 		return res;

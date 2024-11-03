@@ -3,13 +3,16 @@ import {useVarExpr} from "./expr.jsx";
 import {Env, useEnv} from "./env.jsx";
 
 export function NumActions({var: varName, children, display, min, max, maxExclusive}) {
-	let varState=useVarExpr(varName);
+	let varState=useVarExpr(varName,{grammar: "assignable"});
 	let env=useEnv();
 
 	if (!display)
 		display="block";
 
 	function safeGet() {
+		if (!varState)
+			return 0;
+
 		let num=Number(varState.get());
 		if (isNaN(num))
 			num=0;
@@ -18,6 +21,9 @@ export function NumActions({var: varName, children, display, min, max, maxExclus
 	}
 
 	function safeSet(v) {
+		if (!varState)
+			return;
+
 		let minVal=0;
 		/*if (min)
 			minVal=env.getVar(min).get();*/
