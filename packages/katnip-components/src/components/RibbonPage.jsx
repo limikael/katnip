@@ -8,7 +8,7 @@ export default function RibbonPage({header, footer, children, class: className})
 
 	return (
 		<div style="display: flex; flex-direction: column; min-height: 100%;">
-			<div>
+			<div style="z-index: 1">
 				<Header/>
 			</div>
 			<div style="flex: 1 1 0;" class={className}>
