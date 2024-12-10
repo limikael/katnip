@@ -1,5 +1,5 @@
 import QuickminServer from "quickmin/server";
-import {quickminD1Driver} from "quickmin/d1-driver";
+import {d1DbDriver} from "quickmin/d1-db";
 import {r2StorageDriver} from "quickmin/r2-storage";
 
 export async function start(ev) {
@@ -16,7 +16,7 @@ export async function start(ev) {
 	quickminConf.env=ev.env;
 
 	let quickminServer=new QuickminServer(quickminConf,[
-	    quickminD1Driver,
+	    d1DbDriver,
 	    r2StorageDriver,
 	]);
 

@@ -35,24 +35,6 @@ export function includesAll(a, all) {
 	return true;
 }
 
-export function isPlainObject(o) {
-	return (o && [undefined, Object].includes(o.constructor));
-}
-
-export function objectifyArgs(params, fields) {
-    let conf={};
-
-    for (let i=0; i<params.length; i++) {
-        if (isPlainObject(params[i]))
-            conf={...conf,...params[i]}
-
-        else if (fields[i])
-            conf[fields[i]]=params[i];
-    }
-
-    return conf;
-}
-
 export class ResolvablePromise extends Promise {
 	constructor(cb = () => {}) {
         let resolveClosure = null;
@@ -98,4 +80,31 @@ export function arrayFindDuplicate(arr) {
 	for (let i=0; i<arr.length; i++)
 		if (arr.slice(i+1).includes(arr[i]))
 			return arr[i];
+}
+
+function isPlainObject(value) {
+    if (!value)
+        return false;
+
+    if (value.constructor===Object)
+        return true;
+
+    if (value.constructor.toString().includes("Object"))
+        return true;
+
+    return false;
+}
+
+export function objectifyArgs(params, fields) {
+    let conf={}, i=0;
+
+    for (let param of params) {
+        if (isPlainObject(param))
+            conf={...conf,...param};
+
+        else
+        	conf[fields[i++]]=param;
+    }
+
+    return conf;
 }

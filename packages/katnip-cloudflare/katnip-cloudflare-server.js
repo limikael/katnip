@@ -2,7 +2,9 @@ fetch.priority=5;
 export async function fetch(req, ev) {
 	let ignore=["localhost","127.0.0.1"];
 	let u=new URL(req.url);
-	console.log(u);
+
+	//console.log("serving: "+req.url);
+
 	if (u.protocol=="http:" &&
 			!ignore.includes(u.hostname)) {
 		u.protocol="https:";

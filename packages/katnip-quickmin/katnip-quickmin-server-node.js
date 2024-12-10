@@ -1,12 +1,12 @@
 import QuickminServer from "quickmin/server";
-import {quickminSqliteDriver} from "quickmin/sqlite-driver";
+import {dsnDb} from "quickmin/dsn-db";
 import {nodeStorageDriver} from "quickmin/node-storage";
 import {localNodeBundle} from "quickmin/local-node-bundle";
 import urlJoin from "url-join";
 
 export async function start(ev) {
 	let drivers=[
-		quickminSqliteDriver,
+		dsnDb,
 		nodeStorageDriver,
 	];
 

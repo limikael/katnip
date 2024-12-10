@@ -5,8 +5,10 @@ import path from "path";
 import {findNodeBin, runCommand} from "katnip";
 import {QuickminServer, quickminCanonicalizeConf} from "quickmin/server";
 import * as TOML from "@ltd/j-toml";
-import {quickminSqliteDriver} from "quickmin/sqlite-driver";
+import {dsnDb} from "quickmin/dsn-db";
 import {nodeStorageDriver} from "quickmin/node-storage";
+import {mockStorageDriver} from "quickmin/mock-storage";
+import {wranglerDbRemote, wranglerDbLocal} from "quickmin/wrangler-db";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -63,28 +65,27 @@ export async function initcli(spec) {
 
 cfdev.priority=15;
 export async function cfdev(ev) {
-    let quickminBin=await findNodeBin(__dirname,"quickmin");
-    let quickminArgs=["migrate","--driver","wrangler-local"];
-    if (ev.options.risky)
-        quickminArgs.push("--risky");
+    console.log("Migrating local D1 database");
 
-    await runCommand(quickminBin,quickminArgs,{
-        passthrough: true,
-        env: getWranglerEnvForEvent(ev)
+    let server=new QuickminServer({...ev.data.quickminConf},[
+        wranglerDbLocal,
+        mockStorageDriver
+    ]);
+    await server.sync({
+        risky: ev.options.risky
     });
 }
 
 cfdev.cfdeploy=15;
 export async function cfdeploy(ev) {
     console.log("Migrating schema on D1...");
-    let quickminBin=await findNodeBin(__dirname,"quickmin");
-    let quickminArgs=["migrate","--driver","wrangler"];
-    if (ev.options.risky)
-        quickminArgs.push("--risky");
 
-    await runCommand(quickminBin,quickminArgs,{
-        passthrough: true,
-        env: getWranglerEnvForEvent(ev)
+    let server=new QuickminServer({...ev.data.quickminConf},[
+        wranglerDbRemote,
+        mockStorageDriver
+    ]);
+    await server.sync({
+        risky: ev.options.risky
     });
 }
 
@@ -94,9 +95,15 @@ export async function dev(ev) {
         ev.options.qmLocalBundle=true;
     }
 
+    if (!ev.data.quickminConf.dsn) {
+        let defaultDsn="sqlite:quickmin.db";
+        console.log("Using default DSN: "+defaultDsn);
+        ev.data.quickminConf.dsn=defaultDsn;
+    }
+
     console.log("Migrating local db.");
     let server=new QuickminServer(ev.data.quickminConf,[
-        quickminSqliteDriver,
+        dsnDb,
         nodeStorageDriver
     ]);
     await server.sync({
@@ -114,7 +121,7 @@ export async function build(ev) {
 
     ev.data.quickminConf=conf;
 
-    let server=new QuickminServer({...ev.data.quickminConf});
+    let server=new QuickminServer({...ev.data.quickminConf, uninitialized: true});
     console.log("Quickmin storage used: "+server.isStorageUsed());
 
     if (ev.platform=="workerd") {

@@ -17,4 +17,5 @@ collections:
       url: /client.js
     fields:
       <Text id="title" listable/>
-      <Text id="content" multiline fullWidth/>
+      <Text id="another"/>
+      <RichText id="content" multiline fullWidth/>

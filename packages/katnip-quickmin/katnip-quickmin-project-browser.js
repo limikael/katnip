@@ -1,10 +1,10 @@
 import {parse as parseYaml} from "yaml";
 import path from "path-browserify";
 import {QuickminServer, quickminCanonicalizeConf} from "quickmin/server";
-import quickminQqlDriver from "quickmin/qql-driver";
 import fsStorage from "quickmin/fs-storage";
+import mockStorage from "quickmin/mock-storage";
 import * as TOML from "@ltd/j-toml";
-import {qqlDriverSqlJs} from "qql";
+import {QqlDriverSqlJs, QqlDriverSqlExec} from "qql";
 import {exists} from "katnip";
 
 build.priority=15;
@@ -41,7 +41,7 @@ export async function build(ev) {
 
 	switch (ev.platform) {
 		case "browser":
-			conf.qqlDriver=qqlDriverSqlJs(ev.sql);
+			conf.qqlDriver=new QqlDriverSqlJs(ev.sql);
 			conf.fs=ev.fs;
 			conf.upload=path.join(ev.cwd,"upload");
 
@@ -50,7 +50,6 @@ export async function build(ev) {
 			//console.log("starting with fs storage!!!!");
 
 			let server=new QuickminServer({...conf},[
-				quickminQqlDriver,
 				fsStorage
 			]);
 			await server.sync({});
@@ -61,15 +60,9 @@ export async function build(ev) {
 
 			//console.log("Migrating remote DB...")
 			let migrationConf={...conf};
-			migrationConf.qqlDriver=async (queries, returnType)=>{
-				if (returnType!="rows")
-					throw new Error("Only rows supported");
+			migrationConf.qqlDriver=new QqlDriverSqlExec(q=>ev.sqlExec(q));
 
-				//console.log(queries);
-
-				return await ev.sqlExec(queries.join(";"));
-			}
-			let migrationServer=new QuickminServer(migrationConf,[quickminQqlDriver]);
+			let migrationServer=new QuickminServer(migrationConf,[mockStorage]);
 			await migrationServer.sync({});
 			break;
 

@@ -1,7 +1,6 @@
 import QuickminServer from "quickmin/server";
-import quickminQqlDriver from "quickmin/qql-driver";
+//import quickminQqlDriver from "quickmin/qql-driver";
 import fsStorage from "quickmin/fs-storage";
-//import {localFsBundle} from "quickmin/local-fs-bundle";
 import urlJoin from "url-join";
 
 export async function start(ev) {
@@ -20,20 +19,12 @@ export async function start(ev) {
 	theConf.apiPath=urlJoin(ev.appPathname,ev.data.quickminConf.apiPath);
 
 	let drivers=[
-		quickminQqlDriver,
 		fsStorage
 	];
-
-	/*if (true / *ev.options.qmLocalBundle* /) {
-		console.log("Loading quickmin bundle locally through browser...");
-		drivers.push(localFsBundle);
-	}*/
 
 	//theConf.bundleUrl="http://localhost:3000/admin/_dist/quickmin-bundle.js";
 
 	let quickminServer=new QuickminServer(theConf,drivers);
-
-	//console.log("quickmin storage used: "+quickminServer.isStorageUsed());
 
 	ev.data.quickminServer=quickminServer;
 	ev.data.quickminApi=quickminServer.api;

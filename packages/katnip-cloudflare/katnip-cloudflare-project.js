@@ -63,12 +63,13 @@ export async function cfdev(ev) {
 	});
 
 	await ev.hookRunner.emit(buildEvent);
+	ev.data=buildEvent.data;
 }
 
 postcfdev.priority=20;
 async function postcfdev(ev) {
 	let wranglerBin=findNodeBin(process.cwd(),"wrangler");
-	await runCommand(wranglerBin,["dev"],{
+	await runCommand(wranglerBin,["dev","--host","localhost:8787","--port","8787"],{
 		passthrough: true
 	});
 }
@@ -87,6 +88,7 @@ export async function cfdeploy(ev) {
 	});
 
 	await ev.hookRunner.emit(buildEvent);
+	ev.data=buildEvent.data;
 }
 
 postcfdeploy.priority=20;

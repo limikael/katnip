@@ -5,11 +5,14 @@
   "scripts": {
     "start": "katnip dev",
     "dev": "katnip dev",
-    "postinstall": "katnip init"
+    "postinstall": "katnip init",
+    "cfdev": "katnip cfdev",
+    "deploy": "katnip cfdeploy"
   },
   "type": "module",
   "version": "1.0.0",
   "dependencies": {
+    "katnip-cloudflare": "^3.0.37",
     "katnip-isoq": "^3.0.42",
     "katnip-quickmin": "^3.0.46",
     "katnip-rpc": "^3.0.28",

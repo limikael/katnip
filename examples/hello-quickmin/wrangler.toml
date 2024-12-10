@@ -1,0 +1,10 @@
+
+name = 'hello-quickmin'
+main = '.target/worker.js'
+compatibility_date = '2023-10-30'
+d1_databases = [
+	{ binding = 'DB', database_name = 'hello-quickmin', database_id = '60e2815f-cd38-4d0b-be8f-d94e2d8efe5d' },
+]
+r2_buckets = [
+	{ binding = 'BUCKET', bucket_name = 'hello-quickmin' },
+]
