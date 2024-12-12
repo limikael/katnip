@@ -11,9 +11,8 @@
     "deploy": "katnip cfdeploy"
   },
   "exports": {
-    "browser": "./index.jsx",
-    "server": "./server.js",
-    "rpc": "Api.js"
+    "./isomain": "./src/index.jsx",
+    "./katnip-rpc-api": "./Api.js"
   },
   "dependencies": {
     "katnip-twentytwentyfour": "^3.0.9"

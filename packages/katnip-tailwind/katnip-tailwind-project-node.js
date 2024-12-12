@@ -2,8 +2,9 @@ import path from "path";
 import {fileURLToPath} from 'url';
 import {DeclaredError, findNodeBin, resolveHookEntryPoints, runCommand} from "katnip";
 import fs from "fs";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import postcss from 'postcss';
+import tailwind from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
 const TAILWIND_CONFIG_JS=
 `module.exports = {
@@ -42,7 +43,7 @@ let TAILWIND_CSS_DIRECTIVES=`
 @tailwind utilities;
 `;
 
-export async function build(ev) {
+/*export async function build(ev) {
     console.log("Building tailwind...");
     let tailwind=await findNodeBin(process.cwd(),"tailwind");
     if (!tailwind)
@@ -64,10 +65,37 @@ export async function build(ev) {
         outputFn=path.join(ev.options.publicDir,"index.css");
 
     await runCommand(tailwind,[
-        "--minify",
+//        "--minify",
         "-i",inputFn,
-        "-o",outputFn
+        "-o",outputFn,
+//        "--no-autoprefixer"
     ],{passthrough: true});
+
+    if (!ev.options.publicDir || ev.options.exposeIndexCss)
+        ev.data.indexCss=await ev.fs.promises.readFile(outputFn,"utf8");
+}*/
+
+export async function build(ev) {
+    console.log("Building tailwind via postcss...");
+    let inputCss="";
+    if (ev.options.cssDirectives!==false)
+        inputCss+=TAILWIND_CSS_DIRECTIVES;
+
+    if (ev.options.css)
+        inputCss+=fs.readFileSync(ev.options.css,"utf8");
+
+    //console.log(inputCss);
+
+    let tailwindcssPlugin=tailwind(path.join(ev.cwd,"tailwind.config.js"));
+    let processor=postcss([tailwindcssPlugin,autoprefixer]);
+    let artifact=await processor.process(inputCss, { from: undefined });
+    let output=artifact.css;
+
+    if (ev.options.publicDir) {
+        fs.mkdirSync(path.join(ev.cwd,ev.options.publicDir),{recursive: true});
+        let outputFn=path.join(ev.cwd,ev.options.publicDir,"index.css");
+        fs.writeFileSync(outputFn,output);
+    }
 
     if (!ev.options.publicDir || ev.options.exposeIndexCss)
         ev.data.indexCss=await ev.fs.promises.readFile(outputFn,"utf8");

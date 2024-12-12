@@ -20,6 +20,7 @@ export default function() {
 	},[])
 
 	return (<>
+		<h1 class="text-xl font-bold">Hello...</h1>
 		<h1 class="p-5">test again: {val}</h1>
 		<p>rpc result: {rpcResult}</p>
 	</>);

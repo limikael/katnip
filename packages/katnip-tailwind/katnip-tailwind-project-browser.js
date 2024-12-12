@@ -1,7 +1,9 @@
-import {jitBrowserTailwindcss} from "@mhsdesign/jit-browser-tailwindcss/dist/module.esm.js";
+import {createTailwindcssPlugin, /*jitBrowserTailwindcss*/} from "@mhsdesign/jit-browser-tailwindcss/dist/module.esm.js";
 import {findMatchingFiles, mkdirRecursive} from "./fs-util.js";
 import path from "path-browserify";
 import {resolveHookEntryPoints} from "katnip";
+import postcss from "postcss";
+//import autoprefixer from "autoprefixer";
 
 async function buildTailwind(ev) {
 	let input=`
@@ -17,12 +19,16 @@ html, body, #isoq {
 
 	let conf=(await ev.import(path.join(ev.cwd,"tailwind.config.js"))).default;
 	let fileNames=await findMatchingFiles(ev.fs.promises,ev.cwd,conf.content);
-	let source="";
+	let sources=[];
 	for (let fileName of fileNames)
-		source+=await ev.fs.promises.readFile(path.resolve(ev.cwd,fileName),"utf8");
-	//console.log("tailwind source files:",fileNames);
+		sources.push(await ev.fs.promises.readFile(path.resolve(ev.cwd,fileName),"utf8"));
 
-	let output=await jitBrowserTailwindcss(input,source,conf);
+	// can't use autoprefixer for now, because it doesn't like the browser env.
+
+    let tailwindcssPlugin=createTailwindcssPlugin({tailwindConfig: conf, content: sources});
+	let processor=postcss([tailwindcssPlugin,/*autoprefixer*/]);
+	let artifact=await processor.process(input, { from: undefined });
+	let output=artifact.css;
 
 	return ({
 		css: output,
