@@ -98,5 +98,5 @@ export async function build(ev) {
     }
 
     if (!ev.options.publicDir || ev.options.exposeIndexCss)
-        ev.data.indexCss=await ev.fs.promises.readFile(outputFn,"utf8");
+        ev.data.indexCss=output;
 }
