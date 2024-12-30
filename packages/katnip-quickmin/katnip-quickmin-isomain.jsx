@@ -1,7 +1,3 @@
-//import {QuickminApiProvider, QuickminUserProvider} from "quickmin/use-api";
-//import {QqlProvider, useQql} from "qql/react";
-//import {createQqlClient} from "qql";
-
 import {createQqlClient, QqlProvider, useQql, 
 		QuickminApiProvider, QuickminUserProvider} from "katnip-quickmin/react";
 import {useIsoContext} from "isoq";

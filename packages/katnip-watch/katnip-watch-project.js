@@ -1,98 +1,56 @@
-import path from "path";
-import {fileURLToPath} from 'url';
 import fs from "fs";
-import chokidar from "chokidar";
-import {ResolvablePromise} from "katnip";
+import {HookEvent} from "katnip";
+import {createWatch, awaitEvent} from "./fs-util.js";
+import {Option} from "commander";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-export function arrayify(a) {
-	if (Array.isArray(a))
-		return a;
-
-	if (a===undefined)
-		return [];
-
-	return [a];
+initCli.priority=15;
+export async function initCli(initCliEvent) {
+	let devCommand=initCliEvent.getCommandSpec("dev");
+	devCommand.addOption(
+		new Option("--watch <method>","How to watch for file change.")
+			.default("chokidar")
+			.choices(["fs","chokidar","none"])
+	);
 }
 
-export async function initcli(spec) {
-    spec.addCommandOption("dev","watch",{
-        description: "Watch files and restart server.",
-        type: "boolean",
-	    default: true
-    });
-}
-
-dev.priority=5;
+dev.priority=1;
 export async function dev(devEvent) {
-	if (devEvent.options.watch===false) {
-		console.log("Skipping watch...");
+	if (devEvent.options.watch=="none")
 		return;
-	}
 
-	devEvent.stopPropagation();
+	if (!devEvent.watcher) {
+		console.log("Watching with: "+devEvent.options.watch);
 
-	let watchDirs=[process.cwd()];
-	let ignored=[
-		"**/node_modules/**", "**/.git/**", "**/*.db*",
-		"**/.env", "**/package.json", "**/package-lock.json", "**/yarn.lock",
-		"**/katnip-cli.js","**/public","**/.target","**/.wrangler",
-		"**/wrangler.toml","**/upload"
-	];
+		let target=devEvent.target;
 
-	if (devEvent.options.watchAddIgnore) {
-		let addIgnore=arrayify(devEvent.options.watchAddIgnore);
-		console.log("Adding watch ignore: "+JSON.stringify(addIgnore));
+		let ignore=[
+			"node_modules/**",
+			"public/**",
+			"upload/**"
+		];
 
-		ignored=[...ignored,...addIgnore];
-	}
+		await devEvent.target.dispatch(new HookEvent("watchIgnore",{
+			watchIgnore: ignore,
+			...devEvent
+		}));
 
-	let watcher=chokidar.watch(watchDirs,{
-		ignored: ignored,
-	});
+		let watcherOptions={
+			ignore: ignore,
+			fs,
+			method: devEvent.options.watch
+		};
 
-	let startPromise=new ResolvablePromise();
-	let	changePromise=new ResolvablePromise();
+		devEvent.watcher=createWatch(process.cwd(),watcherOptions);
+		let watchPromise=awaitEvent(devEvent.watcher,"change");
 
-	watcher.on("ready",(ev, p)=>{
-		watcher.on("all",(ev, p)=>{
-			console.log("File change: "+ev+" "+p);
-			changePromise.resolve();
-		});
+		while (1) {
+			await target.dispatch(devEvent);
 
-		startPromise.resolve();
-	});
+			let ev=await watchPromise;
+			console.log("file change: "+ev.filename);
+			watchPromise=awaitEvent(devEvent.watcher,"change");
 
-	await startPromise;
-
-	console.log("Watching for changes...");
-
-	while (true) {
-		let job;
-
-		try {
-			job=await devEvent.runRemaining();
-		}
-
-		catch (e) {
-			console.log("Failed to start");
-			console.log(e);
-		}
-
-		console.log("Watching for code changes...");
-		await changePromise;
-		console.log();
-		console.log("Change detected...");
-		changePromise=new ResolvablePromise();
-
-		if (job && job.stop) {
-			console.log("Stopping current job...");
-			await job.stop();
-		}
-
-		else {
-			console.log("Job can't be stopped.");
+			await target.dispatch(new HookEvent("stop",devEvent));
 		}
 	}
 }

@@ -5,58 +5,66 @@ export default class HookRunner {
 		this.listeners={};
 	}
 
-	on(event, func) {
-		if (!this.listeners[event])
-			this.listeners[event]=[];
+	addListener(type, listener) {
+		if (!this.listeners[type])
+			this.listeners[type]=[];
 
-		if (!func.priority)
-			func.priority=10;
+		if (!listener.priority)
+			listener.priority=10;
 
-		this.listeners[event].push(func);
-		this.listeners[event].sort((a,b)=>a.priority-b.priority);
+		this.listeners[type].push(listener);
+		this.listeners[type].sort((a,b)=>a.priority-b.priority);
 	}
 
-	addListenerModule(mod, options={}) {
-		for (let funcName in mod) {
-			if (!["registerHooks","default"].includes(funcName))
-				this.on(funcName,mod[funcName]);
+	addListenerModule(mod) {
+		for (let name in mod)
+			if (!["default"].includes(name)) {
+				let event=name;
+				if (mod[name].event)
+					event=mod[name].event;
 
-			/*if (!this.listeners[funcName])
-				this.listeners[funcName]=[];
+				this.addListener(event,mod[name]);
+			}
+	}
 
-			let func=mod[funcName];
-			if (!func.priority)
-				func.priority=10;
+	async dispatch(hookEvent, options={}) {
+		/*if (!(hookEvent instanceof HookEvent))
+			throw new Error("Event should be hook event");*/
 
-			this.listeners[funcName].push(func);
-			this.listeners[funcName].sort((a,b)=>a.priority-b.priority);*/
+		if (hookEvent.target && hookEvent.target!=this)
+			throw new Error("Event used with different dispatcher");
+
+		hookEvent.target=this;
+
+		let listeners=[];
+		if (this.listeners[hookEvent.type])
+			listeners=[...this.listeners[hookEvent.type]];
+
+		if (options.concurrent) {
+			let priorityGroups={};
+			for (let listener of listeners) {
+				if (!priorityGroups[listener.priority])
+					priorityGroups[listener.priority]=[];
+
+				priorityGroups[listener.priority].push(listener)
+			}
+
+			for (let priority in priorityGroups) {
+				let groupListeners=priorityGroups[priority];
+				let promises=groupListeners.map(l=>l(hookEvent));
+				await Promise.all(promises);
+			}
 		}
-
-		if (mod.registerHooks)
-			mod.registerHooks(this);
-	}
-
-	getListenersByEventType(type) {
-		let listeners=this.listeners[type];
-		if (!listeners)
-			listeners=[];
-
-		return [...listeners];
-	}
-
-	async emit(event, ...listenerParameters) {
-		if (typeof event=="string")
-			event=new HookEvent(event, {listenerParameters});
 
 		else {
-			// Can't check because doesn't work with npm link
-			/*if (!(event instanceof HookEvent))
-				throw new Error("not hook event");*/
+			let res;
+			for (let listener of listeners) {
+				res=await listener(hookEvent);
+				if (res)
+					break;
+			}
 
-			if (listenerParameters.length)
-				throw new Error("Event options only allowed if event is a string.");
+			return res;
 		}
-
-		return await event.run(this,this.getListenersByEventType(event.type));
 	}
 }

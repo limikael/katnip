@@ -1,4 +1,5 @@
-import {HookRunner} from "katnip";
+export default `
+import {HookRunner, HookEvent} from "katnip";
 
 $$WORKER_DATA$$
 
@@ -10,32 +11,30 @@ let envDataMap=new WeakMap();
 
 async function handleFetch(req, env, ctx) {
 	if (!envDataMap.get(env)) {
-		let envData={...workerData.data};
+		let envData={...workerData.appData};
 		envDataMap.set(env,envData);
 
-		await hookRunner.emit("start",{
+		await hookRunner.dispatch(new HookEvent("start",{
 			appPathname: "/",
 			importModules: workerData.importModules,
 			options: workerData.options,
-			data: envData,
+			appData: envData,
 			hookRunner: hookRunner,
 			env,
-		});
+		}));
 	}
 
-	let ev={
+	return await hookRunner.dispatch(new HookEvent("fetch",{
 		appPathname: "/",
 		importModules: workerData.importModules,
 		options: workerData.options,
-		data: envDataMap.get(env),
+		appData: envDataMap.get(env),
 		hookRunner: hookRunner,
 		localFetch: r=>handleFetch(r,env,ctx),
-		req,
+		request: req,
 		env,
 		ctx,
-	};
-
-	return await hookRunner.emit("fetch",req,ev);
+	}));
 }
 
 export default {
@@ -43,3 +42,4 @@ export default {
 		return await handleFetch(req,env,ctx);
 	}
 }
+`;

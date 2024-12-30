@@ -1,21 +1,9 @@
-
-jwtSecret: "changeme"
-adminUser: "admin"
-adminPass: "admin"
-apiPath: "admin"
+jwtSecret: helloworld
+adminUser: admin
+adminPass: admin
+apiPath: admin
 
 collections:
   pages:
-    actions:
-    - name: Hello
-      type: jsonrpc
-      method: hello
-      url: /rpc
-    - name: Client Hello
-      type: module
-      method: theActionFunction
-      url: /client.js
     fields:
-      <Text id="title" listable/>
-      <Text id="another"/>
-      <RichText id="content" multiline fullWidth/>
+      <Text id="title"/>

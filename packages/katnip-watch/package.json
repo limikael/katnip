@@ -1,7 +1,7 @@
 {
   "name": "katnip-watch",
   "scripts": {},
-  "version": "3.0.32",
+  "version": "4.0.0",
   "license": "MIT",
   "keywords": [
     "katnip-plugin"
@@ -11,7 +11,7 @@
     "./katnip-project-hooks": "./katnip-watch-project.js"
   },
   "dependencies": {
-    "chokidar": "^3.6.0",
-    "katnip": "^3.0.34"
+    "minimatch": "^10.0.1",
+    "chokidar": "^4.0.3"
   }
 }

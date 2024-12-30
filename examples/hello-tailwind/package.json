@@ -1,18 +1,17 @@
 {
-  "name": "hello-tailwind",
-  "version": "1.0.0",
-  "license": "MIT",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "dev": "katnip dev"
-  },
-  "dependencies": {
-    "katnip": "^3.0.16",
-    "katnip-isoq": "^3.0.27",
-    "katnip-tailwind": "^3.0.24"
-  },
-  "exports": {
-    "./isomain": "index.jsx"
-  }
+	"name": "hello-tailwind",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"dev": "katnip dev"
+	},
+	"dependencies": {
+	    "katnip": "link:../..",
+	    "katnip-isoq": "link:../../packages/katnip-isoq",
+	    "katnip-watch": "link:../../packages/katnip-watch",
+	    "katnip-tailwind": "link:../../packages/katnip-tailwind"
+	},
+	"exports": {
+		"./isomain": "./index.jsx"
+	}
 }

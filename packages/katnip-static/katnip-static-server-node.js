@@ -21,9 +21,12 @@ function createStreamBody(stream) {
 }
 
 fetch.priority=5;
-export function fetch(req, ev) {
-    let u=new URL(req.url);
-    let cand=path.join(ev.options.publicDir,u.pathname);
+export function fetch(fetchEvent) {
+    let u=new URL(fetchEvent.request.url);
+    let cand=path.join(fetchEvent.cwd,fetchEvent.options.publicDir,u.pathname);
+
+    //console.log(fetchEvent.cwd);
+    //console.log("looking for: "+cand);
 
     if (fs.existsSync(cand) &&
             fs.statSync(cand).isFile()) {

@@ -1,0 +1,12 @@
+{
+	"name": "hello-static",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"dev": "katnip dev"
+	},
+	"dependencies": {
+	    "katnip": "link:../..",
+	    "katnip-static": "link:../../packages/katnip-static"
+	}
+}

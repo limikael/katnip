@@ -1,36 +1,6 @@
-import {objectifyArgs, includesAll, arrayFindDuplicate, arrayUnique, splitPath} from "./js-util.js";
-import path from "path-browserify";
-import {exists} from "./fs-util.js";
-import semver from "semver";
-
-function expandExports(exportDefs, importPath="", conditions=[]) {
-	if (typeof exportDefs=="string") {
-		if (importPath=="." || importPath=="./")
-			importPath="";
-
-		return [{
-			importPath, 
-			conditions, 
-			path: exportDefs
-		}];
-	}
-
-	let res=[];
-	for (let k in exportDefs) {
-		let childImportPath=importPath;
-		let childConditions=conditions;
-
-		if (k.startsWith("."))
-			childImportPath=path.join(childImportPath,k);
-
-		else if (k!="default")
-			childConditions=[...childConditions,k];
-
-		res.push(...expandExports(exportDefs[k],childImportPath,childConditions));
-	}
-
-	return res;
-}
+import path from "path";
+import {objectifyArgs, arrayUnique, arrayFindDuplicate, splitPath} from "./js-util.js";
+import * as resolve from 'resolve.exports';
 
 export async function resolveModuleEntryPoint(...args) {
 	let {cwd,importPath,conditions,fs,pkg}=
@@ -44,45 +14,35 @@ export async function resolveModuleEntryPoint(...args) {
 		pkg=JSON.parse(pkgJson);
 	}
 
-	//console.log("import: "+cwd+" / "+importPath);
+	//console.log("resolving: "+importPath+" cond:",conditions,"in:"+cwd);
 
-	if (!pkg.exports) {
-		if (importPath) {
-			if (await exists(path.join(cwd,importPath),{fs}))
-				return importPath;
+	// todo, don't crash if id doesn't exist
+	try {
+		let exported=resolve.exports(pkg,importPath,{
+			conditions: conditions, 
+			unsafe: true
+		});
 
+		//console.log(exported);
+
+		if (!exported)
 			return;
-		}
 
-		if (pkg.browser) {
-			if (!importPath && pkg.main && pkg.browser[pkg.main])
-				return pkg.browser[pkg.main];
+		if (exported.length!=1)
+			throw new Error("Expected exactly one path");
 
-			return pkg.browser;
-		}
-
-		if (pkg.main) {
-			if (await exists(path.join(cwd,pkg.main),{fs}))
-				return pkg.main;
-
-			if (await exists(path.join(cwd,pkg.main+".js"),{fs}))
-				return pkg.main+".js";
-
-			return;
-		}
-
-		if (!importPath &&
-				await exists(path.join(cwd,"index.js"),{fs}))
-			return "index.js";
-
-		return;
+		return exported[0];
 	}
 
-	for (let exportEntry of expandExports(pkg.exports)) {
-		//console.log("exportEntry.importPath: "+exportEntry.importPath+" ... "+importPath);
-		if (exportEntry.importPath==importPath &&
-				includesAll(conditions,exportEntry.conditions))
-			return exportEntry.path;
+	catch (e) {
+		//console.log(e);
+		if (e.message.startsWith("No known conditions"))
+			return;
+
+		if (e.message.startsWith("Missing"))
+			return;
+
+		throw e;
 	}
 }
 
@@ -91,7 +51,7 @@ export async function resolveModuleDir(cwd, packageName, {fs}) {
 		throw new Error("resolveModuleDir: Path is not absolute: "+cwd);
 
 	let cand=path.join(cwd,"node_modules",packageName);
-	if (await exists(cand,{fs})) {
+	if (fs.existsSync(cand)) {
 		if (fs.promises.realpath)
 			cand=await fs.promises.realpath(cand);
 
@@ -217,31 +177,31 @@ export async function resolveHookEntryPoints(...args) {
 	return entryPoints;
 }
 
-export async function projectNeedInstall(projectDir, {fs}) {
-	if (!path.isAbsolute(projectDir))
-		throw new Error("Need absolute project path");
+export function pkgSetExport(exps, {importPath, conditions, target}={}) {
+	if (!exps)
+		exps={};
 
-	if (await exists(path.join(projectDir,"node_modules",".INCOMPLETE"),{fs})) {
-		console.log("return true");
-		return true;
+	if (!conditions)
+		conditions=[];
+
+	if (conditions.length)
+		throw new Error("Can't handle conditions yet");
+
+	if (!importPath.startsWith("."))
+		importPath="./"+importPath;
+
+	if (!target.startsWith("."))
+		target="./"+target;
+
+	if (!Object.keys(exps)[0] ||
+			Object.keys(exps)[0].startsWith(".")) {
+		exps[importPath]=target;
+		return exps;
 	}
 
-	let mainPackageJsonPath=path.join(projectDir,"package.json");
-	let mainPackageJson=JSON.parse(await fs.promises.readFile(mainPackageJsonPath,"utf8"));
-	for (let depName in mainPackageJson.dependencies) {
-		let depPackageJsonPath=path.join(projectDir,"node_modules",depName,"package.json");
-		if (!(await exists(depPackageJsonPath,{fs}))) {
-			console.log("doesn't exist: "+depPackageJsonPath);
-			return true;
-		}
+	if (!exps.default)
+		exps.default={};
 
-		let depPackageJson=JSON.parse(await fs.promises.readFile(depPackageJsonPath,"utf8"));
-		let currentVersion=depPackageJson.version;
-		let requiredVersion=mainPackageJson.dependencies[depName];
-
-		if (!semver.satisfies(currentVersion,requiredVersion)) {
-			console.log("required: "+requiredVersion+" current: "+currentVersion);
-			return true;
-		}
-	}
+	exps.default[importPath]=target;
+	return exps;
 }

@@ -1,0 +1,12 @@
+jwtSecret: helloworld
+adminUser: admin
+adminPass: admin
+apiPath: admin
+cookie: test
+
+collections:
+  blogs:
+    fields:
+      <Text id="title"/>
+      <Image id="img"/>
+      <Text id="content"/>

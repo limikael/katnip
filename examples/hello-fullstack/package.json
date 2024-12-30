@@ -1,0 +1,19 @@
+{
+	"name": "hello-fullstack",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"dev": "katnip dev"
+	},
+	"dependencies": {
+	    "katnip-tailwind": "link:../../packages/katnip-tailwind",
+	    "katnip-isoq": "link:../../packages/katnip-isoq",
+	    "katnip-watch": "link:../../packages/katnip-watch",
+	    "katnip-static": "link:../../packages/katnip-static",
+	    "katnip-cloudflare": "link:../../packages/katnip-cloudflare",
+	    "katnip": "link:../.."
+	},
+	"exports": {
+		"./isomain": "./index.jsx"
+	}
+}

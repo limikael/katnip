@@ -1,6 +1,6 @@
 {
   "name": "katnip-rpc",
-  "version": "3.0.38",
+  "version": "4.0.1",
   "type": "module",
   "license": "MIT",
   "scripts": {},
@@ -14,7 +14,8 @@
     ".": "./katnip-rpc.jsx"
   },
   "dependencies": {
-    "katnip": "^3.0.34",
-    "fullstack-rpc": "^1.0.3"
+    "fullstack-rpc": "^1.0.3",
+    "katnip": "^4.0.3",
+    "path-browserify": "^1.0.1"
   }
 }

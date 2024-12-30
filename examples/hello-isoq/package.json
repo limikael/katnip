@@ -8,10 +8,10 @@
     "dev": "katnip dev"
   },
   "dependencies": {
-    "katnip": "^3.0.16",
-    "katnip-isoq": "^3.0.27"
+    "katnip": "link:../..",
+    "katnip-isoq": "link:../../packages/katnip-isoq",
+    "katnip-watch": "link:../../packages/katnip-watch"
   },
   "exports": {
-    "./isomain": "index.jsx"
   }
 }

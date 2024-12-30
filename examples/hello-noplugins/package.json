@@ -1,0 +1,12 @@
+{
+	"name": "testing",
+	"scripts": {
+		"dev": "katnip dev"
+	},
+	"type": "module",
+	"exports": {
+		"./katnip-server-hooks": "./server.js"
+	},
+	"dependencies": {
+	}
+}

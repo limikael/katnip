@@ -1,18 +1,23 @@
+import {HookEvent} from "katnip";
+
 fetch.priority=20;
-export async function fetch(req, ev) {
-	if (req.method.toUpperCase()!="GET")
+export async function fetch(fetchEvent) {
+	if (fetchEvent.request.method.toUpperCase()!="GET")
 		return;
 
-	let requestHandler=ev.importModules.isoqRequestHandler.default;
+	let requestHandler=fetchEvent.importModules.isoqRequestHandler.default;
 
 	let props={};
-	await ev.hookRunner.emit("clientProps",props,ev);
+	await fetchEvent.target.dispatch(new HookEvent("clientProps",{
+		props,
+		...fetchEvent
+	}));
 
 	try {
-		let res=await requestHandler(req,{
+		let res=await requestHandler(fetchEvent.request,{
 			props: props,
-			localFetch: ev.localFetch,
-			appPathname: ev.appPathname
+			localFetch: fetchEvent.localFetch,
+			appPathname: fetchEvent.appPathname
 		});
 
 		return res;

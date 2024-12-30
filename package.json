@@ -1,32 +1,32 @@
 {
   "name": "katnip",
-  "version": "3.0.34",
   "license": "MIT",
+  "version": "4.0.3",
   "type": "module",
-  "scripts": {
-    "test": "jasmine"
-  },
   "bin": {
     "katnip": "src/cli/katnip-cli.js"
   },
-  "dependencies": {
-    "find-node-modules": "^2.1.3",
-    "json5": "^2.2.3",
-    "minimist": "^1.2.8",
-    "path-browserify": "^1.0.1",
-    "semver": "^7.6.0",
-    "serve-fetch": "^1.0.3",
-    "url-join": "^5.0.0"
+  "scripts": {
+    "test": "jasmine",
+    "systemtest": "jasmine --config=spec/support/jasmine.system.mjs"
+  },
+  "devDependencies": {
+    "jasmine": "^5.5.0",
+    "qql": "^1.0.23"
   },
   "exports": {
     ".": {
-      "workerd": "./src/exports/katnip-workerd.js",
-      "node": "./src/exports/katnip-node.js",
-      "browser": "./src/exports/katnip-browser.js"
-    },
-    "./component-library-provider": "./src/components/component-library-provider.jsx"
+      "node": "./src/exports/exports-node.js",
+      "default": "./src/exports/exports-default.js"
+    }
   },
-  "devDependencies": {
-    "jasmine": "^5.1.0"
+  "dependencies": {
+    "commander": "^12.1.0",
+    "find-node-modules": "^2.1.3",
+    "json5": "^2.2.3",
+    "resolve.exports": "^2.0.3",
+    "semver": "^7.6.3",
+    "serve-fetch": "^1.0.3",
+    "table": "^6.9.0"
   }
 }

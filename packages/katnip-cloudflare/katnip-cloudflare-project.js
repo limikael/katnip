@@ -1,184 +1,298 @@
-import {BuildEvent, resolveHookEntryPoints, DeclaredError, runCommand, findNodeBin} from "katnip";
 import fs from "fs";
+import {resolveHookEntryPoints, findNodeBin, runCommand, HookEvent} from "katnip";
 import path from "path";
+import WORKER_STUB from "./worker-stub.js";
 import {fileURLToPath} from 'url';
-import * as TOML from "@ltd/j-toml";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
-export async function initcli(spec) {
-	spec.addCommand("cfdev","Start wrangler development server.",{
-		inheritOptions: "build"
-	});
+export async function initCli(initCliEvent) {
+	let option;
 
-	spec.addCommand("cfdeploy","Deploy to Cloudflare Workers.",{
-		inheritOptions: "build"
-	});
+	option=initCliEvent.getOptionSpec("dev","platform");
+	option.choices([...option.argChoices,"cloudflare"]);
 
-	spec.addCommandOption("cfdeploy","cfToken","Cloudflare API token.");
+	option=initCliEvent.getOptionSpec("deploy","platform");
+	option.choices([...option.argChoices,"cloudflare"]);
+
+	option=initCliEvent.getOptionSpec("undeploy","platform");
+	option.choices([...option.argChoices,"cloudflare"]);
 }
 
-export async function init(ev) {
-	let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
-	if (!packageJson.exports)
-		packageJson.exports={};
+buildCreateWrangler.priority=5;
+buildCreateWrangler.event="build";
+export async function buildCreateWrangler(buildEvent) {
+	if (!buildEvent.tags.includes("cloudflare"))
+		return;
 
-	let updated=false;
-
-	if (!packageJson.scripts.cfdev) {
-		packageJson.scripts.cfdev="katnip cfdev";
-		updated=true;
-	}
-
-	if (!packageJson.scripts.deploy) {
-		packageJson.scripts.deploy="katnip cfdeploy";
-		updated=true;
-	}
-
-	if (updated) {
-		console.log("Updating cloudflare scripts in package.json...")
-		fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
-	}
-}
-
-export async function registerHooks(hookRunner) {
-	hookRunner.on("cfdev",precfdev);
-	hookRunner.on("cfdev",postcfdev);
-	hookRunner.on("cfdeploy",precfdeploy);
-	hookRunner.on("cfdeploy",postcfdeploy);
-	hookRunner.on("build",prebuild);
-}
-
-precfdev.priority=1;
-async function precfdev(ev) {
-	console.log("Building and starting local cloudflare env...");
-}
-
-export async function cfdev(ev) {
-	let buildEvent=new BuildEvent({
-		options: ev.options,
-		platform: "workerd",
-		cwd: process.cwd(),
-		fs: fs
-	});
-
-	await ev.hookRunner.emit(buildEvent);
-	ev.data=buildEvent.data;
-}
-
-postcfdev.priority=20;
-async function postcfdev(ev) {
-	let wranglerBin=findNodeBin(process.cwd(),"wrangler");
-	await runCommand(wranglerBin,["dev","--host","localhost:8787","--port","8787"],{
-		passthrough: true
-	});
-}
-
-precfdeploy.priority=1;
-async function precfdeploy(ev) {
-	console.log("Building and deploying cloudflare worker...");
-}
-
-export async function cfdeploy(ev) {
-	let buildEvent=new BuildEvent({
-		options: ev.options,
-		platform: "workerd",
-		cwd: process.cwd(),
-		fs: fs
-	});
-
-	await ev.hookRunner.emit(buildEvent);
-	ev.data=buildEvent.data;
-}
-
-postcfdeploy.priority=20;
-async function postcfdeploy(ev) {
-	let env={...process.env};
-	if (ev.options.cfToken)
-		env.CLOUDFLARE_API_TOKEN=ev.options.cfToken;
-
-	let wranglerBin=findNodeBin(process.cwd(),"wrangler");
-	await runCommand(wranglerBin,["deploy"],{
-		passthrough: true,
-		env: env
-	});
-}
-
-function checkWranglerToml(ev) {
 	let wrangler={};
-	let wranglerPath=path.join(process.cwd(),"wrangler.toml");
+	let wranglerPath=path.join(buildEvent.cwd,"wrangler.json");
 	if (fs.existsSync(wranglerPath))
-		wrangler=TOML.parse(fs.readFileSync(wranglerPath,"utf8"));
+		wrangler=JSON.parse(fs.readFileSync(wranglerPath));
 
-	let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
+	let packageJsonPath=path.join(buildEvent.cwd,"package.json");
+	let packageJson=JSON.parse(fs.readFileSync(packageJsonPath));
 
 	if (wrangler.name && wrangler.name!=packageJson.name)
 		throw new DeclaredError(
-			"The name field in wrangler.toml is specified, and it is different from the package name. "+
+			"The name field in wrangler.json is specified, and it is different from the package name. "+
 			"Please set it to the same as the package name or remove it."
 		);
 
-	if (wrangler.main && wrangler.main!=".target/worker.js")
+	if (wrangler.main && wrangler.main!="node_modules/.katnip/worker.js")
 		throw new DeclaredError(
-			"The main entry point in wrangler.toml is manually set to something different than "+
-			".target/worker.js, please remove it and it will be set automatically."
+			"The main entry point in wrangler.json is manually set to something different than "+
+			"expected, please remove it and it will be set automatically."
 		);
 
 	wrangler.name=packageJson.name;
-	wrangler.main=".target/worker.js";
+	wrangler.main="node_modules/.katnip/worker.js";
 
 	if (!wrangler.compatibility_date)
-		wrangler.compatibility_date = "2023-10-30"
+		wrangler.compatibility_date = "2024-12-18";
 
-	fs.writeFileSync(wranglerPath,TOML.stringify(wrangler,{newline: "\n"}));
+	fs.writeFileSync(wranglerPath,JSON.stringify(wrangler,null,2));
 }
 
-prebuild.priority=5;
-function prebuild(ev) {
-	if (ev.platform=="workerd")
-		checkWranglerToml(ev);
+buildWorker.priority=20;
+buildWorker.event="build";
+export async function buildWorker(buildEvent) {
+	if (!buildEvent.tags.includes("cloudflare"))
+		return;
+
+	console.log("Building worker...");
+
+	let importStatements=[];
+	let importModuleNames=[];
+	for (let k in buildEvent.importModules) {
+		importStatements.push(`import * as ${k} from "${buildEvent.importModules[k]}";`);
+		importModuleNames.push(k);
+	}
+
+	let listenerImports=[];
+	let listenerNames=[];
+
+	//let importPaths=findKatnipModules(["server","workerd"],{reqConditions: "server"});
+	let importPaths=await resolveHookEntryPoints({
+		cwd: buildEvent.cwd,
+		importPath: "katnip-server-hooks",
+		keyword: "katnip-plugin",
+		conditions: ["workerd"],
+		fs
+	});
+
+	//console.log("resolved entry points... ",importPaths);
+
+	for (let [index,fn] of importPaths.entries()) {
+		listenerImports.push(`import * as listener${index} from "${fn}";`);
+		listenerNames.push(`listener${index}`);
+	}
+
+	let workerSource=WORKER_STUB.replace("$$WORKER_DATA$$",
+		importStatements.join("\n")+"\n\n"+
+		listenerImports.join("\n")+"\n\n"+
+		`const workerData={\n`+
+		`    importModules: {${importModuleNames.join(",")}},\n`+
+		`    listenerModules: [${listenerNames.join(",")}],\n`+
+		`    options: ${JSON.stringify(buildEvent.options)},\n`+
+		`    appData: ${JSON.stringify(buildEvent.appData)}\n`+
+		`};`
+	);
+
+	fs.mkdirSync(path.join(buildEvent.cwd,"node_modules/.katnip"),{recursive: true});
+	fs.writeFileSync(path.join(buildEvent.cwd,"node_modules/.katnip/worker.js"),workerSource);
 }
 
-build.priority=20;
-export async function build(ev) {
-	if (ev.platform=="workerd") {
-		let importStatements=[];
-		let importModuleNames=[];
-		for (let k in ev.importModules) {
-			importStatements.push(`import * as ${k} from "${ev.importModules[k]}";`);
-			importModuleNames.push(k);
-		}
+export function dev(devEvent) {
+	if (!devEvent.tags.includes("cloudflare"))
+		return;
 
-		let listenerImports=[];
-		let listenerNames=[];
+    let wranglerInfo=new HookEvent("wranglerInfo",{...devEvent});
+    devEvent.target.dispatch(wranglerInfo);
 
-		//let importPaths=findKatnipModules(["server","workerd"],{reqConditions: "server"});
-		let importPaths=await resolveHookEntryPoints({
-			cwd: process.cwd(),
-			importPath: "katnip-server-hooks",
-			keyword: "katnip-plugin",
-			conditions: ["workerd"],
-			fs
+	console.log("Starting cloudflare dev server...");
+	let wranglerOptions=["dev",
+		"--host","localhost:"+devEvent.options.port,
+		"--port",devEvent.options.port,
+		"--config",path.join(devEvent.cwd,"wrangler.json")
+	];
+
+	return new Promise((resolve, reject)=>{
+		devEvent.wranglerCommand=runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
+			passthrough: true,
+			env: wranglerInfo.wranglerEnv
 		});
 
-		for (let [index,fn] of importPaths.entries()) {
-			listenerImports.push(`import * as listener${index} from "${fn}";`);
-			listenerNames.push(`listener${index}`);
-		}
+		devEvent.wranglerCommand.then(resolve);
+		devEvent.wranglerCommand.catch(reject);
 
-		let workerSource=fs.readFileSync(path.join(__dirname,"worker-stub.js"),"utf8");
-		workerSource=workerSource.replace("$$WORKER_DATA$$",
-			importStatements.join("\n")+"\n\n"+
-			listenerImports.join("\n")+"\n\n"+
-			`const workerData={\n`+
-			`    importModules: {${importModuleNames.join(",")}},\n`+
-			`    listenerModules: [${listenerNames.join(",")}],\n`+
-			`    options: ${JSON.stringify(ev.options)},\n`+
-			`    data: ${JSON.stringify(ev.data)}\n`+
-			`};`
-		);
+		//console.log(devEvent.wranglerCommand.childProcess);
 
-		fs.mkdirSync(path.join(process.cwd(),".target"),{recursive: true});
-		fs.writeFileSync(path.join(process.cwd(),".target/worker.js"),workerSource);
+		devEvent.wranglerCommand.childProcess.stdout.on("data",data=>{
+			if (data.includes("[wrangler:inf] Ready on"))
+				resolve();
+		})
+	});
+}
+
+export async function stop(devEvent) {
+	if (devEvent.wranglerCommand) {
+		console.log("stopping wrangler");
+		devEvent.wranglerCommand.childProcess.kill();
+		devEvent.wranglerCommand=undefined;
 	}
+}
+
+deployServices.priority=5;
+deployServices.event="deploy";
+export async function deployServices(deployEvent) {
+	if (!deployEvent.tags.includes("cloudflare"))
+		return;
+
+	console.log("Activating cloudflare services...");
+	let wranglerPath=path.join(deployEvent.cwd,"wrangler.json");
+	let wrangler=JSON.parse(fs.readFileSync(wranglerPath));
+    let wranglerInfo=new HookEvent("wranglerInfo",{...deployEvent});
+    deployEvent.target.dispatch(wranglerInfo);
+
+	if (wrangler.r2_buckets) {
+		for (let bucket of wrangler.r2_buckets) {
+			if (String(bucket.bucket_name)=="undefined") {
+				console.log("Creating R2 bucket...");
+				bucket.bucket_name=wrangler.name;
+				let wranglerOptions=[
+					"--config",wranglerPath,
+                    "r2","bucket","create",bucket.bucket_name,
+				];
+
+                await runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
+                    passthrough: true,
+                    env: wranglerInfo.wranglerEnv
+                });
+
+	            fs.writeFileSync(wranglerPath,JSON.stringify(wrangler,null,2));
+			}
+		}
+	}
+
+	if (wrangler.d1_databases) {
+		for (let database of wrangler.d1_databases) {
+			if (String(database.database_id)=="undefined") {
+				console.log("Creating D1 database...");
+				let wranglerOptions=[
+					"--config",wranglerPath,
+                    "d1","create",wrangler.name,
+				];
+
+                let wranglerOut=await runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
+                	passthrough: true,
+                	env: wranglerInfo.wranglerEnv
+                });
+
+	            let matches=wranglerOut.match(/database_id\s*=\s*\"([^\"]*)\"/)
+	            if (!matches || !matches[1])
+	                throw new DeclaredError("Unable to parse wrangler output.");
+
+	            let databaseId=matches[1];
+	            database.database_id=databaseId;
+
+	            fs.writeFileSync(wranglerPath,JSON.stringify(wrangler,null,2));
+			}
+		}
+	}
+}
+
+deploy.priority=20;
+export async function deploy(deployEvent) {
+	if (!deployEvent.tags.includes("cloudflare"))
+		return;
+
+	console.log("Deploying worker...");
+	let wranglerPath=path.join(deployEvent.cwd,"wrangler.json");
+
+	/*let env={...process.env};
+	if (ev.options.cfToken)
+		env.CLOUDFLARE_API_TOKEN=ev.options.cfToken;*/
+
+    let wranglerInfo=new HookEvent("wranglerInfo",{...deployEvent});
+    deployEvent.target.dispatch(wranglerInfo);
+
+	let wranglerOptions=[
+		"--config",wranglerPath,
+		"deploy"
+	];
+	await runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
+		passthrough: true,
+		env: wranglerInfo.wranglerEnv
+	});
+}
+
+export async function undeploy(undeployEvent) {
+	if (!undeployEvent.tags.includes("cloudflare"))
+		return;
+
+	console.log("Deactivating cloudflare services...");
+	let wranglerPath=path.join(undeployEvent.cwd,"wrangler.json");
+	let wrangler=JSON.parse(fs.readFileSync(wranglerPath));
+    let wranglerInfo=new HookEvent("wranglerInfo",{...undeployEvent});
+    undeployEvent.target.dispatch(wranglerInfo);
+
+	if (wrangler.r2_buckets) {
+		for (let bucket of wrangler.r2_buckets) {
+			if (String(bucket.bucket_name)!="undefined") {
+				console.log("Removing R2 bucket...");
+				let wranglerOptions=[
+					"--config",wranglerPath,
+                    "r2","bucket","delete",bucket.bucket_name,
+				];
+
+                await runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
+                    passthrough: true,
+                    env: wranglerInfo.wranglerEnv
+                });
+
+                bucket.bucket_name="undefined";
+	            fs.writeFileSync(wranglerPath,JSON.stringify(wrangler,null,2));
+			}
+		}
+	}
+
+	if (wrangler.d1_databases) {
+		for (let database of wrangler.d1_databases) {
+			if (String(database.database_id)!="undefined") {
+				console.log("Removing D1 database...");
+				let wranglerOptions=[
+					"--config",wranglerPath,
+                    "d1","delete",database.database_name,
+				];
+
+                await runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
+                    passthrough: true,
+                    env: wranglerInfo.wranglerEnv
+                });
+
+                database.database_id="undefined";
+	            fs.writeFileSync(wranglerPath,JSON.stringify(wrangler,null,2));
+			}
+		}
+	}
+
+	console.log("Removing Worker...");
+	let wranglerOptions=[
+		"--config",wranglerPath,
+        "delete"
+	];
+
+    await runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
+        passthrough: true,
+        env: wranglerInfo.wranglerEnv
+    });
+}
+
+export function wranglerInfo(ev) {
+	ev.wranglerBin=findNodeBin(ev.cwd,"wrangler");
+	ev.wranglerEnv={...process.env};
+
+	if (ev.options.cfToken)
+		ev.wranglerEnv.CLOUDFLARE_API_TOKEN=ev.options.cfToken;
 }

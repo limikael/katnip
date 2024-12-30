@@ -1,0 +1,17 @@
+{
+	"name": "hello-rpc",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"dev": "katnip dev"
+	},
+	"dependencies": {
+	    "katnip": "link:../..",
+	    "katnip-rpc": "link:../../packages/katnip-rpc",
+	    "katnip-isoq": "link:../../packages/katnip-isoq"
+	},
+	"exports": {
+		"./isomain": "./index.jsx",
+		"./katnip-rpc-api": "./Api.js"
+	}
+}

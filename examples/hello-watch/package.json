@@ -1,0 +1,16 @@
+{
+	"name": "testingwatch",
+	"type": "module",
+	"license": "MIT",
+	"scripts": {
+		"dev": "katnip dev"
+	},
+	"dependencies": {
+		"katnip": "link:../..",
+		"katnip-watch": "link:../../packages/katnip-watch"
+	},
+	"exports": {
+		"./katnip-server-hooks": "./server.js",
+		"./katnip-project-hooks": "./server.js"
+	}
+}

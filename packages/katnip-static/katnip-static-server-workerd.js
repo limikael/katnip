@@ -6,8 +6,8 @@ import {mimeTypes} from "./mime-types.js";
 const assetManifest=JSON.parse(manifestJSON);
 
 fetch.priority=5;
-export async function fetch(req, ev) {
-    let assetName=new URL(req.url).pathname.slice(1);
+export async function fetch(fetchEvent) {
+    let assetName=new URL(fetchEvent.request.url).pathname.slice(1);
     if (assetName=="__assetmanifest")
         return new Response(JSON.stringify(assetManifest));
 
@@ -26,10 +26,10 @@ export async function fetch(req, ev) {
         "etag": etag
     }
 
-    if (req.headers.get("if-none-match")==etag)
+    if (fetchEvent.request.headers.get("if-none-match")==etag)
         return new Response(null,{status: 304,headers: headers});
 
-    let asset=await ev.env.__STATIC_CONTENT.get(assetManifest[assetName],{type: "stream"});
+    let asset=await fetchEvent.env.__STATIC_CONTENT.get(assetManifest[assetName],{type: "stream"});
 
     return new Response(asset,{headers: headers});
 }

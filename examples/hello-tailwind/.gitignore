@@ -1,7 +1,0 @@
-node_modules
-.target
-.wrangler
-public/*.css
-public/*.js
-upload
-*.db

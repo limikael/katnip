@@ -1,0 +1,11 @@
+jwtSecret: helloworld
+adminUser: admin
+adminPass: admin
+apiPath: admin
+apiKey: helloworld
+
+collections:
+  pages:
+    fields:
+      <Text id="title"/>
+      <Image id="myimg"/>

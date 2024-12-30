@@ -1,0 +1,22 @@
+{
+  "name": "katnip-fullstack",
+  "description": "Full katnip web app starter, including isomorphic rendering, tailwind, client to server rpc, database and admin interface.",
+  "version": "4.0.1",
+  "license": "MIT",
+  "scripts": {},
+  "type": "module",
+  "keywords": [
+    "katnip-plugin",
+    "katnip-template"
+  ],
+  "dependencies": {
+    "katnip": "^4.0.3",
+    "katnip-cloudflare": "^4.0.1",
+    "katnip-isoq": "^4.0.2",
+    "katnip-quickmin": "^4.0.1",
+    "katnip-rpc": "^4.0.1",
+    "katnip-static": "^4.0.1",
+    "katnip-tailwind": "^4.0.1",
+    "katnip-watch": "^4.0.0"
+  }
+}

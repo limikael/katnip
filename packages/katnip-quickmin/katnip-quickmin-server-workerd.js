@@ -1,9 +1,10 @@
 import QuickminServer from "quickmin/server";
 import {d1DbDriver} from "quickmin/d1-db";
 import {r2StorageDriver} from "quickmin/r2-storage";
+export * from "./katnip-quickmin-server-common.js";
 
-export async function start(ev) {
-	let quickminConf=ev.data.quickminConf;
+export async function start(startEvent) {
+	let quickminConf=startEvent.appData.quickminConf;
 
 	if (quickminConf.d1Binding && quickminConf.d1Binding!="DB")
 		throw new Error("D1 binding most be DB");
@@ -13,26 +14,16 @@ export async function start(ev) {
 
 	quickminConf.d1Binding="DB";
 	quickminConf.r2Bucket="BUCKET";
-	quickminConf.env=ev.env;
+	quickminConf.env=startEvent.env;
 
 	let quickminServer=new QuickminServer(quickminConf,[
 	    d1DbDriver,
 	    r2StorageDriver,
 	]);
 
-	ev.data.quickminServer=quickminServer;
-	ev.data.quickminApi=quickminServer.api;
-	ev.data.qql=async (query)=>{
-		return await ev.data.quickminServer.qql.query(query);
+	startEvent.appData.quickminServer=quickminServer;
+	startEvent.appData.quickminApi=quickminServer.api;
+	startEvent.appData.qql=async (query)=>{
+		return await startEvent.appData.quickminServer.qql.query(query);
 	}
-}
-
-export async function clientProps(props, ev) {
-	props.quickminUser=await ev.data.quickminApi.getUserByRequest(ev.req);
-	props.quickminCookieName=ev.data.quickminConf.cookie;
-}
-
-fetch.priority=15;
-export async function fetch(req, ev) {
-	return await ev.data.quickminServer.handleRequest(req);
 }

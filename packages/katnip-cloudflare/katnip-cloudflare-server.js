@@ -1,7 +1,7 @@
 fetch.priority=5;
-export async function fetch(req, ev) {
+export async function fetch(fetchEvent) {
 	let ignore=["localhost","127.0.0.1"];
-	let u=new URL(req.url);
+	let u=new URL(fetchEvent.request.url);
 
 	//console.log("serving: "+req.url);
 

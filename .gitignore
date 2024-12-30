@@ -2,3 +2,5 @@ tmp
 /node_modules
 packages/**/node_modules
 examples/**/node_modules
+examples/**/*.db
+yarn.lock

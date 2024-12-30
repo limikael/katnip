@@ -10,27 +10,24 @@ export function init(ev) {
 	}
 }
 
-export function initcli(spec) {
-	spec.addGlobalOption("publicDir",{
-		description: "Directory to serve as plain static assets.",
-		default: "public"
-	});
+export function initCli(initCliEvent) {
+	initCliEvent.program.option("--publicDir <path>","Directory to serve as plain static assets.","public");
 }
 
-export function build(ev) {
-	if (ev.platform=="workerd") {
-		let wranglerPath=path.join(process.cwd(),"wrangler.toml");
-		let wrangler=TOML.parse(fs.readFileSync(wranglerPath,"utf8"));
+export function build(buildEvent) {
+	if (buildEvent.options.platform=="cloudflare") {
+		let wranglerPath=path.join(buildEvent.cwd,"wrangler.json");
+		let wrangler=JSON.parse(fs.readFileSync(wranglerPath,"utf8"));
 		if (!wrangler.site || !wrangler.site.bucket) {
-			console.log("Updating wrangler.toml with content bucket...");
-			wrangler.site=TOML.Section({bucket: ev.options.publicDir});
-			fs.writeFileSync(wranglerPath,TOML.stringify(wrangler,{newline: "\n"}));
+			console.log("Updating wrangler.json with content bucket...");
+			wrangler.site={bucket: buildEvent.options.publicDir};
+			fs.writeFileSync(wranglerPath,JSON.stringify(wrangler,null,2));
 		}
 
-		if (wrangler.site.bucket!=ev.options.publicDir) {
+		if (wrangler.site.bucket!=buildEvent.options.publicDir) {
 			throw new DeclaredError(
-				"The site bucket in wrangler.toml is different from the project publicDir. "+
-				"Remove the setting from wrangler.toml, and it will be set automatically."
+				"The site bucket in wrangler.json is different from the project publicDir. "+
+				"Remove the setting from wrangler.json, and it will be set automatically."
 			);
 		}
 	}

@@ -1,5 +1,4 @@
-import {resolveHookEntryPoints} from "katnip";
-//import fs from "fs";
+import {resolveHookEntryPoints, resolveModuleEntryPoint, pkgSetExport} from "katnip";
 import path from "path-browserify";
 
 const API_JS=
@@ -19,26 +18,41 @@ const API_JS=
 `;
 
 init.priority=15;
-export function init(ev) {
-	/*let packageJson=JSON.parse(fs.readFileSync("package.json","utf8"));
-	if (!packageJson.exports)
-		packageJson.exports={};
+export async function init(ev) {
+	let ep=await resolveModuleEntryPoint({
+		cwd: ev.cwd,
+		importPath: "katnip-rpc-api",
+		fs: ev.fs,
+	});
 
-	if (!packageJson.exports.rpc) {
-		packageJson.exports.rpc="src/main/Api.js";
-		fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
+	if (!ep) {
+		let pkgPath=path.join(ev.cwd,"package.json");
+		let pkg=JSON.parse(ev.fs.readFileSync(pkgPath));
+		pkg.exports=pkgSetExport(pkg.exports,{
+			importPath: "./katnip-rpc-api",
+			target: "./src/main/Api.js"
+		});
+
+		ev.fs.writeFileSync(pkgPath,JSON.stringify(pkg,null,2));
+		ep=await resolveModuleEntryPoint({
+			importPath: "katnip-rpc-api", 
+			pkg: pkg
+		});
 	}
 
-	if (!fs.existsSync(packageJson.exports.rpc)) {
-		console.log("Creating "+packageJson.exports.rpc);
-		fs.mkdirSync(path.dirname(packageJson.exports.rpc),{recursive: true});
-		fs.writeFileSync(packageJson.exports.rpc,API_JS);
-	}*/
+	let fullEp=path.join(ev.cwd,ep);
+	if (!ev.fs.existsSync(fullEp)) {
+		//console.log("init isoq");
+		ev.fs.mkdirSync(path.dirname(fullEp),{recursive: true});
+		ev.fs.writeFileSync(fullEp,API_JS);
+	}
 }
 
-export async function build(buildEv) {
-	let modulePaths=await resolveHookEntryPoints(buildEv.cwd,"katnip-rpc-api",{
-		fs: buildEv.fs,
+export async function build(buildEvent) {
+	//console.log("build rpc.....");
+
+	let modulePaths=await resolveHookEntryPoints(buildEvent.cwd,"katnip-rpc-api",{
+		fs: buildEvent.fs,
 		keyword: "katnip-plugin"
 	});
 
@@ -48,5 +62,5 @@ export async function build(buildEv) {
 		throw new Error("More than one rpc module: "+JSON.stringify(modulePaths));
 
 	if (modulePaths.length==1)
-		buildEv.importModules.rpc=modulePaths[0];
+		buildEvent.importModules.rpc=modulePaths[0];
 }

@@ -1,6 +1,6 @@
 import path from "path";
 import {fileURLToPath} from 'url';
-import {DeclaredError, findNodeBin, resolveHookEntryPoints, runCommand} from "katnip";
+import {DeclaredError, resolveHookEntryPoints} from "katnip";
 import fs from "fs";
 import postcss from 'postcss';
 import tailwind from "tailwindcss";
@@ -22,20 +22,20 @@ const TAILWIND_CONFIG_JS=
 
 init.priority=15;
 export function init(ev) {
-    let tailwindConfigFile="tailwind.config.js";
+    let tailwindConfigFile=path.join(ev.cwd,"tailwind.config.js");
     if (!fs.existsSync(tailwindConfigFile)) {
         console.log("Creating "+tailwindConfigFile);
         fs.writeFileSync(tailwindConfigFile,TAILWIND_CONFIG_JS);
     }
 }
 
-export function initcli(spec) {
+/*export function initcli(spec) {
     spec.addCommandOption("build","css","Input css file for tailwind (optional).");
     spec.addCommandOption("build","cssDirectives","Include default tailwind css directives.",{
         type: "boolean",
         default: true
     });
-}
+}*/
 
 let TAILWIND_CSS_DIRECTIVES=`
 @tailwind base;
@@ -43,60 +43,37 @@ let TAILWIND_CSS_DIRECTIVES=`
 @tailwind utilities;
 `;
 
-/*export async function build(ev) {
-    console.log("Building tailwind...");
-    let tailwind=await findNodeBin(process.cwd(),"tailwind");
-    if (!tailwind)
-        throw new Error("Can't find tailwind binary");
-
+export async function build(buildEvent) {
+    console.log("Building tailwind via postcss in: "+buildEvent.cwd);
     let inputCss="";
-    if (ev.options.cssDirectives!==false)
+    if (buildEvent.options.cssDirectives!==false)
         inputCss+=TAILWIND_CSS_DIRECTIVES;
 
-    if (ev.options.css)
-        inputCss+=fs.readFileSync(ev.options.css,"utf8");
-
-    fs.mkdirSync(path.join(ev.cwd,".target"),{recursive: true});
-    let inputFn=path.join(ev.cwd,".target/input.css");
-    fs.writeFileSync(inputFn,inputCss);
-
-    let outputFn=path.join(ev.cwd,".target/index.css");
-    if (ev.options.publicDir)
-        outputFn=path.join(ev.options.publicDir,"index.css");
-
-    await runCommand(tailwind,[
-//        "--minify",
-        "-i",inputFn,
-        "-o",outputFn,
-//        "--no-autoprefixer"
-    ],{passthrough: true});
-
-    if (!ev.options.publicDir || ev.options.exposeIndexCss)
-        ev.data.indexCss=await ev.fs.promises.readFile(outputFn,"utf8");
-}*/
-
-export async function build(ev) {
-    console.log("Building tailwind via postcss...");
-    let inputCss="";
-    if (ev.options.cssDirectives!==false)
-        inputCss+=TAILWIND_CSS_DIRECTIVES;
-
-    if (ev.options.css)
-        inputCss+=fs.readFileSync(ev.options.css,"utf8");
+    if (buildEvent.options.css)
+        inputCss+=fs.readFileSync(buildEvent.options.css,"utf8");
 
     //console.log(inputCss);
 
-    let tailwindcssPlugin=tailwind(path.join(ev.cwd,"tailwind.config.js"));
+    let oldPwd=process.cwd();
+    process.chdir(buildEvent.cwd);
+
+    let tailwindcssPlugin=tailwind(path.join(buildEvent.cwd,"tailwind.config.js"));
     let processor=postcss([tailwindcssPlugin,autoprefixer]);
     let artifact=await processor.process(inputCss, { from: undefined });
     let output=artifact.css;
 
-    if (ev.options.publicDir) {
-        fs.mkdirSync(path.join(ev.cwd,ev.options.publicDir),{recursive: true});
-        let outputFn=path.join(ev.cwd,ev.options.publicDir,"index.css");
+    process.chdir(oldPwd);
+
+    if (buildEvent.options.publicDir) {
+        fs.mkdirSync(path.join(buildEvent.cwd,buildEvent.options.publicDir),{recursive: true});
+        let outputFn=path.join(buildEvent.cwd,buildEvent.options.publicDir,"index.css");
         fs.writeFileSync(outputFn,output);
     }
 
-    if (!ev.options.publicDir || ev.options.exposeIndexCss)
-        ev.data.indexCss=output;
+    if (!buildEvent.options.publicDir || buildEvent.options.exposeIndexCss)
+        buildEvent.appData.indexCss=output;
+
+    //await new Promise(r=>setTimeout(r,1000));
+
+    console.log("Tailwind done...");
 }

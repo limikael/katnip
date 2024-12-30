@@ -1,7 +1,6 @@
 import Bundler from "isoq/bundler";
-import {resolveHookEntryPoints, mkdirRecursive, HookEvent} from "katnip";
+import {resolveHookEntryPoints, pkgSetExport, resolveModuleEntryPoint} from "katnip";
 import path from "path-browserify";
-import {BuildEvent} from "katnip";
 
 const INDEX_JSX=
 `export default function() {
@@ -12,36 +11,36 @@ const INDEX_JSX=
 }
 `;
 
-export async function initcli(spec) {
-	spec.addCommandOption("build","isoqExposeExports",{
-		description: "Expose isoq exports.",
-		type: "boolean",
-	});
+export async function initCli(initCliEvent) {
+	/*let devCommand=initCliEvent.getCommandByName("dev");
+
+	devCommand.option("--isoqExposeExports","Expose isoq exports.",false);*/
 }
 
 export async function init(ev) {
-	let scaffoldEv=ev.clone();
-	scaffoldEv.type="scaffold";
-	scaffoldEv.isomain=true;
+	let ep=await resolveModuleEntryPoint({
+		cwd: ev.cwd,
+		importPath: "isomain",
+		fs: ev.fs,
+	});
 
-	await ev.hookRunner.emit(scaffoldEv);
-	//console.log("ran scaffold",scaffoldEv);
+	if (!ep) {
+		let pkgPath=path.join(ev.cwd,"package.json");
+		let pkg=JSON.parse(ev.fs.readFileSync(pkgPath));
+		pkg.exports=pkgSetExport(pkg.exports,{
+			importPath: "./isomain",
+			target: "./src/main/index.jsx"
+		});
 
-	if (scaffoldEv.isomain) {
-		let packageJson=JSON.parse(ev.fs.readFileSync("package.json","utf8"));
-		if (!packageJson.exports)
-			packageJson.exports={};
+		ev.fs.writeFileSync(pkgPath,JSON.stringify(pkg,null,2));
+		ep=await resolveModuleEntryPoint({importPath: "./isomain", pkg: pkg});
+	}
 
-		if (!packageJson.exports["./isomain"]) {
-			packageJson.exports["./isomain"]="./src/main/index.jsx";
-			ev.fs.writeFileSync("package.json",JSON.stringify(packageJson,null,2));
-		}
-
-		if (!ev.fs.existsSync(packageJson.exports["./isomain"])) {
-			console.log("Creating "+packageJson.exports["./isomain"]);
-			ev.fs.mkdirSync(path.dirname(packageJson.exports["./isomain"]),{recursive: true});
-			ev.fs.writeFileSync(packageJson.exports["./isomain"],INDEX_JSX);
-		}
+	let fullEp=path.join(ev.cwd,ep);
+	if (!ev.fs.existsSync(fullEp)) {
+		//console.log("init isoq");
+		ev.fs.mkdirSync(path.dirname(fullEp),{recursive: true});
+		ev.fs.writeFileSync(fullEp,INDEX_JSX);
 	}
 }
 
@@ -92,55 +91,60 @@ function createEntryPointSource(mods) {
 	return source;
 }
 
-build.priority=15;
-export async function build(buildContext) {
-	let modulePaths=await resolveHookEntryPoints(buildContext.cwd,"isomain",{
-		fs: buildContext.fs,
+export async function build(buildEvent) {
+	let modulePaths=await resolveHookEntryPoints(buildEvent.cwd,"isomain",{
+		fs: buildEvent.fs,
 		keyword: "katnip-plugin"
 	});
 
-	await buildContext.hookRunner.emit("isoqModules",modulePaths,buildContext);
+	//fix await buildContext.hookRunner.emit("isoqModules",modulePaths,buildContext);
 
 	//console.log("modulePaths: ",modulePaths);
 	let source=createEntryPointSource(modulePaths);
 	//console.log(source);
 
-	await mkdirRecursive(path.join(buildContext.cwd,"node_modules/.katnip"),{
-		fs: buildContext.fs
-	});
-	await buildContext.fs.promises.writeFile(
-		path.join(buildContext.cwd,"node_modules/.katnip/main.jsx"),
+	await buildEvent.fs.promises.mkdir(
+		path.join(buildEvent.cwd,"node_modules/.katnip"),
+		{recursive: true}
+	);
+	await buildEvent.fs.promises.writeFile(
+		path.join(buildEvent.cwd,"node_modules/.katnip/main.jsx"),
 		source
+	);
+	await buildEvent.fs.promises.writeFile(
+		path.join(buildEvent.cwd,"node_modules/.katnip/package.json"),
+		'{"type":"module"}'
 	);
 
 	//console.log("isoqIgnore: "+buildContext.options.isoqIgnore);
 	//console.log("**** isoq build platform: "+buildContext.platform);
 
 	let plugins=[];
-	await buildContext.hookRunner.emit("isoqEsbuildPlugins",plugins,buildContext);
-	let handlerOut=path.join(buildContext.cwd,".target/isoq-request-handler.js");
-	let entryPoint=path.join(buildContext.cwd,"node_modules/.katnip/main.jsx");
+	// fix await buildContext.hookRunner.emit("isoqEsbuildPlugins",plugins,buildContext);
+	let handlerOut=path.join(buildEvent.cwd,"node_modules/.katnip/isoq-request-handler.js");
+	let entryPoint=path.join(buildEvent.cwd,"node_modules/.katnip/main.jsx");
 
-	if (buildContext.esbuildPlugins)
-		plugins.push(...buildContext.esbuildPlugins);
+	if (buildEvent.esbuildPlugins)
+		plugins.push(...buildEvent.esbuildPlugins);
 
 	//console.log("public: "+buildContext.options.publicDir);
 
 	let bundlerOptions={
-		ignore: buildContext.options.isoqIgnore,
+		minify: false,
+		ignore: buildEvent.options.isoqIgnore,
 		out: handlerOut,
 		esbuildPlugins: plugins,
-		fs: buildContext.fs,
-		esbuild: buildContext.esbuild,
-		tmpdir: path.join(buildContext.cwd,".tmp"),
-		isoqdir: path.join(buildContext.cwd,"node_modules/isoq"),
-		exposeExports: buildContext.options.isoqExposeExports,
-		pathAliases: buildContext.options.isoqPathAliases
+		fs: buildEvent.fs,
+		esbuild: buildEvent.esbuild,
+		tmpdir: path.join(buildEvent.cwd,"node_modules/.tmp"),
+		isoqdir: path.join(buildEvent.cwd,"node_modules/isoq"),
+		exposeExports: buildEvent.options.isoqExposeExports,
+		pathAliases: buildEvent.options.isoqPathAliases
 		//quiet: true
 	};
 
-	if (buildContext.options.publicDir)
-		bundlerOptions.contentdir=path.join(buildContext.cwd,buildContext.options.publicDir);
+	if (buildEvent.options.publicDir)
+		bundlerOptions.contentdir=path.join(buildEvent.cwd,buildEvent.options.publicDir);
 
 	/*if (buildContext.platform=="node")
 		bundlerOptions.sourcemap=true;*/
@@ -148,8 +152,8 @@ export async function build(buildContext) {
 	let bundler=new Bundler(entryPoint,bundlerOptions);
 	await bundler.bundle();
 
-	buildContext.importModules.isoqRequestHandler=handlerOut;
+	buildEvent.importModules.isoqRequestHandler=handlerOut;
 
-	if (buildContext.importModuleOptions)
-		buildContext.importModuleOptions.isoqRequestHandler={bundle: false};
+	if (buildEvent.importModuleOptions)
+		buildEvent.importModuleOptions.isoqRequestHandler={bundle: false};
 }

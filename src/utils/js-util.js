@@ -5,61 +5,6 @@ export class DeclaredError extends Error {
 	}
 }
 
-export class Job {
-	constructor(stopper) {
-		this.stopper=stopper;
-	}
-
-	async stop() {
-		await this.stopper();
-	}
-}
-
-export function jsonEq(a,b) {
-	return (JSON.stringify(a)==JSON.stringify(b));
-}
-
-export function arrayUnique(a) {
-	function onlyUnique(value, index, array) {
-		return array.indexOf(value) === index;
-	}
-
-	return a.filter(onlyUnique);
-}
-
-export function includesAll(a, all) {
-	for (let allItem of all)
-		if (!a.includes(allItem))
-			return false;
-
-	return true;
-}
-
-export class ResolvablePromise extends Promise {
-	constructor(cb = () => {}) {
-        let resolveClosure = null;
-        let rejectClosure = null;
-
-		super((resolve,reject)=>{
-            resolveClosure = resolve;
-            rejectClosure = reject;
-
-			return cb(resolve, reject);
-		});
-
-        this.resolveClosure = resolveClosure;
-        this.rejectClosure = rejectClosure;
- 	}
-
-	resolve=(result)=>{
-		this.resolveClosure(result);
-	}
-
-	reject=(reason)=>{
-		this.rejectClosure(reason);
-	}
-}
-
 export function splitPath(pathname) {
 	if (pathname===undefined)
 		throw new Error("Undefined pathname");
@@ -76,12 +21,6 @@ export function urlGetParams(url) {
 	return Object.fromEntries(u.searchParams);
 }
 
-export function arrayFindDuplicate(arr) {
-	for (let i=0; i<arr.length; i++)
-		if (arr.slice(i+1).includes(arr[i]))
-			return arr[i];
-}
-
 function isPlainObject(value) {
     if (!value)
         return false;
@@ -89,7 +28,7 @@ function isPlainObject(value) {
     if (value.constructor===Object)
         return true;
 
-    if (value.constructor.toString().includes("Object"))
+    if (value.constructor.toString().includes("Object()"))
         return true;
 
     return false;
@@ -107,4 +46,46 @@ export function objectifyArgs(params, fields) {
     }
 
     return conf;
+}
+
+export function awaitEvent(...args) {
+	let argsObj=objectifyArgs(args,["eventTarget", "type", "predicate"]);
+	let {eventTarget, type, predicate, error}=argsObj;
+
+	return new Promise((resolve, reject)=>{
+		function messageHandler(message) {
+			if (!predicate || predicate(message)) {
+				if (error)
+					eventTarget.off(error,errorHandler);
+
+				resolve(message);
+			}
+		}
+
+		function errorHandler(e) {
+			eventTarget.off(type,messageHandler);
+			if (error)
+				eventTarget.off(error,errorHandler);
+
+			reject(e);
+		}
+
+		eventTarget.on(type,messageHandler);
+		if (error)
+			eventTarget.on(error,errorHandler);
+	});
+}
+
+export function arrayUnique(a) {
+	function onlyUnique(value, index, array) {
+		return array.indexOf(value) === index;
+	}
+
+	return a.filter(onlyUnique);
+}
+
+export function arrayFindDuplicate(arr) {
+	for (let i=0; i<arr.length; i++)
+		if (arr.slice(i+1).includes(arr[i]))
+			return arr[i];
 }
