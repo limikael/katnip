@@ -4,3 +4,4 @@ packages/**/node_modules
 examples/**/node_modules
 examples/**/*.db
 yarn.lock
+**/.wrangler
