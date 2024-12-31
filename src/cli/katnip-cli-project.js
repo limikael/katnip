@@ -181,7 +181,7 @@ export async function lsmeta(ev) {
 devBuild.event="dev";
 devBuild.priority=5;
 export async function devBuild(devEvent) {
-	devEvent.options=devEvent.katnipCli.getOptions();
+	devEvent.options=devEvent.target.getOptions();
 	devEvent.tags=["dev",devEvent.options.platform];
 
 	let buildEvent=new HookEvent("build",{

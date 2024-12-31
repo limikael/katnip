@@ -1,5 +1,6 @@
 import * as cliPlugin from "./katnip-cli-project.js";
 import HookRunner from "../hooks/HookRunner.js";
+import ProjectHookRunner from "../hooks/ProjectHookRunner.js";
 import HookEvent from "../hooks/HookEvent.js";
 import InitCliEvent from "./InitCliEvent.js";
 import {parseCommand} from "../utils/commander-util.js";
@@ -12,8 +13,10 @@ import {fileURLToPath} from 'url';
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
-export default class KatnipCli {
+export default class KatnipCli extends ProjectHookRunner {
 	constructor({argv, cwd}) {
+		super();
+
 		this.argv=argv;
 		this.cwd=cwd;
 	}
@@ -22,8 +25,8 @@ export default class KatnipCli {
 		let katnipPkgFn=path.join(__dirname,"../../package.json");
 		let katnipPkg=JSON.parse(fs.readFileSync(katnipPkgFn));
 
-		this.hookRunner=new HookRunner();
-		this.hookRunner.addListenerModule(cliPlugin);
+		//this.hookRunner=new HookRunner();
+		this.addListenerModule(cliPlugin);
 
 		if (fs.existsSync(path.join(this.cwd,"package.json"))) {
 			this.projectMode=true;
@@ -37,7 +40,7 @@ export default class KatnipCli {
 			});
 
 			for (let ep of entryPoints)
-				this.hookRunner.addListenerModule(await import(ep));
+				this.addListenerModule(await import(ep));
 		}
 
 		this.program=new Command();
@@ -54,11 +57,11 @@ export default class KatnipCli {
 		this.program.description(desc);
 
 		let initCliEvent=new InitCliEvent(this);
-		await this.hookRunner.dispatch(initCliEvent);
+		await this.dispatch(initCliEvent);
 
 		this.command=parseCommand(initCliEvent.program,this.argv);
 		this.commandEvent=this.createCommandEvent();
-		await this.hookRunner.dispatch(this.commandEvent);
+		await this.dispatch(this.commandEvent);
 
 		//console.log("exit run");
 	}
@@ -110,9 +113,7 @@ export default class KatnipCli {
 
 	async stop() {
 		let stopEvent=new HookEvent("stop",this.commandEvent);
-		await this.hookRunner.dispatch(stopEvent);
-
-		this.hookRunner=null;
+		await this.dispatch(stopEvent);
 	}
 
 	isProjectMode() {
