@@ -67,11 +67,11 @@ export default class KatnipCli extends ProjectHookRunner {
 	}
 
 	createCommandEvent() {
-		if (this.command.eventFactory)
-			return this.command.eventFactory(this);
+		let options=this.getOptions();
 
 		let ev=new HookEvent(this.command._name,{
-			options: this.getOptions(),
+			tags: [this.command._name,options.platform],
+			options: options,
 			katnipCli: this,
 			cwd: this.cwd,
 			fs: fs

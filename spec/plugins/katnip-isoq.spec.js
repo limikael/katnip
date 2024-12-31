@@ -35,4 +35,32 @@ describe("katnip-isoq",()=>{
 
 		await katnipCli.run();
 	});
+
+	it("runs init as part of build",async ()=>{
+		fs.rmSync("tmp/test-build-init",{recursive: true, force: true});
+		fs.mkdirSync("tmp/test-build-init",{recursive: true});
+		fs.mkdirSync("tmp/test-build-init/node_modules",{recursive: true});
+		fs.symlinkSync("../../../packages/katnip-isoq","tmp/test-build-init/node_modules/katnip-isoq")
+
+		let pkg={
+			"name": "test-build-init",
+			"type": "module",
+			"dependencies": {
+				"katnip-isoq": "latest"
+			}
+		}
+
+		fs.writeFileSync("tmp/test-build-init/package.json",JSON.stringify(pkg,null,2));
+
+		let katnipCli=new KatnipCli({
+			argv: ["node","katnip","dev"],
+			cwd: path.join(process.cwd(),"tmp/test-build-init/"),
+		});
+
+		await katnipCli.run();
+
+		expect(fs.existsSync("tmp/test-build-init/src/main/index.jsx")).toBeTrue();
+
+		await katnipCli.stop();
+	});
 });

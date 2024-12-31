@@ -178,60 +178,55 @@ export async function lsmeta(ev) {
 	console.log(table(tableData,tableConfig));
 }
 
-devBuild.event="dev";
-devBuild.priority=5;
-export async function devBuild(devEvent) {
-	devEvent.options=devEvent.target.getOptions();
-	devEvent.tags=["dev",devEvent.options.platform];
+build.priority=5;
+export async function build(buildEvent) {
+	if (!buildEvent.target.buildInitRun) {
+		buildEvent.target.buildInitRun=true;
+		await buildEvent.target.dispatch(new HookEvent("init",{...buildEvent}));
+	}
+}
 
+async function dispatchBuild(parentEvent) {
 	let buildEvent=new HookEvent("build",{
 		importModules: {},
 		appData: {},
 		fs: fs,
-		cwd: devEvent.cwd,
-		options: devEvent.options,
-		tags: devEvent.tags
+		cwd: parentEvent.cwd,
+		options: parentEvent.options,
+		tags: parentEvent.tags
 	});
 
 	let start=Date.now();
-	await devEvent.target.dispatch(buildEvent,{concurrent: true});
+	await parentEvent.target.dispatch(buildEvent,{concurrent: true});
 	let duration=Date.now()-start;
 	console.log("Build: "+duration/1000+"s");
 
-	devEvent.appData=buildEvent.appData;
-	devEvent.importModules=buildEvent.importModules;
+	parentEvent.appData=buildEvent.appData;
+	parentEvent.importModules=buildEvent.importModules;
+}
+
+devBuild.event="dev";
+devBuild.priority=5;
+export async function devBuild(devEvent) {
+	await dispatchBuild(devEvent);
 }
 
 deployBuild.event="deploy";
 deployBuild.priority=5;
 export async function deployBuild(deployEvent) {
-	deployEvent.options=deployEvent.katnipCli.getOptions();
-	deployEvent.tags=["deploy",deployEvent.options.platform];
-
-	let buildEvent=new HookEvent("build",{
-		importModules: {},
-		appData: {},
-		fs: fs,
-		cwd: deployEvent.cwd,
-		options: deployEvent.options,
-		tags: deployEvent.tags
-	});
-
-	let start=Date.now();
-	await deployEvent.target.dispatch(buildEvent,{concurrent: true});
-	let duration=Date.now()-start;
-	console.log("Build: "+duration/1000+"s");
-
-	deployEvent.appData=buildEvent.appData;
-	deployEvent.importModules=buildEvent.importModules;
+	await dispatchBuild(deployEvent);
 }
 
 export async function dev(devEvent) {
 	if (!devEvent.tags.includes("node"))
 		return;
 
-	devEvent.worker=await importWorker(path.join(__dirname,"katnip-cli-worker.js"));
-	await devEvent.worker.start({
+	let target=devEvent.target;
+	if (target.worker)
+		throw new Error("There is already a worker running, why???");
+
+	target.worker=await importWorker(path.join(__dirname,"katnip-cli-worker.js"));
+	await target.worker.start({
 		cwd: devEvent.cwd,
 		options: devEvent.options,
 		appData: devEvent.appData,
@@ -239,13 +234,14 @@ export async function dev(devEvent) {
 	});
 }
 
-export async function stop(devEvent) {
-	if (!devEvent.worker)
+export async function stop(stopEvent) {
+	let target=stopEvent.target;
+	if (!target.worker)
 		return;
 
-	await devEvent.worker.stop();
-	await devEvent.worker.worker.terminate();
-	devEvent.worker=undefined;
+	await target.worker.stop();
+	await target.worker.worker.terminate();
+	target.worker=undefined;
 }
 
 undeploy.priority=5;

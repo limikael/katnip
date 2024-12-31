@@ -18,10 +18,10 @@ export async function dev(devEvent) {
 	if (devEvent.options.watch=="none")
 		return;
 
-	if (!devEvent.watcher) {
-		console.log("Watching with: "+devEvent.options.watch);
+	let target=devEvent.target;
 
-		let target=devEvent.target;
+	if (!target.watcher) {
+		console.log("Watching with: "+devEvent.options.watch);
 
 		let ignore=[
 			"node_modules/**",
@@ -29,7 +29,7 @@ export async function dev(devEvent) {
 			"upload/**"
 		];
 
-		await devEvent.target.dispatch(new HookEvent("watchIgnore",{
+		await target.dispatch(new HookEvent("watchIgnore",{
 			watchIgnore: ignore,
 			...devEvent
 		}));
@@ -40,17 +40,27 @@ export async function dev(devEvent) {
 			method: devEvent.options.watch
 		};
 
-		devEvent.watcher=createWatch(process.cwd(),watcherOptions);
-		let watchPromise=awaitEvent(devEvent.watcher,"change");
+		target.watcher=createWatch(process.cwd(),watcherOptions);
+		let watchPromise=awaitEvent(target.watcher,"change");
 
 		while (1) {
-			await target.dispatch(devEvent);
+			devEvent.options=target.getOptions();
+			try {
+				await target.dispatch(devEvent);
+			}
+
+			catch (e) {
+				console.log("** Error while watching, waiting for file change to rebuild...");
+				console.log(e);
+			}
 
 			let ev=await watchPromise;
 			console.log("file change: "+ev.filename);
-			watchPromise=awaitEvent(devEvent.watcher,"change");
+			watchPromise=awaitEvent(target.watcher,"change");
 
+			//console.log("stopping...");
 			await target.dispatch(new HookEvent("stop",devEvent));
+			//console.log("stopped");
 		}
 	}
 }
