@@ -1,6 +1,6 @@
 {
   "name": "katnip-cloudflare",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "license": "MIT",
   "type": "module",
   "scripts": {},
@@ -17,6 +17,6 @@
   },
   "dependencies": {
     "wrangler": "^3.91.0",
-    "katnip": "^4.0.5"
+    "katnip": "^4.0.6"
   }
 }
