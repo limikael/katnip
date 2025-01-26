@@ -1,5 +1,5 @@
 import fs from "fs";
-import {resolveHookEntryPoints, findNodeBin, runCommand, HookEvent} from "katnip";
+import {resolveHookEntryPoints, findNodeBin, runCommand, HookEvent, DeclaredError} from "katnip";
 import path from "path";
 import WORKER_STUB from "./worker-stub.js";
 import {fileURLToPath} from 'url';
