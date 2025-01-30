@@ -18,7 +18,11 @@ export default class KatnipCli extends ProjectHookRunner {
 		super();
 
 		this.argv=argv;
-		this.cwd=cwd;
+		this._cwd=cwd;
+	}
+
+	cwd() {
+		return this._cwd;
 	}
 
 	async run() {
@@ -28,11 +32,11 @@ export default class KatnipCli extends ProjectHookRunner {
 		//this.hookRunner=new HookRunner();
 		this.addListenerModule(cliPlugin);
 
-		if (fs.existsSync(path.join(this.cwd,"package.json"))) {
+		if (fs.existsSync(path.join(this.cwd(),"package.json"))) {
 			this.projectMode=true;
 
 			let entryPoints=await resolveHookEntryPoints({
-				cwd: this.cwd,
+				cwd: this.cwd(),
 				keyword: "katnip-plugin",
 				importPath: "katnip-project-hooks",
 				conditions: ["node"],
@@ -49,7 +53,7 @@ export default class KatnipCli extends ProjectHookRunner {
 
 		let desc="Zero Conf Javascript Full Stack Plugin System.\n\n";
 		if (this.projectMode)
-			desc+="Project: "+this.cwd;
+			desc+="Project: "+this.cwd();
 
 		else
 			desc+="(Running outside project, command set is limited)";
@@ -73,7 +77,7 @@ export default class KatnipCli extends ProjectHookRunner {
 			tags: [this.command._name,options.platform],
 			options: options,
 			katnipCli: this,
-			cwd: this.cwd,
+			cwd: this.cwd(),
 			fs: fs
 		});
 
@@ -81,7 +85,7 @@ export default class KatnipCli extends ProjectHookRunner {
 	}
 
 	readOptionsFile(fn) {
-		let fullFn=path.join(this.cwd,fn);
+		let fullFn=path.join(this.cwd(),fn);
 		if (!fs.existsSync(fullFn))
 			return {};
 

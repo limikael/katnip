@@ -1,11 +1,28 @@
 import HookEvent from "../hooks/HookEvent.js";
 import {getCommandByName} from "../utils/commander-util.js";
 
-export default class InitCliEvent extends HookEvent {
+export {
+	InitCliEvent,
+	InitCliEvent as default
+}
+
+/**
+ * This event is sent when the command line is started.
+ * 
+ * It is used by plugins to register available commands.
+ * 
+ * @extends HookEvent
+ */
+class InitCliEvent extends HookEvent {
 	constructor(katnipCli) {
 		super("initCli");
 
 		this.katnipCli=katnipCli;
+
+		/**
+		 * An instance of a [Commander](https://www.npmjs.com/package/commander)
+		 * command where extra commands can be added.
+		 */
 		this.program=katnipCli.program;
 	}
 

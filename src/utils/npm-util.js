@@ -123,6 +123,28 @@ export async function findKeywordDependencies(...args) {
 	return res;
 }
 
+/**
+ * Resolve files that serve as hook entry points.
+ *
+ * This function will resolve files corresponding to a particular exported 
+ * path from a node package. It will also search for the export path for all 
+ * dependencies of that package.
+ * 
+ * The function can be configured to only search for exports with a specific
+ * condition, and to consider only those dependencies with a specific keyword.
+ * @async
+ *
+ * @param [cwd]
+ * @param [importPath]
+ * @param [conditions]
+ * @param {Object} [options]
+ * @param options.cwd Package directory.
+ * @param options.importPath The path to import.
+ * @param options.conditions Conditions to apply, according to the node 
+ *                           package resolution algorithm.
+ * @param options.keyword Only consider dependencies with this keyword.
+ * @param options.fs Reference to the fs object to use.
+ */
 export async function resolveHookEntryPoints(...args) {
 	let {cwd,importPath,conditions,keyword,dependenciesKey,fs,dontResolve}=
 		objectifyArgs(args,["cwd","importPath","conditions"]);
@@ -177,6 +199,17 @@ export async function resolveHookEntryPoints(...args) {
 	return entryPoints;
 }
 
+/**
+ * Update the exports section from a package.json file. This is useful
+ * for scaffolding.
+ *
+ * @return The updated exports section. 
+ * @param exps The exports section.
+ * @param {Object} options
+ * @param options.importPath The importPath to update.
+ * @param options.conditions The conditions to update.
+ * @param options.target The target that the importPath should import.
+ */
 export function pkgSetExport(exps, {importPath, conditions, target}={}) {
 	if (!exps)
 		exps={};

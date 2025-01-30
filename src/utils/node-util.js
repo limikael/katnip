@@ -5,6 +5,19 @@ import semver from "semver";
 import {DeclaredError, objectifyArgs} from "./js-util.js";
 import findNodeModules from "find-node-modules";
 
+/**
+ * Run a shell command.
+ * 
+ * This is a wrapper for the nodejs spawn function.
+ * 
+ * @async
+ * @param command The command to run.
+ * @param args Arguments for the command.
+ * @param {Object} [options]
+ * @param options.passthrough Passthrough data on stdout to the console,
+ *                            at the same time as collecting it to be returned.
+ * @return The output from the command.
+ */
 export function runCommand(command, args=[], options={}) {
 	const child=spawn(command, args, options);
 	let out="";
