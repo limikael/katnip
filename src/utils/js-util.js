@@ -89,3 +89,13 @@ export function arrayFindDuplicate(arr) {
 		if (arr.slice(i+1).includes(arr[i]))
 			return arr[i];
 }
+
+export function arrayify(a) {
+	if (Array.isArray(a))
+		return a;
+
+	if (a===undefined)
+		return [];
+
+	return [a];
+}

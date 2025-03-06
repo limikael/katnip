@@ -1,5 +1,5 @@
 import fs from "fs";
-import {resolveHookEntryPoints, findNodeBin, runCommand, HookEvent, DeclaredError} from "katnip";
+import {resolveHookEntryPoints, findNodeBin, runCommand, HookEvent, DeclaredError, arrayify} from "katnip";
 import path from "path";
 import WORKER_STUB from "./worker-stub.js";
 import {fileURLToPath} from 'url';
@@ -50,6 +50,19 @@ export async function buildCreateWrangler(buildEvent) {
 
 	if (!wrangler.compatibility_date)
 		wrangler.compatibility_date = "2024-12-18";
+
+	let schedule=arrayify(buildEvent.options.schedule);
+	if (schedule.length) {
+		if (!wrangler.triggers)
+			wrangler.triggers={};
+
+		if (!wrangler.triggers.crons)
+			wrangler.triggers.crons=[];
+
+		for (let scheduleExpr of schedule)
+			if (!wrangler.triggers.crons.includes(scheduleExpr))
+				wrangler.triggers.crons.push(scheduleExpr);
+	}
 
 	fs.writeFileSync(wranglerPath,JSON.stringify(wrangler,null,2));
 }
@@ -114,7 +127,8 @@ export function dev(devEvent) {
 	let wranglerOptions=["dev",
 		"--host","localhost:"+devEvent.options.port,
 		"--port",devEvent.options.port,
-		"--config",path.join(devEvent.cwd,"wrangler.json")
+		"--config",path.join(devEvent.cwd,"wrangler.json"),
+		"--test-scheduled"
 	];
 
 	return new Promise((resolve, reject)=>{
