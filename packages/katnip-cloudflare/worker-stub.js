@@ -45,7 +45,13 @@ async function handleFetch(req, env, ctx) {
 
 export default {
 	async fetch(req, env, ctx) {
-		return await handleFetch(req,env,ctx);
+		let promise=handleFetch(req,env,ctx);
+		if (workerData.options.ignoreUserAbort) {
+			console.log("ignoring user abort");
+			ctx.waitUntil(promise);
+		}
+
+		return await promise;
 	},
 
 	async scheduled(ev, env, ctx) {
