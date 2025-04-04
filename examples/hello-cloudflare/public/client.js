@@ -31,7 +31,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../isoq/node_modules/preact/dist/preact.module.js
+// ../../../isoq/node_modules/preact/dist/preact.module.js
 function d(n2, l3) {
   for (var u3 in l3)
     n2[u3] = l3[u3];
@@ -332,7 +332,7 @@ function G(n2, l3) {
 }
 var n, l, u, t, i, o, r, f, e, c, s, a, h, p, v, y;
 var init_preact_module = __esm({
-  "../isoq/node_modules/preact/dist/preact.module.js"() {
+  "../../../isoq/node_modules/preact/dist/preact.module.js"() {
     init_preact_shim();
     h = {};
     p = [];
@@ -361,18 +361,18 @@ var init_preact_module = __esm({
   }
 });
 
-// ../isoq/src/utils/preact-shim.js
+// ../../../isoq/src/utils/preact-shim.js
 var init_preact_shim = __esm({
-  "../isoq/src/utils/preact-shim.js"() {
+  "../../../isoq/src/utils/preact-shim.js"() {
     init_preact_module();
     if (!globalThis.navigator)
       globalThis.navigator = {};
   }
 });
 
-// ../qql/node_modules/sqlstring-sqlite/lib/SqlString.js
+// ../../../qql/node_modules/sqlstring-sqlite/lib/SqlString.js
 var require_SqlString = __commonJS({
-  "../qql/node_modules/sqlstring-sqlite/lib/SqlString.js"(exports) {
+  "../../../qql/node_modules/sqlstring-sqlite/lib/SqlString.js"(exports) {
     init_preact_shim();
     var SqlString = exports;
     var ID_GLOBAL_REGEXP = /`/g;
@@ -559,17 +559,17 @@ var require_SqlString = __commonJS({
   }
 });
 
-// ../qql/node_modules/sqlstring-sqlite/index.js
+// ../../../qql/node_modules/sqlstring-sqlite/index.js
 var require_sqlstring_sqlite = __commonJS({
-  "../qql/node_modules/sqlstring-sqlite/index.js"(exports, module) {
+  "../../../qql/node_modules/sqlstring-sqlite/index.js"(exports, module) {
     init_preact_shim();
     module.exports = require_SqlString();
   }
 });
 
-// ../qql/node_modules/sqlstring/lib/SqlString.js
+// ../../../qql/node_modules/sqlstring/lib/SqlString.js
 var require_SqlString2 = __commonJS({
-  "../qql/node_modules/sqlstring/lib/SqlString.js"(exports) {
+  "../../../qql/node_modules/sqlstring/lib/SqlString.js"(exports) {
     init_preact_shim();
     var SqlString = exports;
     var ID_GLOBAL_REGEXP = /`/g;
@@ -764,17 +764,17 @@ var require_SqlString2 = __commonJS({
   }
 });
 
-// ../qql/node_modules/sqlstring/index.js
+// ../../../qql/node_modules/sqlstring/index.js
 var require_sqlstring = __commonJS({
-  "../qql/node_modules/sqlstring/index.js"(exports, module) {
+  "../../../qql/node_modules/sqlstring/index.js"(exports, module) {
     init_preact_shim();
     module.exports = require_SqlString2();
   }
 });
 
-// ../isoq/node_modules/@einheit/path-resolve/index.js
+// ../../../isoq/node_modules/@einheit/path-resolve/index.js
 var require_path_resolve = __commonJS({
-  "../isoq/node_modules/@einheit/path-resolve/index.js"(exports, module) {
+  "../../../isoq/node_modules/@einheit/path-resolve/index.js"(exports, module) {
     "use strict";
     init_preact_shim();
     var SLASH = 47;
@@ -893,31 +893,31 @@ var require_path_resolve = __commonJS({
   }
 });
 
-// ../isoq/src/isoq/client.jsx
+// ../../../isoq/src/isoq/client.jsx
 init_preact_shim();
 
-// examples/hello-cloudflare/node_modules/.katnip/main.jsx
+// node_modules/.katnip/main.jsx
 init_preact_shim();
 
-// examples/hello-cloudflare/index.jsx
+// index.jsx
 var hello_cloudflare_exports = {};
 __export(hello_cloudflare_exports, {
   default: () => hello_cloudflare_default
 });
 init_preact_shim();
 
-// packages/katnip-quickmin/react-exports.jsx
+// ../../packages/katnip-quickmin/react-exports.jsx
 init_preact_shim();
 
-// ../qql/src/lib/qql-react.jsx
+// ../../../qql/src/lib/qql-react.jsx
 init_preact_shim();
 
-// ../isoq/node_modules/preact/compat/dist/compat.module.js
+// ../../../isoq/node_modules/preact/compat/dist/compat.module.js
 init_preact_shim();
 init_preact_module();
 init_preact_module();
 
-// ../isoq/node_modules/preact/hooks/dist/hooks.module.js
+// ../../../isoq/node_modules/preact/hooks/dist/hooks.module.js
 init_preact_shim();
 init_preact_module();
 var t2;
@@ -1067,7 +1067,7 @@ function D2(n2, t3) {
   return "function" == typeof t3 ? t3(n2) : t3;
 }
 
-// ../isoq/node_modules/preact/compat/dist/compat.module.js
+// ../../../isoq/node_modules/preact/compat/dist/compat.module.js
 function g3(n2, t3) {
   for (var e3 in t3)
     n2[e3] = t3[e3];
@@ -1251,10 +1251,10 @@ l.diffed = function(n2) {
   null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), nn = null;
 };
 
-// ../qql/src/net/QqlClient.js
+// ../../../qql/src/net/QqlClient.js
 init_preact_shim();
 
-// ../qql/src/utils/js-util.js
+// ../../../qql/src/utils/js-util.js
 init_preact_shim();
 function objectifyArgs(params, fields) {
   function isPlainObject(value) {
@@ -1281,7 +1281,7 @@ var CallableClass = class extends Function {
   }
 };
 
-// ../qql/src/net/QqlClient.js
+// ../../../qql/src/net/QqlClient.js
 var QqlClient = class extends CallableClass {
   constructor(...args) {
     super((q3) => this.query(q3));
@@ -1307,7 +1307,7 @@ function createQqlClient(...args) {
   return new QqlClient(...args);
 }
 
-// ../qql/src/lib/qql-react.jsx
+// ../../../qql/src/lib/qql-react.jsx
 var QqlContext = G();
 function QqlProvider({ fetch: fetch2, url, children, qql }) {
   let ref = F2();
@@ -1323,59 +1323,75 @@ function useQql() {
   return P2(QqlContext);
 }
 
-// ../qql/src/lib/exports.js
+// ../../../qql/src/lib/exports.js
 init_preact_shim();
 
-// ../qql/src/drivers/QqlDriverBase.js
+// ../../../qql/src/drivers/QqlDriverBase.js
 init_preact_shim();
 var import_sqlstring_sqlite = __toESM(require_sqlstring_sqlite(), 1);
 var import_sqlstring = __toESM(require_sqlstring(), 1);
 
-// ../qql/src/drivers/QqlDriverSqlite.js
+// ../../../qql/src/drivers/QqlDriverSqlite.js
 init_preact_shim();
 var import_sqlstring_sqlite2 = __toESM(require_sqlstring_sqlite(), 1);
 
-// ../qql/src/drivers/QqlDriverSqlJs.js
+// ../../../qql/src/drivers/QqlDriverSqlJs.js
 init_preact_shim();
 var import_sqlstring_sqlite3 = __toESM(require_sqlstring_sqlite(), 1);
 
-// ../qql/src/lib/qql-util.js
+// ../../../qql/src/lib/qql-util.js
 init_preact_shim();
 
-// ../qql/src/drivers/QqlDriverSqlExec.js
+// ../../../qql/src/drivers/QqlDriverSqlExec.js
 init_preact_shim();
 
-// ../qql/src/net/QqlRestServer.js
+// ../../../qql/src/net/QqlRestServer.js
 init_preact_shim();
 
-// ../qql/src/net/QqlServer.js
+// ../../../qql/src/net/QqlServer.js
 init_preact_shim();
 
-// ../qql/src/qql/Qql.js
+// ../../../qql/src/qql/Qql.js
 init_preact_shim();
 
-// ../qql/src/qql/Table.js
+// ../../../qql/src/qql/Table.js
 init_preact_shim();
 
-// ../qql/src/qql/Field.js
+// ../../../qql/src/qql/Field.js
 init_preact_shim();
 
-// ../qql/src/qql/Qql.js
+// ../../../qql/src/qql/Qql.js
 var import_sqlstring2 = __toESM(require_sqlstring(), 1);
 
-// ../qql/src/qql/QqlAnalysis.js
+// ../../../qql/src/qql/QqlAnalysis.js
 init_preact_shim();
 
-// ../qql/src/qql/QqlEnv.js
+// ../../../qql/src/qql/QqlEnv.js
 init_preact_shim();
 
-// ../quickmin-api/src/quickmin-api-react.jsx
+// ../../../quickmin-api/src/quickmin-api-react.jsx
 init_preact_shim();
 
-// ../quickmin-api/src/quickmin-api.js
+// ../../../quickmin-api/src/quickmin-api.js
 init_preact_shim();
 
-// ../quickmin-api/node_modules/url-join/lib/url-join.js
+// ../../../quickmin-api/src/react-util.jsx
+init_preact_shim();
+
+// ../../../quickmin-api/src/quickmin-api-react.jsx
+var QuickminApiContext = G();
+var QuickminUserContext = G();
+
+// ../../../quickmin/src/export/quickmin-api-react.js
+init_preact_shim();
+
+// ../../../quickmin/node_modules/quickmin-api/src/quickmin-api-react.jsx
+init_preact_shim();
+
+// ../../../quickmin/node_modules/quickmin-api/src/quickmin-api.js
+init_preact_shim();
+
+// ../../../quickmin/node_modules/url-join/lib/url-join.js
 init_preact_shim();
 function normalize(strArray) {
   var resultArray = [];
@@ -1428,8 +1444,8 @@ function urlJoin() {
   return normalize(input);
 }
 
-// ../quickmin-api/src/quickmin-api.js
-var QuickminApi = class {
+// ../../../quickmin/node_modules/quickmin-api/src/quickmin-api.js
+var QuickminApi2 = class {
   constructor(options = {}) {
     this.fetch = globalThis.fetch.bind(globalThis);
     if (options.fetch)
@@ -1524,9 +1540,9 @@ var QuickminApi = class {
   }
 };
 
-// ../quickmin-api/src/react-util.jsx
+// ../../../quickmin/node_modules/quickmin-api/src/react-util.jsx
 init_preact_shim();
-function useConstructor(fn) {
+function useConstructor2(fn) {
   let value = F2();
   let called = F2();
   if (!called.current) {
@@ -1536,11 +1552,11 @@ function useConstructor(fn) {
   return value.current;
 }
 
-// ../quickmin-api/src/quickmin-api-react.jsx
-var QuickminApiContext = G();
+// ../../../quickmin/node_modules/quickmin-api/src/quickmin-api-react.jsx
+var QuickminApiContext2 = G();
 function QuickminApiProvider({ fetch: fetch2, url, apiKey, headers, children }) {
-  let api = new QuickminApi({ fetch: fetch2, url, apiKey, headers });
-  return /* @__PURE__ */ _(QuickminApiContext.Provider, { value: api }, children);
+  let api = new QuickminApi2({ fetch: fetch2, url, apiKey, headers });
+  return /* @__PURE__ */ _(QuickminApiContext2.Provider, { value: api }, children);
 }
 var QuickminUserState = class extends EventTarget {
   constructor(initialUser, quickminCookieName) {
@@ -1556,22 +1572,19 @@ var QuickminUserState = class extends EventTarget {
     this.dispatchEvent(new Event("change"));
   }
 };
-var QuickminUserContext = G();
+var QuickminUserContext2 = G();
 function QuickminUserProvider({ initialUser, quickminCookieName, children }) {
-  let quickminUserState = useConstructor(() => new QuickminUserState(initialUser, quickminCookieName));
-  return /* @__PURE__ */ _(QuickminUserContext.Provider, { value: quickminUserState }, children);
+  let quickminUserState = useConstructor2(() => new QuickminUserState(initialUser, quickminCookieName));
+  return /* @__PURE__ */ _(QuickminUserContext2.Provider, { value: quickminUserState }, children);
 }
 
-// ../quickmin/src/export/quickmin-api-react.js
+// ../../../isoq/src/main/main.js
 init_preact_shim();
 
-// ../isoq/src/main/main.js
+// ../../../isoq/src/components/Head.js
 init_preact_shim();
 
-// ../isoq/src/components/Head.js
-init_preact_shim();
-
-// ../isoq/src/isoq/IsoContext.js
+// ../../../isoq/src/isoq/IsoContext.js
 init_preact_shim();
 var IsoContext = G();
 function useIsoContext() {
@@ -1579,7 +1592,7 @@ function useIsoContext() {
 }
 var IsoContext_default = IsoContext;
 
-// ../isoq/src/utils/js-util.js
+// ../../../isoq/src/utils/js-util.js
 init_preact_shim();
 function jsonEq2(a3, b2) {
   return JSON.stringify(a3) == JSON.stringify(b2);
@@ -1604,10 +1617,10 @@ function stringifyCookie(key, value, options = {}) {
   return s3;
 }
 
-// ../isoq/src/components/useIsoMemo.js
+// ../../../isoq/src/components/useIsoMemo.js
 init_preact_shim();
 
-// ../isoq/src/utils/react-util.js
+// ../../../isoq/src/utils/react-util.js
 init_preact_shim();
 function useAsyncMemo(fn, deps = []) {
   let [val, setVal] = p2();
@@ -1645,13 +1658,13 @@ function useAsyncMemo(fn, deps = []) {
   return val;
 }
 
-// ../isoq/src/components/useIsoRef.js
+// ../../../isoq/src/components/useIsoRef.js
 init_preact_shim();
 
-// ../isoq/src/components/useIsoId.js
+// ../../../isoq/src/components/useIsoId.js
 init_preact_shim();
 
-// ../isoq/src/utils/preact-refid.js
+// ../../../isoq/src/utils/preact-refid.js
 init_preact_shim();
 init_preact_module();
 var currentVNode;
@@ -1693,13 +1706,13 @@ function useRefId() {
   return vnodePath(currentVNode) + "#" + refIndex;
 }
 
-// ../isoq/src/components/useIsoId.js
+// ../../../isoq/src/components/useIsoId.js
 function useIsoId() {
   let refId = useRefId();
   return refId;
 }
 
-// ../isoq/src/components/useIsoRef.js
+// ../../../isoq/src/components/useIsoRef.js
 function useIsoRef(initial, shared) {
   if (shared === void 0)
     shared = true;
@@ -1722,14 +1735,14 @@ function useIsoRef(initial, shared) {
   }
 }
 
-// ../isoq/src/components/useIsoBarrier.js
+// ../../../isoq/src/components/useIsoBarrier.js
 init_preact_shim();
 
-// ../isoq/src/components/IsoSuspense.js
+// ../../../isoq/src/components/IsoSuspense.js
 init_preact_shim();
 var IsoSuspenseContext = G();
 
-// ../isoq/src/components/useIsLoading.js
+// ../../../isoq/src/components/useIsLoading.js
 init_preact_shim();
 var LoadingState = class extends EventTarget {
   constructor() {
@@ -1763,7 +1776,7 @@ function useLoadingState() {
   return iso.loadingState;
 }
 
-// ../isoq/src/components/useIsoBarrier.js
+// ../../../isoq/src/components/useIsoBarrier.js
 function useIsoBarrier() {
   let isoSuspenseContext = P2(IsoSuspenseContext);
   let loadingState = useLoadingState();
@@ -1799,13 +1812,13 @@ function useIsoBarrier() {
   };
 }
 
-// ../isoq/src/components/IsoErrorBoundary.js
+// ../../../isoq/src/components/IsoErrorBoundary.js
 init_preact_shim();
 
-// ../isoq/src/utils/SourceMapper.js
+// ../../../isoq/src/utils/SourceMapper.js
 init_preact_shim();
 
-// ../isoq/node_modules/stacktrace-parser/dist/stack-trace-parser.esm.js
+// ../../../isoq/node_modules/stacktrace-parser/dist/stack-trace-parser.esm.js
 init_preact_shim();
 var UNKNOWN_FUNCTION = "<unknown>";
 function parse(stackString) {
@@ -1906,7 +1919,7 @@ function parseNode(line) {
   };
 }
 
-// ../isoq/src/utils/SourceMapper.js
+// ../../../isoq/src/utils/SourceMapper.js
 var import_path_resolve = __toESM(require_path_resolve(), 1);
 var SourceMapper = class {
   constructor() {
@@ -1948,7 +1961,7 @@ var SourceMapper = class {
   }
 };
 
-// ../isoq/src/components/IsoErrorBoundary.js
+// ../../../isoq/src/components/IsoErrorBoundary.js
 var ErrorBoundaryComponent = class extends b {
   componentDidCatch(error, info) {
   }
@@ -2015,7 +2028,7 @@ function useIsoErrorBoundary() {
   };
 }
 
-// ../isoq/src/components/useIsoMemo.js
+// ../../../isoq/src/components/useIsoMemo.js
 function useIsoMemo(fn, deps = []) {
   let iso = useIsoContext();
   let ref = useIsoRef();
@@ -2061,13 +2074,13 @@ function useIsoMemo(fn, deps = []) {
   }
 }
 
-// ../isoq/src/components/useIsoCookie.js
+// ../../../isoq/src/components/useIsoCookie.js
 init_preact_shim();
 
-// ../isoq/src/components/IsoModifyContext.js
+// ../../../isoq/src/components/IsoModifyContext.js
 init_preact_shim();
 
-// examples/hello-cloudflare/index.jsx
+// index.jsx
 function hello_cloudflare_default() {
   let qql = useQql();
   let pages = useIsoMemo(() => qql({ manyFrom: "pages" }));
@@ -2076,14 +2089,14 @@ function hello_cloudflare_default() {
   return /* @__PURE__ */ _(k, null, /* @__PURE__ */ _("div", null, "hello cloudflare page"), /* @__PURE__ */ _("div", null, "page titles: ", pages.map((page) => page.title)));
 }
 
-// packages/katnip-quickmin/katnip-quickmin-isomain.jsx
+// ../../packages/katnip-quickmin/katnip-quickmin-isomain.jsx
 var katnip_quickmin_isomain_exports = {};
 __export(katnip_quickmin_isomain_exports, {
   Wrapper: () => Wrapper
 });
 init_preact_shim();
 
-// packages/katnip-quickmin/node_modules/url-join/lib/url-join.js
+// ../../packages/katnip-quickmin/node_modules/url-join/lib/url-join.js
 init_preact_shim();
 function normalize2(strArray) {
   var resultArray = [];
@@ -2136,7 +2149,7 @@ function urlJoin2() {
   return normalize2(input);
 }
 
-// packages/katnip-quickmin/katnip-quickmin-isomain.jsx
+// ../../packages/katnip-quickmin/katnip-quickmin-isomain.jsx
 Wrapper.priority = 5;
 function Wrapper({ quickminUser, quickminCookieName, children }) {
   let iso = useIsoContext();
@@ -2158,7 +2171,7 @@ function Wrapper({ quickminUser, quickminCookieName, children }) {
   )));
 }
 
-// examples/hello-cloudflare/node_modules/.katnip/main.jsx
+// node_modules/.katnip/main.jsx
 var isoqModules = [hello_cloudflare_exports, katnip_quickmin_isomain_exports];
 var mains = [];
 for (let mod of isoqModules) {
@@ -2183,13 +2196,13 @@ function main_default(props) {
   return /* @__PURE__ */ _(k, null, main);
 }
 
-// ../isoq/src/isoq/client-internals.js
+// ../../../isoq/src/isoq/client-internals.js
 init_preact_shim();
 
-// ../isoq/src/isoq/IsoqClient.js
+// ../../../isoq/src/isoq/IsoqClient.js
 init_preact_shim();
 
-// ../isoq/node_modules/url-join/lib/url-join.js
+// ../../../isoq/node_modules/url-join/lib/url-join.js
 init_preact_shim();
 function normalize3(strArray) {
   var resultArray = [];
@@ -2242,7 +2255,7 @@ function urlJoin3() {
   return normalize3(input);
 }
 
-// ../isoq/src/isoq/IsoqClient.js
+// ../../../isoq/src/isoq/IsoqClient.js
 var IsoqClient = class {
   constructor({ props, refs, appPathname, window: window2 }) {
     this.window = window2;
@@ -2300,7 +2313,7 @@ var IsoqClient = class {
   }
 };
 
-// ../isoq/src/isoq/DefaultErrorFallback.js
+// ../../../isoq/src/isoq/DefaultErrorFallback.js
 init_preact_shim();
 function DefaultErrorFallback({ error }) {
   let style = {
@@ -2327,7 +2340,7 @@ function DefaultErrorFallback({ error }) {
   return _("div", { style }, message);
 }
 
-// ../isoq/src/isoq/client.jsx
+// ../../../isoq/src/isoq/client.jsx
 if (!window.__isoError && window.__iso) {
   let isoClient = new IsoqClient({ ...window.__iso, window });
   let content = /* @__PURE__ */ _(IsoContext_default.Provider, { value: isoClient }, /* @__PURE__ */ _(IsoErrorBoundary, { fallback: DefaultErrorFallback }, /* @__PURE__ */ _(main_default, { ...isoClient.props })));

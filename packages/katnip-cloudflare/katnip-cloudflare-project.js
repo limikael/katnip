@@ -3,6 +3,7 @@ import {resolveHookEntryPoints, findNodeBin, runCommand, HookEvent, DeclaredErro
 import path from "path";
 import WORKER_STUB from "./worker-stub.js";
 import {fileURLToPath} from 'url';
+import stringArgv from 'string-argv';
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -17,6 +18,9 @@ export async function initCli(initCliEvent) {
 
 	option=initCliEvent.getOptionSpec("undeploy","platform");
 	option.choices([...option.argChoices,"cloudflare"]);
+
+	let command=initCliEvent.getCommandSpec("dev");
+	command.option("--extraWranglerDevOptions <opts>","Extra options to pass to wrangler dev");
 }
 
 buildCreateWrangler.priority=5;
@@ -130,6 +134,13 @@ export function dev(devEvent) {
 		"--config",path.join(devEvent.cwd,"wrangler.json"),
 		"--test-scheduled"
 	];
+
+	let extra=devEvent.options.extraWranglerDevOptions;
+	if (extra) {
+		let extraArray=stringArgv(extra);
+		console.log("Extra wrangler options: ",extraArray);
+		wranglerOptions.push(...extraArray);
+	}
 
 	return new Promise((resolve, reject)=>{
 		devEvent.wranglerCommand=runCommand(wranglerInfo.wranglerBin,wranglerOptions,{
