@@ -5,5 +5,8 @@ apiPath: admin
 
 collections:
   pages:
+    actions:
+    - name: hello
+      method: helloFunc
     fields:
       <Text id="title"/>

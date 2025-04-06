@@ -9,6 +9,11 @@ export default function() {
 		return;
 
 	return (<>
-		page titles: {pages.map(page=>page.title)}
+		page titles:
+		<ul>
+			{pages.map(page=>
+				<li>{page.title}</li>
+			)}
+		</ul>
 	</>)
 }

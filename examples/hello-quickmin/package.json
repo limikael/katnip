@@ -8,9 +8,11 @@
 	"dependencies": {
 		"katnip": "link:../..",
 	    "katnip-quickmin": "link:../../packages/katnip-quickmin",
-	    "katnip-isoq": "link:../../packages/katnip-isoq"
+	    "katnip-isoq": "link:../../packages/katnip-isoq",
+	    "katnip-static": "link:../../packages/katnip-static"
 	},
 	"exports": {
-		"./isomain": "./index.jsx"
+		"./isomain": "./index.jsx",
+		"./quickmin-client-functions": "./client-functions.js"
 	}
 }

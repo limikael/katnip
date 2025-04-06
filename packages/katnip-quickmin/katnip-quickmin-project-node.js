@@ -2,12 +2,13 @@ import fs from "fs";
 import {parse as parseYaml} from "yaml";
 import {fileURLToPath} from 'url';
 import path from "path";
-import {HookEvent, findNodeBin} from "katnip";
+import {HookEvent, findNodeBin, resolveHookEntryPoints} from "katnip";
 import {QuickminServer, quickminCanonicalizeConf} from "quickmin/server";
 import {dsnDb} from "quickmin/dsn-db";
 import {nodeStorageDriver} from "quickmin/node-storage";
 import {mockStorageDriver} from "quickmin/mock-storage";
 import {wranglerDbRemote, wranglerDbLocal, WranglerQqlDriver} from "quickmin/wrangler-db";
+import esbuild from "esbuild";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -37,6 +38,30 @@ export async function build(buildEvent) {
     let confText=fs.readFileSync(path.join(buildEvent.cwd,"quickmin.yaml"),"utf8");
     let conf=quickminCanonicalizeConf(confText);
     buildEvent.appData.quickminConf=conf;
+
+    let modulePaths=await resolveHookEntryPoints(buildEvent.cwd,"quickmin-client-functions",{
+        fs: buildEvent.fs,
+        keyword: "katnip-plugin"
+    });
+
+    console.log("Quickmin client modules: "+JSON.stringify(modulePaths));
+    if (modulePaths.length>1)
+        throw new Error("Only one client module supported...");
+
+    if (modulePaths.length) {
+        if (!buildEvent.options.publicDir)
+            throw new Error("Need a static dir to use quickmin client functions.");
+
+        console.log("Building client modules to: "+buildEvent.options.publicDir);
+        await esbuild.build({
+            entryPoints: [modulePaths[0]],
+            outfile: path.join(buildEvent.cwd,buildEvent.options.publicDir,"quickmin-client-functions.js"),
+            format: "esm",
+            bundle: true
+        });
+
+        buildEvent.appData.quickminConf.clientImports=["/quickmin-client-functions.js"];
+    }
 
     await buildEvent.target.dispatch(new HookEvent("quickminConf",{
         quickminConf: buildEvent.appData.quickminConf,
