@@ -10,6 +10,7 @@ import fs from "fs";
 import {Command} from "commander";
 import JSON5 from "json5";
 import {fileURLToPath} from 'url';
+import {DeclaredError} from "../utils/js-util.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -96,7 +97,13 @@ export default class KatnipCli extends ProjectHookRunner {
 		let options={};
 
 		options={...options,...this.readOptionsFile("katnip.json")};
-		options={...options,...this.readOptionsFile("katnip.local.json")};
+
+		let localOptions=this.readOptionsFile("katnip.local.json");
+		for (let k in localOptions)
+			if (options[k])
+				throw new DeclaredError("Option in multiple places (katnip.json and katnip.local.json): "+k);
+
+		options={...options,...localOptions};
 
 		let programOptions=this.program.opts();
 		for (let k in programOptions) {

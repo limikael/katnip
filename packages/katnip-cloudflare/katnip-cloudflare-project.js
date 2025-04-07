@@ -120,12 +120,12 @@ export async function buildWorker(buildEvent) {
 	fs.writeFileSync(path.join(buildEvent.cwd,"node_modules/.katnip/worker.js"),workerSource);
 }
 
-export function dev(devEvent) {
+export async function dev(devEvent) {
 	if (!devEvent.tags.includes("cloudflare"))
 		return;
 
     let wranglerInfo=new HookEvent("wranglerInfo",{...devEvent});
-    devEvent.target.dispatch(wranglerInfo);
+    await devEvent.target.dispatch(wranglerInfo);
 
 	console.log("Starting cloudflare dev server...");
 	let wranglerOptions=["dev",
@@ -178,7 +178,7 @@ export async function deployServices(deployEvent) {
 	let wranglerPath=path.join(deployEvent.cwd,"wrangler.json");
 	let wrangler=JSON.parse(fs.readFileSync(wranglerPath));
     let wranglerInfo=new HookEvent("wranglerInfo",{...deployEvent});
-    deployEvent.target.dispatch(wranglerInfo);
+    await deployEvent.target.dispatch(wranglerInfo);
 
 	if (wrangler.r2_buckets) {
 		for (let bucket of wrangler.r2_buckets) {
@@ -240,7 +240,7 @@ export async function deploy(deployEvent) {
 		env.CLOUDFLARE_API_TOKEN=ev.options.cfToken;*/
 
     let wranglerInfo=new HookEvent("wranglerInfo",{...deployEvent});
-    deployEvent.target.dispatch(wranglerInfo);
+    await deployEvent.target.dispatch(wranglerInfo);
 
 	let wranglerOptions=[
 		"--config",wranglerPath,
@@ -260,7 +260,7 @@ export async function undeploy(undeployEvent) {
 	let wranglerPath=path.join(undeployEvent.cwd,"wrangler.json");
 	let wrangler=JSON.parse(fs.readFileSync(wranglerPath));
     let wranglerInfo=new HookEvent("wranglerInfo",{...undeployEvent});
-    undeployEvent.target.dispatch(wranglerInfo);
+    await undeployEvent.target.dispatch(wranglerInfo);
 
 	if (wrangler.r2_buckets) {
 		for (let bucket of wrangler.r2_buckets) {
@@ -318,6 +318,23 @@ export function wranglerInfo(ev) {
 	ev.wranglerBin=findNodeBin(ev.cwd,"wrangler");
 	ev.wranglerEnv={...process.env};
 
-	if (ev.options.cfToken)
+	let wranglerPath=path.join(ev.cwd,"wrangler.json");
+	let wrangler=JSON.parse(fs.readFileSync(wranglerPath));
+
+	if (wrangler.account_id) {
+		if (process.env.CLOUDFLARE_ACCOUNT_ID &&
+				process.env.CLOUDFLARE_ACCOUNT_ID!=wrangler.account_id)
+			throw new Error("The env variable CLOUDFLARE_ACCOUNT_ID, and it is different from account_id in wrangler.json. This is not allowed since it is likely to lead to confusion.");
+
+		//console.log("***** wranglerinfo, account_id="+wrangler.account_id);
+		ev.wranglerEnv.CLOUDFLARE_ACCOUNT_ID=wrangler.account_id;
+	}
+
+	if (ev.options.cfToken) {
+		if (process.env.CLOUDFLARE_API_TOKEN &&
+				process.env.CLOUDFLARE_API_TOKEN!=ev.options.cfToken)
+			throw new Error("The env variable CLOUDFLARE_API_TOKEN, and it is different from the cfToken option. This is not allowed since it is likely to lead to confusion.");
+
 		ev.wranglerEnv.CLOUDFLARE_API_TOKEN=ev.options.cfToken;
+	}
 }

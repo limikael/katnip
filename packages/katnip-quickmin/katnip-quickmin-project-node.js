@@ -132,7 +132,7 @@ export async function build(buildEvent) {
 
         if (buildEvent.tags.includes("dev")) {
             let wranglerInfo=new HookEvent("wranglerInfo",{...buildEvent});
-            buildEvent.target.dispatch(wranglerInfo);
+            await buildEvent.target.dispatch(wranglerInfo);
 
             let conf={...buildEvent.appData.quickminConf};
             conf.qqlDriver=new WranglerQqlDriver({
@@ -162,7 +162,7 @@ export async function deploy(deployEvent) {
         console.log("Migrating cloudflare db...");
         let wranglerPath=path.join(deployEvent.cwd,"wrangler.json");
         let wranglerInfo=new HookEvent("wranglerInfo",{...deployEvent});
-        deployEvent.target.dispatch(wranglerInfo);
+        await deployEvent.target.dispatch(wranglerInfo);
 
         let conf={...deployEvent.appData.quickminConf};
         conf.qqlDriver=new WranglerQqlDriver({
