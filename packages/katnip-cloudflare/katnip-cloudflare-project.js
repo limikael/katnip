@@ -324,7 +324,7 @@ export function wranglerInfo(ev) {
 	if (wrangler.account_id) {
 		if (process.env.CLOUDFLARE_ACCOUNT_ID &&
 				process.env.CLOUDFLARE_ACCOUNT_ID!=wrangler.account_id)
-			throw new Error("The env variable CLOUDFLARE_ACCOUNT_ID, and it is different from account_id in wrangler.json. This is not allowed since it is likely to lead to confusion.");
+			throw new Error("The env variable CLOUDFLARE_ACCOUNT_ID is different from account_id in wrangler.json. This is not allowed since it is likely to lead to confusion.");
 
 		//console.log("***** wranglerinfo, account_id="+wrangler.account_id);
 		ev.wranglerEnv.CLOUDFLARE_ACCOUNT_ID=wrangler.account_id;
@@ -333,7 +333,7 @@ export function wranglerInfo(ev) {
 	if (ev.options.cfToken) {
 		if (process.env.CLOUDFLARE_API_TOKEN &&
 				process.env.CLOUDFLARE_API_TOKEN!=ev.options.cfToken)
-			throw new Error("The env variable CLOUDFLARE_API_TOKEN, and it is different from the cfToken option. This is not allowed since it is likely to lead to confusion.");
+			throw new Error("The env variable CLOUDFLARE_API_TOKEN is different from the cfToken option. This is not allowed since it is likely to lead to confusion.");
 
 		ev.wranglerEnv.CLOUDFLARE_API_TOKEN=ev.options.cfToken;
 	}
