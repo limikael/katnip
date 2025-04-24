@@ -1,7 +1,7 @@
 {
   "name": "katnip",
   "license": "MIT",
-  "version": "4.0.7",
+  "version": "4.0.9",
   "type": "module",
   "bin": {
     "katnip": "src/cli/katnip-cli.js"
@@ -27,7 +27,7 @@
     "node-cron": "^3.0.3",
     "resolve.exports": "^2.0.3",
     "semver": "^7.6.3",
-    "serve-fetch": "^1.0.3",
+    "serve-fetch": "^1.0.4",
     "table": "^6.9.0"
   }
 }
