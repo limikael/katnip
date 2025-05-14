@@ -1,6 +1,6 @@
 {
   "name": "katnip-quickmin",
-  "version": "4.0.19",
+  "version": "4.0.20",
   "type": "module",
   "scripts": {},
   "license": "MIT",
@@ -11,8 +11,8 @@
     "@ltd/j-toml": "^1.38.0",
     "esbuild": "^0.25.2",
     "katnip": "^4.0.9",
-    "qql": "^1.0.27",
-    "quickmin": "^0.0.92",
+    "qql": "^1.0.28",
+    "quickmin": "^0.0.93",
     "quickmin-api": "^1.0.7",
     "yaml": "^2.3.4"
   },
