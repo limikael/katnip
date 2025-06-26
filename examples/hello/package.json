@@ -1,0 +1,13 @@
+{
+  "name": "katnip",
+  "license": "MIT",
+  "version": "5.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "katnip build",
+    "start": "katnip dev"
+  },
+  "dependencies": {
+    "katnip": "link:../.."
+  }
+}

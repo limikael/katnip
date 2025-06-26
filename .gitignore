@@ -5,3 +5,5 @@ examples/**/node_modules
 examples/**/*.db
 yarn.lock
 **/.wrangler
+pnpm-lock.yaml
+pnpm-workspace.yaml
