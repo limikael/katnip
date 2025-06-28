@@ -15,7 +15,7 @@ export async function responseAssert(response) {
 	throw e;
 }
 
-/*export function arrayify(a) {
+export function arrayify(a) {
 	if (Array.isArray(a))
 		return a;
 
@@ -23,4 +23,4 @@ export async function responseAssert(response) {
 		return [];
 
 	return [a];
-}*/
+}

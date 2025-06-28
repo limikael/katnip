@@ -1,29 +1,34 @@
-//import { compile } from 'tailwindcss';
-//import { build } from 'tailwindcss/lib.js'
+import tailwind from "tailwindcss";
+import postcss from 'postcss';
+import autoprefixer from "autoprefixer";
+import path from "node:path";
+import {fileURLToPath} from 'node:url';
+import fs, {promises as fsp} from "fs";
+import { createRequire } from 'module'
+import {arrayify} from "./js-util.js";
 
-import compile from 'tailwindcss';
+const require = createRequire(import.meta.url)
 
-export async function tailwindBuild() {
-const result = await compile({
-    css: '@tailwind utilities;',
-    content: [
-        {
-            raw: '<div class="text-red-500 hover:underline"></div>',
-            extension: 'html',
-        }
-    ],
-    config: {
-        theme: {
-            extend: {
-                colors: {
-                    brand: '#1e40af'
-                }
-            }
-        }
-    }
-})
+//This is for version 4, but it doesn't work.
+//import tailwind from "@tailwindcss/postcss";
 
-//console.log(result.css) // => final compiled CSS string
-console.log(result) // => final compiled CSS string
+let TAILWIND_CSS_DIRECTIVES=`
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+`;
+
+export async function tailwindBuild({cwd, config, out}) {
+	let configModule=await import(config).then(m=>m.default);
+	configModule.content=arrayify(configModule.content).map(p=>path.resolve(cwd,p));
+
+    let tailwindPlugin=tailwind({...configModule});
+    let processor=postcss([tailwindPlugin,autoprefixer]);
+    let artifact=await processor.process(TAILWIND_CSS_DIRECTIVES, { from: undefined });
+
+    await fsp.mkdir(path.dirname(out),{recursive: true});
+    await fsp.writeFile(out,artifact.css);
+
+	//console.log("Tailwind done...");
 }
 

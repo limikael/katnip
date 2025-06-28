@@ -2,8 +2,17 @@ tmp
 /node_modules
 packages/**/node_modules
 examples/**/node_modules
+examples/**/.target
 examples/**/*.db
 yarn.lock
 **/.wrangler
 pnpm-lock.yaml
 pnpm-workspace.yaml
+**/.target
+
+examples/hello/public/
+examples/hello/upload/
+
+spec/main/testproject/quickmin.db
+spec/**/node_modules
+spec/main/testproject/public/index.css

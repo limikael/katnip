@@ -12,12 +12,27 @@
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.10",
     "commander": "^14.0.0",
+    "esbuild": "^0.25.5",
+    "fullstack-rpc": "^1.0.3",
     "isoq": "^1.1.25",
+    "isoq-router": "^1.0.24",
     "json5": "^2.2.3",
     "mikrokat": "^1.0.11",
-    "read-package-up": "^11.0.0"
+    "postcss": "^8.5.6",
+    "quickmin": "^0.0.104",
+    "read-package-up": "^11.0.0",
+    "sqlite3": "^5.1.7",
+    "tailwindcss": "^3.4.1",
+    "url-join": "^5.0.0"
   },
   "devDependencies": {
-    "jasmine": "^5.8.0"
+    "autoprefixer": "^10.4.21",
+    "jasmine": "^5.8.0",
+    "jsdom": "^26.1.0"
+  },
+  "exports": {
+    ".": {
+      "browser": "./src/exports/exports-browser.jsx"
+    }
   }
 }

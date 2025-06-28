@@ -1,0 +1,7 @@
+{
+	"client": "src/main/index.jsx",
+	"rpc-api": "src/main/Api.js",
+	"services": {
+		"DB": {"type": "better-sqlite3", "filename": "quickmin.db"}
+	}
+}

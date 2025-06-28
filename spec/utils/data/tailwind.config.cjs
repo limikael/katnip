@@ -1,5 +1,6 @@
 module.exports = {
   content: ["./src/**/*.jsx"],
+//  content: ["./spec/utils/data/src/**/*.jsx"],
   theme: {
     extend: {
     },
@@ -13,5 +14,5 @@ module.exports = {
       white: "#ffffff",
       error: "#ff0000"
     },
-  },
+  }
 }

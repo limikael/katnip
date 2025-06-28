@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "is-positive": "^3.1.0",
-    "katnip": "link:../.."
+    "katnip": "link:../../.."
   }
 }

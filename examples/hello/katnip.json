@@ -1,4 +1,15 @@
 {
 	"client": "src/main/index.jsx",
-	"server": "src/main/server.js"
+	"server": "src/main/server.js",
+	"services": {
+		"DB": {
+			"type": "better-sqlite3",
+			"filename": "quickmin.db"
+		},
+
+		"BUCKET": {
+			"type": "node-storage",
+			"dirname": "upload"
+		}
+	}
 }
