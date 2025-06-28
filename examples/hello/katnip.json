@@ -4,12 +4,14 @@
 	"services": {
 		"DB": {
 			"type": "better-sqlite3",
-			"filename": "quickmin.db"
+			"filename": "quickmin.db",
+			"if": {"target": "node"}
 		},
 
 		"BUCKET": {
 			"type": "node-storage",
-			"dirname": "upload"
+			"dirname": "upload",
+			"if": {"target": "node"}
 		}
 	}
 }

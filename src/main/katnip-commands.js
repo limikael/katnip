@@ -1,10 +1,8 @@
 import KatnipProject from "./KatnipProject.js";
 import {getEffectiveCwd} from "../utils/node-util.js";
 
-async function initOptions(options, {allowUninitialized}={}) {
+async function initOptions(options) {
 	options={...options};
-
-	options.cwd=await getEffectiveCwd(options.cwd,{allowUninitialized});
 
 	if ((options.silent || options.quiet) && !options.log)
 		options.log=false;
@@ -12,14 +10,15 @@ async function initOptions(options, {allowUninitialized}={}) {
 	return options;
 }
 
-/*export async function mikrokatInit(options) {
-	options=await initOptions(options,{allowUninitialized: true});
-	let project=new MikrokatProject(options);
+export async function katnipInit(options) {
+	options=await initOptions(options);
+	let project=new KatnipProject(options);
 
 	await project.init();
-}*/
+}
 
 export async function katnipServe(options) {
+	options.cwd=await getEffectiveCwd(options.cwd);
 	options=await initOptions(options);
 	let project=new KatnipProject(options);
 	await project.load();
@@ -33,8 +32,17 @@ export async function katnipServe(options) {
 }
 
 export async function katnipBuild(options) {
+	options.cwd=await getEffectiveCwd(options.cwd);
 	options=await initOptions(options);
 	let project=new KatnipProject(options);
 	await project.load();
 	await project.build();
+}
+
+export async function katnipProvision(options) {
+	options.cwd=await getEffectiveCwd(options.cwd);
+	options=await initOptions(options);
+	let project=new KatnipProject(options);
+	await project.load();
+	await project.provision();
 }
