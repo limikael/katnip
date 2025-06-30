@@ -1,7 +1,7 @@
 {
   "name": "katnip",
   "license": "MIT",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "type": "module",
   "bin": {
     "katnip": "src/main/katnip.js"
@@ -24,10 +24,10 @@
     "read-package-up": "^11.0.0",
     "sqlite3": "^5.1.7",
     "tailwindcss": "^3.4.1",
-    "url-join": "^5.0.0"
+    "url-join": "^5.0.0",
+    "autoprefixer": "^10.4.21"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
     "jasmine": "^5.8.0",
     "jsdom": "^26.1.0"
   },
