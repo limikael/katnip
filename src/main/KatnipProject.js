@@ -7,8 +7,6 @@ import {mikrokatServe, mikrokatBuild, mikrokatCreateProvisionEnv, mikrokatInit, 
 import {fileURLToPath} from 'node:url';
 import {tailwindBuild} from "../utils/tailwind-util.js";
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
-import {QqlDriverSqlite} from "quickmin/qql";
-import sqlite3 from "sqlite3";
 import nodeStorageDriver from "quickmin/node-storage";
 import {arrayify} from "../utils/js-util.js";
 import esbuild from "esbuild";
@@ -65,7 +63,8 @@ export default class KatnipProject {
 					build: "katnip build"
 				},
 				dependencies: {
-					katnip: "^"+await getPackageVersion(__dirname)
+					katnip: "^"+await getPackageVersion(__dirname),
+					"better-sqlite3": "^12.2.0"
 				}
 			},pkg);
 		});
