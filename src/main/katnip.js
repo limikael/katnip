@@ -6,7 +6,7 @@ import {fileURLToPath} from 'node:url';
 import {getPackageVersion} from "../utils/node-util.js";
 import {withProgramOptions} from "../utils/commander-util.js"
 import {katnipServe, katnipBuild, katnipInit, katnipProvision} from "./katnip-commands.js";
-import {mikrokatGetTargets} from "mikrokat";
+import {mikrokatGetPlatforms} from "mikrokat";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -28,23 +28,24 @@ program.command("serve")
 	.alias("dev")
 	.description("Serve from this machine.")
 	.addOption(new Option("--port <port>","Listening port.").default(3000).env("PORT"))
+	.addOption(new Option("--platform <provider>","Platform to start a dev server for.").choices(mikrokatGetPlatforms())/*.env("PLATFORM")*/)
 	.action(withProgramOptions(program,katnipServe));
 
 program.command("build")
 	.description("Build project.")
-	.addOption(new Option("--target <provider>","Provider to build for."))
+	.addOption(new Option("--platform <provider>","Platform to build for.").choices(mikrokatGetPlatforms())/*.env("PLATFORM")*/)
 	.action(withProgramOptions(program,katnipBuild));
 
 program.command("provision")
 	.description("Provision project services.")
-	.addOption(new Option("--target <provider>","Provider to provision for."))
+	.addOption(new Option("--platform <provider>","Platform to provision for.").choices(mikrokatGetPlatforms())/*.env("PLATFORM")*/)
 	.option("--local","Provision local (dev) services.")
 	.option("--remote","Provision remote services.")
 	.action(withProgramOptions(program,katnipProvision));
 
 program.command("init")
-	.description("Initialize project and/or target.")
-	.addOption(new Option("--target <provider>","Provider to initialize.").choices(mikrokatGetTargets())/*.env("TARGET")*/)
+	.description("Initialize project and/or platform.")
+	.addOption(new Option("--platform <provider>","Platform to initialize.").choices(mikrokatGetPlatforms())/*.env("PLATFORM")*/)
 	.action(withProgramOptions(program,katnipInit));
 
 try {

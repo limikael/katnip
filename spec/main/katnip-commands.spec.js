@@ -1,19 +1,42 @@
-import {katnipServe} from "../../src/main/katnip-commands.js";
+import {katnipServe, katnipInit} from "../../src/main/katnip-commands.js";
 import path from "node:path";
 import {fileURLToPath} from 'node:url';
 import fs, {promises as fsp} from "fs";
 import {JSDOM} from "jsdom";
-
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
 import {QqlDriverSqlite} from "quickmin/qql";
 import sqlite3 from "sqlite3";
 import nodeStorageDriver from "quickmin/node-storage";
-
 import {createRpcProxy} from "fullstack-rpc/client";
+import {cloudflareGetBinding} from "../../src/utils/cloudflare-util.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe("katnip-commands",()=>{
+	it("can initialize a new project",async ()=>{
+		let projectDir=path.join(__dirname,"../data/tmp/project1");
+		await fsp.rm(projectDir,{recursive: true, force: true});
+		await katnipInit({cwd: projectDir, quiet: true});
+
+		let projectDir2=path.join(__dirname,"../data/tmp/project2");
+		await fsp.rm(projectDir2,{recursive: true, force: true});
+		await katnipInit({cwd: projectDir2, quiet: true, platform: "cloudflare"});
+	});
+
+	it("can initialize cloudflare",async ()=>{
+		let projectDir=path.join(__dirname,"../data/tmp/cfproject");
+		await fsp.rm(projectDir,{recursive: true, force: true});
+		await katnipInit({cwd: projectDir, quiet: true, platform: "cloudflare"});
+
+		let wranglerJson=JSON.parse(fs.readFileSync(path.join(projectDir,"wrangler.json")));
+		expect(cloudflareGetBinding(wranglerJson,"DB")).toEqual({
+			"binding": "DB",
+			"database_name": "cfproject",
+			"database_id": "undefined",
+			"preview_database_id": "cfproject"
+		})
+	});
+
 	it("can serve",async ()=>{
 		await fsp.rm(path.join(__dirname,"testproject/quickmin.db"),{force: true});
 		await fsp.rm(path.join(__dirname,"testproject/public/index.css"),{force: true});

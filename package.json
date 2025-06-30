@@ -15,12 +15,12 @@
     "esbuild": "^0.25.5",
     "find-node-modules": "^2.1.3",
     "fullstack-rpc": "^1.0.3",
-    "isoq": "^1.1.25",
+    "isoq": "^1.1.27",
     "isoq-router": "^1.0.24",
     "json5": "^2.2.3",
-    "mikrokat": "^1.0.11",
+    "mikrokat": "^1.0.19",
     "postcss": "^8.5.6",
-    "quickmin": "^0.0.104",
+    "quickmin": "^0.0.105",
     "read-package-up": "^11.0.0",
     "sqlite3": "^5.1.7",
     "tailwindcss": "^3.4.1",
@@ -35,5 +35,8 @@
     ".": {
       "browser": "./src/exports/exports-browser.jsx"
     }
+  },
+  "publishConfig": {
+    "tag": "next"
   }
 }

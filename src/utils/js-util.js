@@ -51,3 +51,22 @@ export function objectifyArgs(params, fields) {
 
     return conf;
 }
+
+export function objectMerge(a, b) {
+    a = a ?? {};
+    b = b ?? {};
+    const result = { ...a };
+    for (const [key, bVal] of Object.entries(b)) {
+        const aVal = a[key];
+        if (
+            aVal && bVal &&
+            typeof aVal === 'object' && !Array.isArray(aVal) &&
+            typeof bVal === 'object' && !Array.isArray(bVal)
+        ) {
+            result[key] = objectMerge(aVal, bVal);
+        } else {
+            result[key] = bVal;
+        }
+    }
+    return result;
+}

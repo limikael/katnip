@@ -1,9 +1,9 @@
 import fs, {promises as fsp} from "node:fs";
 import path from "node:path";
-import {DeclaredError} from "../utils/js-util.js";
+import {DeclaredError, objectMerge} from "../utils/js-util.js";
 import JSON5 from "json5";
 import {isoqBundle} from "isoq/bundler";
-import {mikrokatServe, mikrokatBuild, mikrokatCreateProvisionEnv} from "mikrokat";
+import {mikrokatServe, mikrokatBuild, mikrokatCreateProvisionEnv, mikrokatInit, processProjectFile} from "mikrokat";
 import {fileURLToPath} from 'node:url';
 import {tailwindBuild} from "../utils/tailwind-util.js";
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
@@ -16,25 +16,137 @@ import {esbuildModuleAlias} from "isoq/esbuild-util";
 import {createQqlDriver, createStorageDriver} from "./create-drivers.js";
 import QqlDriverWrangler from "quickmin/qql-wrangler-driver";
 import {MockStorage} from "quickmin/mock-storage";
-import {findNodeBin} from "../utils/node-util.js";
+import {findNodeBin, getPackageVersion} from "../utils/node-util.js";
+import {SERVER_JS, INDEX_JSX, QUICKMIN_YAML, TAILWIND_CONFIG_CJS} from "./stubs.js";
+import {cloudflareGetBinding, cloudflareAddBinding} from "../utils/cloudflare-util.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 export default class KatnipProject {
-	constructor({cwd, quiet, target, local, remote}) {
+	constructor({cwd, quiet, platform, local, remote, log}) {
 		this.cwd=cwd;
 		this.quiet=quiet;
-		this.target=target;
+		this.platform=platform;
 
-		if (!this.target)
-			this.target="node";
+		if (!this.platform)
+			this.platform="node";
 
 		this.local=local;
 		this.remote=remote;
+
+		if (typeof log=="function")
+			this.log=log;
+
+		else if (log!==false)
+			this.log=(...args)=>console.log(...args);
+
+		else
+			this.log=()=>{};
 	}
 
 	async init() {
-		throw new DeclaredError("init is wip")
+		if (!this.cwd)
+			throw new Error("Need cwd!");
+
+		let projectName=path.basename(this.cwd);
+
+		await this.processProjectFile("package.json","json",async pkg=>{
+			if (!pkg) {
+				this.log("Initializing new katnip project: "+path.basename(this.cwd));
+				await fsp.mkdir(this.cwd,{recursive: true});
+			}
+
+			return objectMerge({
+				name: projectName,
+				private: true,
+				type: "module",
+				scripts: {
+					start: "katnip serve",
+					build: "katnip build"
+				},
+				dependencies: {
+					katnip: "^"+await getPackageVersion(__dirname)
+				}
+			},pkg);
+		});
+
+		await this.processProjectFile("katnip.json","json",async katnip=>{
+			return objectMerge(katnip,{
+				server: "src/main/server.js",
+				client: "src/main/index.jsx",
+				services: {
+					DB: {
+						type: "better-sqlite3",
+						filename: "quickmin.db",
+						if: {platform: "node"}
+					}
+				}
+			},katnip);
+		});
+
+		await this.load();
+
+		await this.processProjectFile(this.config.server,null,async src=>{
+			if (!src)
+				return SERVER_JS;
+		});
+
+		await this.processProjectFile(this.config.client,null,async src=>{
+			if (!src)
+				return INDEX_JSX;
+		});
+
+		await this.processProjectFile("quickmin.yaml",null,async src=>{
+			if (!src)
+				return QUICKMIN_YAML;
+		});
+
+		await this.processProjectFile("tailwind.config.cjs",null,async src=>{
+			if (!src)
+				return TAILWIND_CONFIG_CJS;
+		});
+
+		await mikrokatInit({
+			cwd: this.cwd,
+			platform: this.platform,
+			initProject: false,
+			log: this.log
+		});
+
+		if (this.platform=="cloudflare") {
+			await this.processProjectFile("wrangler.json","json",async wrangler=>{
+				if (!cloudflareGetBinding(wrangler,"DB")) {
+					cloudflareAddBinding(wrangler,"d1_databases",{
+						binding: "DB",
+						database_name: projectName,
+						database_id: "undefined",
+						preview_database_id: projectName
+					});
+				}
+
+				if (!cloudflareGetBinding(wrangler,"BUCKET")) {
+					cloudflareAddBinding(wrangler,"r2_buckets",{
+						binding: "BUCKET",
+						bucket_name: "undefined",
+						preview_bucket_name: projectName
+					});
+				}
+			});
+		}
+	}
+
+	async processProjectFile(filename, format, processor) {
+		let content=await processProjectFile({
+			cwd: this.cwd,
+			filename,
+			format,
+			processor
+		});
+
+		if (["katnip.json","package.json"].includes(filename))
+			this.config=undefined;
+
+		return content;
 	}
 
 	async load() {
@@ -53,7 +165,7 @@ export default class KatnipProject {
 		if (!this.config)
 			throw new Error("Config not loaded");
 
-		console.log("Building for "+this.target+"...");
+		console.log("Building for "+this.platform+"...");
 
 		let tasks=[];
 		let wrappers=[
@@ -101,8 +213,9 @@ export default class KatnipProject {
 			cwd: this.cwd,
 			config: this.getMikrokatConfig(),
 			quiet: this.quiet,
-			target: this.target,
-			env: this.getRuntimeEnv()
+			platform: this.platform,
+			env: this.getRuntimeEnv(),
+			log: this.log
 		});
 	}
 
@@ -141,17 +254,17 @@ export default class KatnipProject {
 		if (this.remove)
 			dest=" (remote)";
 
-		console.log("Provisioning "+this.target+dest+"...");
+		console.log("Provisioning "+this.platform+dest+"...");
 
 		let env=await mikrokatCreateProvisionEnv({
 			cwd: this.cwd,
-			target: this.target,
+			platform: this.platform,
 			config: this.getMikrokatConfig()
 		});
 
 		let quickminConf=quickminCanonicalizeConf(fs.readFileSync(path.join(this.cwd,"quickmin.yaml"),"utf8"));
 
-		if (this.target=="cloudflare") {
+		if (this.platform=="cloudflare") {
 			quickminConf.qqlDriver=new QqlDriverWrangler({
 				d1Binding: "DB",
 				local: true,
@@ -200,6 +313,8 @@ export default class KatnipProject {
 		if (!this.config)
 			throw new Error("Config not loaded");
 
+		this.local=true;
+
 		await this.build();
 		await this.provision();
 
@@ -207,8 +322,9 @@ export default class KatnipProject {
 			cwd: this.cwd,
 			port: 3000,
 			config: this.getMikrokatConfig(),
-			quiet: this.quiet,
-			env: this.getRuntimeEnv()
+			log: this.log,
+			env: this.getRuntimeEnv(),
+			platform: this.platform
 		});
 	}
 }
