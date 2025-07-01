@@ -17,6 +17,8 @@ import {MockStorage} from "quickmin/mock-storage";
 import {findNodeBin, getPackageVersion} from "../utils/node-util.js";
 import {SERVER_JS, INDEX_JSX, QUICKMIN_YAML, TAILWIND_CONFIG_CJS} from "./stubs.js";
 import {cloudflareGetBinding, cloudflareAddBinding} from "../utils/cloudflare-util.js";
+import {loadPlugins} from "../utils/plugins.js";
+import BuildEvent from "./BuildEvent.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -160,11 +162,49 @@ export default class KatnipProject {
 		}
 	}
 
+	getMikrokatConfig(buildEvent) {
+		if (!this.config)
+			throw new Error("config not loaded");
+
+		let main=[path.join(__dirname,"server.js")];
+		main.push(...arrayify(this.config.main).map(m=>path.resolve(this.cwd,m)));
+		main.push(...buildEvent.serverModules);
+
+		let imports=[];
+
+		imports.push({import: "isoqRequestHandler", from: "./.target/isoq-request-handler.js"});
+
+		if (this.config["rpc-api"])
+			imports.push({import: "RpcApi", from: path.resolve(this.cwd,this.config["rpc-api"])});
+
+		if (this.config.server)
+			main.push(path.resolve(this.cwd,this.config.server));
+
+		return ({
+			main: main,
+			imports: imports,
+			services: this.config.services,
+			env: this.config.env
+		});
+	}
+
 	async build() {
 		if (!this.config)
 			throw new Error("Config not loaded");
 
 		console.log("Building for "+this.platform+"...");
+		if (!this.pluginTarget) {
+			this.pluginTarget=await loadPlugins({
+				cwd: this.cwd,
+				keyword: "katnip-plugin",
+				export: "katnip-build"
+			});
+		}
+
+		let buildEvent=new BuildEvent();
+		await this.pluginTarget.dispatch(buildEvent);
+
+		//console.log(buildEvent.serverModules);
 
 		let tasks=[];
 		let wrappers=[
@@ -199,6 +239,8 @@ export default class KatnipProject {
 		if (this.config["rpc-api"])
 			wrappers.push(path.join(__dirname,"../wrappers/RpcWrapper.jsx"));
 
+		wrappers.push(...buildEvent.clientWrappers);
+
 		tasks.push(isoqBundle({
 			entrypoint: path.resolve(this.cwd,this.config.client),
 			out: path.resolve(this.cwd,".target/isoq-request-handler.js"),
@@ -210,33 +252,14 @@ export default class KatnipProject {
 
 		await mikrokatBuild({
 			cwd: this.cwd,
-			config: this.getMikrokatConfig(),
+			config: this.getMikrokatConfig(buildEvent),
 			quiet: this.quiet,
 			platform: this.platform,
 			env: this.getRuntimeEnv(),
 			log: this.log
 		});
-	}
 
-	getMikrokatConfig() {
-		if (!this.config)
-			throw new Error("config not loaded");
-
-		let main=[path.join(__dirname,"server.js")];
-		main.push(...arrayify(this.config.main).map(m=>path.resolve(this.cwd,m)));
-
-		let imports=[];
-
-		imports.push({import: "isoqRequestHandler", from: "./.target/isoq-request-handler.js"});
-
-		if (this.config["rpc-api"])
-			imports.push({import: "RpcApi", from: path.resolve(this.cwd,this.config["rpc-api"])});
-
-		return ({
-			main: main,
-			imports: imports,
-			services: this.config.services
-		});
+		return buildEvent;
 	}
 
 	async createProvisionEnv() {
@@ -258,7 +281,7 @@ export default class KatnipProject {
 		let env=await mikrokatCreateProvisionEnv({
 			cwd: this.cwd,
 			platform: this.platform,
-			config: this.getMikrokatConfig()
+			config: {services: this.config.services} //this.getMikrokatConfig()
 		});
 
 		let quickminConf=quickminCanonicalizeConf(fs.readFileSync(path.join(this.cwd,"quickmin.yaml"),"utf8"));
@@ -314,13 +337,13 @@ export default class KatnipProject {
 
 		this.local=true;
 
-		await this.build();
+		let buildEvent=await this.build();
 		await this.provision();
 
 		await mikrokatServe({
 			cwd: this.cwd,
 			port: 3000,
-			config: this.getMikrokatConfig(),
+			config: this.getMikrokatConfig(buildEvent),
 			log: this.log,
 			env: this.getRuntimeEnv(),
 			platform: this.platform

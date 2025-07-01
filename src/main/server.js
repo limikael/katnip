@@ -27,8 +27,11 @@ export function onStart({imports, use, fs, env, getServiceMeta}) {
 		});
 	}
 
+	if (!env.__CLIENT_PROPS)
+		env.__CLIENT_PROPS={};
+
 	use(async ev=>{
-		let clientProps={};
+		let clientProps={...env.__CLIENT_PROPS};
 
 		clientProps.quickminCookieName="qm";
 		if (env.qm)

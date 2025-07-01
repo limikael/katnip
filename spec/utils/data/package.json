@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"plugin1": "something",
+		"plugin2": "somethingelse"
+	}
+}
