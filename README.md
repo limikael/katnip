@@ -25,10 +25,16 @@ Katnip aims to let you build and deploy immediately while staying lightweight an
 ```bash
 mkdir my-app
 cd my-app
-katnip init
+npx katnip init
 ```
 
-### 2. Install dependencies
+You might also want to install the `katnip` command line tool globally:
+
+```bash
+npm install -g katnip
+```
+
+### 2. Install project dependencies
 
 Using **npm**:
 
