@@ -2,7 +2,7 @@ import fs, {promises as fsp} from "node:fs";
 import path from "node:path";
 import {DeclaredError, objectMerge} from "../utils/js-util.js";
 import JSON5 from "json5";
-import {isoqBundle} from "isoq/bundler";
+import {isoqBundle, isoqGetEsbuildOptions} from "isoq/bundler";
 import {mikrokatServe, mikrokatBuild, mikrokatCreateProvisionEnv, mikrokatInit, processProjectFile} from "mikrokat";
 import {fileURLToPath} from 'node:url';
 import {tailwindBuild} from "../utils/tailwind-util.js";
@@ -10,7 +10,6 @@ import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
 import nodeStorageDriver from "quickmin/node-storage";
 import {arrayify} from "../utils/js-util.js";
 import esbuild from "esbuild";
-import {esbuildModuleAlias} from "isoq/esbuild-util";
 import {createQqlDriver, createStorageDriver} from "./create-drivers.js";
 import QqlDriverWrangler from "quickmin/qql-wrangler-driver";
 import {MockStorage} from "quickmin/mock-storage";
@@ -19,11 +18,12 @@ import {SERVER_JS, INDEX_JSX, QUICKMIN_YAML, TAILWIND_CONFIG_CJS} from "./stubs.
 import {cloudflareGetBinding, cloudflareAddBinding} from "../utils/cloudflare-util.js";
 import {loadPlugins} from "../utils/plugins.js";
 import BuildEvent from "./BuildEvent.js";
+import {startFileWatcher} from "../utils/file-watcher.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 export default class KatnipProject {
-	constructor({cwd, quiet, platform, local, remote, log}) {
+	constructor({cwd, quiet, platform, local, remote, log, watch}) {
 		this.cwd=cwd;
 		this.quiet=quiet;
 		this.platform=platform;
@@ -33,6 +33,7 @@ export default class KatnipProject {
 
 		this.local=local;
 		this.remote=remote;
+		this.watch=watch;
 
 		if (typeof log=="function")
 			this.log=log;
@@ -212,20 +213,16 @@ export default class KatnipProject {
 		];
 
 		if (this.config["admin-client-functions"]) {
+			let preactPath="/home/micke/Repo/isoq/node_modules/preact";
+
 			tasks.push(esbuild.build({
+				...await isoqGetEsbuildOptions(),
 				entryPoints: [path.resolve(this.cwd,this.config["admin-client-functions"])],
-				format: "esm",
-				jsx: 'automatic',
-				jsxImportSource: 'preact',
 				outfile: path.join(this.cwd,"public","admin-client-functions.js"),
-				plugins: [
-					esbuildModuleAlias({
-						"react": "preact/compat",
-						"react-dom": "preact/compat",
-						"react/jsx-runtime": "preact/jsx-runtime"
-					})
-				],
-				bundle: true
+				minify: true,
+				//outdir: path.join(this.cwd,"public"),//,"admin-client-functions.js"),
+				//splitting: true,
+				//chunkNames: "xxx-[name]-[hash]"
 			}));
 		}
 
@@ -233,7 +230,8 @@ export default class KatnipProject {
 		tasks.push(tailwindBuild({
 			cwd: this.cwd,
 			config: path.join(this.cwd,"tailwind.config.cjs"),
-			out: path.join(this.cwd,"public/index.css")
+			out: path.join(this.cwd,"public/index.css"),
+			input: this.config.tailwindInput
 		}));
 
 		if (this.config["rpc-api"])
@@ -244,8 +242,10 @@ export default class KatnipProject {
 		tasks.push(isoqBundle({
 			entrypoint: path.resolve(this.cwd,this.config.client),
 			out: path.resolve(this.cwd,".target/isoq-request-handler.js"),
+			contentdir: path.resolve(this.cwd,"public"),
 			wrappers: wrappers,
-			quiet: true
+			quiet: true,
+			//splitting: true
 		}));
 
 		await Promise.all(tasks);
@@ -331,22 +331,66 @@ export default class KatnipProject {
 		})
 	}
 
-	async serve() {
-		if (!this.config)
-			throw new Error("Config not loaded");
-
-		this.local=true;
+	async startServer({worker}={}) {
+		let started=Date.now();
 
 		let buildEvent=await this.build();
 		await this.provision();
-
-		await mikrokatServe({
+		let server=await mikrokatServe({
 			cwd: this.cwd,
 			port: 3000,
 			config: this.getMikrokatConfig(buildEvent),
 			log: this.log,
 			env: this.getRuntimeEnv(),
-			platform: this.platform
+			platform: this.platform,
+			worker: worker
 		});
+
+		let durationSec=(Date.now()-started)/1000;
+		this.log(`Started (${durationSec}sec).`);
+
+		return server;
+	}
+
+	async serveWatch() {
+		let watchPaths=this.config.watchPaths;
+		if (!watchPaths)
+			watchPaths=["src"];
+
+		watchPaths=watchPaths.map(p=>path.join(this.cwd,p));
+
+		let watcher=startFileWatcher({
+			directories: watchPaths
+		});
+
+		while (1) {
+			await this.load();
+			let server;
+
+			try {
+				server=await this.startServer({worker: true});
+			}
+
+			catch (e) {
+				if (!e.message.includes("Build failed") ||
+						!e.errors)
+					throw e;
+			}
+
+			await watcher.wait();
+
+			if (server)
+				await server.stop();
+		}
+	}
+
+	async serve() {
+		this.local=true;
+		await this.load();
+
+		if (this.watch)
+			await this.serveWatch();
+
+		return await this.startServer();
 	}
 }

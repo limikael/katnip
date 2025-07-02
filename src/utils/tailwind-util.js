@@ -18,13 +18,17 @@ let TAILWIND_CSS_DIRECTIVES=`
 @tailwind utilities;
 `;
 
-export async function tailwindBuild({cwd, config, out}) {
+export async function tailwindBuild({cwd, input, config, out}) {
 	let configModule=await import(config).then(m=>m.default);
 	configModule.content=arrayify(configModule.content).map(p=>path.resolve(cwd,p));
 
+	let tailwindInput=TAILWIND_CSS_DIRECTIVES;
+	if (input)
+		tailwindInput+=await fsp.readFile(path.resolve(cwd,input),"utf8");
+
     let tailwindPlugin=tailwind({...configModule});
     let processor=postcss([tailwindPlugin,autoprefixer]);
-    let artifact=await processor.process(TAILWIND_CSS_DIRECTIVES, { from: undefined });
+    let artifact=await processor.process(tailwindInput, { from: undefined });
 
     await fsp.mkdir(path.dirname(out),{recursive: true});
     await fsp.writeFile(out,artifact.css);

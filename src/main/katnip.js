@@ -27,6 +27,7 @@ program.name("katnip")
 program.command("serve")
 	.alias("dev")
 	.description("Serve from this machine.")
+	.addOption(new Option("--no-watch","Don't watch for changes."))
 	.addOption(new Option("--port <port>","Listening port.").default(3000).env("PORT"))
 	.addOption(new Option("--platform <provider>","Platform to start a dev server for.").choices(mikrokatGetPlatforms())/*.env("PLATFORM")*/)
 	.action(withProgramOptions(program,katnipServe));
