@@ -28,8 +28,6 @@ cd my-app
 katnip init
 ```
 
----
-
 ### 2. Install dependencies
 
 Using **npm**:
