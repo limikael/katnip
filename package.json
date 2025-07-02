@@ -1,7 +1,7 @@
 {
   "name": "katnip",
   "license": "MIT",
-  "version": "5.0.8",
+  "version": "5.0.9",
   "type": "module",
   "bin": {
     "katnip": "src/main/katnip.js"
@@ -36,8 +36,5 @@
     ".": {
       "browser": "./src/exports/exports-browser.jsx"
     }
-  },
-  "publishConfig": {
-    "tag": "next"
   }
 }
