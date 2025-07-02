@@ -1,3 +1,4 @@
+import {mikrokatClean} from "mikrokat";
 import KatnipProject from "./KatnipProject.js";
 import {getEffectiveCwd} from "../utils/node-util.js";
 
@@ -45,4 +46,16 @@ export async function katnipProvision(options) {
 	let project=new KatnipProject(options);
 	await project.load();
 	await project.provision();
+}
+
+export async function katnipDeploy(options) {
+	options.cwd=await getEffectiveCwd(options.cwd);
+	options=await initOptions(options);
+	let project=new KatnipProject(options);
+	await project.load();
+	await project.deploy();
+}
+
+export async function katnipClean(options) {
+	await mikrokatClean(options);
 }

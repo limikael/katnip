@@ -3,7 +3,7 @@ import path from "node:path";
 import {DeclaredError, objectMerge} from "../utils/js-util.js";
 import JSON5 from "json5";
 import {isoqBundle, isoqGetEsbuildOptions} from "isoq/bundler";
-import {mikrokatServe, mikrokatBuild, mikrokatCreateProvisionEnv, mikrokatInit, processProjectFile} from "mikrokat";
+import {mikrokatServe, mikrokatBuild, mikrokatCreateProvisionEnv, mikrokatInit, processProjectFile, mikrokatDeploy} from "mikrokat";
 import {fileURLToPath} from 'node:url';
 import {tailwindBuild} from "../utils/tailwind-util.js";
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
@@ -392,5 +392,21 @@ export default class KatnipProject {
 			await this.serveWatch();
 
 		return await this.startServer();
+	}
+
+	async deploy() {
+		this.remote=true;
+		await this.load();
+
+		let buildEvent=await this.build();
+		await this.provision();
+
+		await mikrokatDeploy({
+			cwd: this.cwd,
+			config: this.getMikrokatConfig(buildEvent),
+			log: this.log,
+			env: this.getRuntimeEnv(),
+			platform: this.platform,
+		});
 	}
 }

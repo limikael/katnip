@@ -19,7 +19,7 @@
     "isoq": "^1.1.28",
     "isoq-router": "^1.0.24",
     "json5": "^2.2.3",
-    "mikrokat": "^1.0.22",
+    "mikrokat": "^1.0.24",
     "postcss": "^8.5.6",
     "quickmin": "^0.0.108",
     "read-package-up": "^11.0.0",
