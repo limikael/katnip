@@ -1,5 +1,7 @@
 # Katnip
 
+**Katnip is a minimal full-stack, edge-first framework for building isomorphic React apps.**
+
 * [Introduction](#introduction)
 * [Getting Started](#getting-started)
 * [Project Structure](#project-structure)
@@ -7,13 +9,13 @@
 
 ## Introduction
 
-Katnip is a minimal full-stack framework for building isomorphic React apps that run seamlessly on the edge or locally.
+Katnip is a minimal full-stack, edge-first framework for building isomorphic React apps.
 
-It uses Mikrokat for deployment, and adds:
+It uses [Mikrokat](https://www.npmjs.com/package/mikrokat) for server and deployment functionality, and adds:
 
-- Isomorphic React rendering, (SSR + hydration).
-- Automatic database schema migration and admin.
-- Database access layer.
+- Isomorphic React rendering, (SSR + hydration). (Using [ISOQ](https://www.npmjs.com/package/isoq)).
+- Database access layer and automatic schema migration. (Using [QQL](https://www.npmjs.com/package/qql)).
+- Database admin. (Using [Quickmin](https://www.npmjs.com/package/quickmin)).
 - Direct server function calls from the client (JSON-RPC).
 
 Katnip aims to let you build and deploy immediately while staying lightweight and easy to understand.
