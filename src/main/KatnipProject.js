@@ -239,13 +239,18 @@ export default class KatnipProject {
 
 		wrappers.push(...buildEvent.clientWrappers);
 
+		let clientPurgeOldJs=this.config.clientPurgeOldJs;
+		if (clientPurgeOldJs===undefined)
+			clientPurgeOldJs=true;
+
 		tasks.push(isoqBundle({
 			entrypoint: path.resolve(this.cwd,this.config.client),
 			out: path.resolve(this.cwd,".target/isoq-request-handler.js"),
 			contentdir: path.resolve(this.cwd,"public"),
 			wrappers: wrappers,
 			quiet: true,
-			//splitting: true
+			splitting: this.config.clientSplitting,
+			purgeOldJs: clientPurgeOldJs
 		}));
 
 		await Promise.all(tasks);
