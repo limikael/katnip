@@ -33,8 +33,11 @@
     "sqlite3": "^5.1.7"
   },
   "exports": {
+    "./qql": "./src/exports/qql.js",
+    "./quickmin": "./src/exports/quickmin.js",
     ".": {
-      "browser": "./src/exports/exports-browser.jsx"
+      "browser": "./src/exports/exports-browser.jsx",
+      "node": "./src/exports/exports-node.js"
     }
   }
 }

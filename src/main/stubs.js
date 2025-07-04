@@ -31,9 +31,9 @@ export const TAILWIND_CONFIG_CJS=
   content: ["./src/**/*.jsx"],
   theme: {
     extend: {
-    },
-    colors: {
-      error: "#ff0000"
+      colors: {
+        error: "#ff0000"
+      },
     },
   },
 }
