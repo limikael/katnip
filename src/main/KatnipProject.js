@@ -12,6 +12,7 @@ import {arrayify} from "../utils/js-util.js";
 import esbuild from "esbuild";
 import {createQqlDriver, createStorageDriver} from "./create-drivers.js";
 import QqlDriverWrangler from "quickmin/qql-wrangler-driver";
+import {QqlDriverBetterSqlite3} from "quickmin/qql";
 import {MockStorage} from "quickmin/mock-storage";
 import {findNodeBin, getPackageVersion} from "../utils/node-util.js";
 import {SERVER_JS, INDEX_JSX, QUICKMIN_YAML, TAILWIND_CONFIG_CJS} from "./stubs.js";
@@ -19,6 +20,7 @@ import {cloudflareGetBinding, cloudflareAddBinding} from "../utils/cloudflare-ut
 import {loadPlugins} from "../utils/plugins.js";
 import BuildEvent from "./BuildEvent.js";
 import {startFileWatcher} from "../utils/file-watcher.js";
+import {resolveImport} from "mikrokat/resolve-import";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -314,6 +316,29 @@ export default class KatnipProject {
 
 		env.qm=new QuickminServer(quickminConf);
 		env.qql=env.qm.qql;
+
+		return env;
+	}
+
+	async createTestEnv() {
+		if (!this.config)
+			throw new Error("Config not loaded");
+
+		let betterSqlite3Path=await resolveImport("better-sqlite3",this.cwd);
+		let BetterSqlite3Database=(await import(betterSqlite3Path)).default;
+
+		let env={
+			DB: new BetterSqlite3Database(":memory:")
+		};
+
+		let quickminConf=quickminCanonicalizeConf(fs.readFileSync(path.join(this.cwd,"quickmin.yaml"),"utf8"));
+		quickminConf.qqlDriver=new QqlDriverBetterSqlite3(env.DB);
+		quickminConf.storageDriver=new MockStorage();
+
+		env.qm=new QuickminServer(quickminConf);
+		env.qql=env.qm.qql;
+
+		await env.qql.migrate({log: ()=>{}});
 
 		return env;
 	}

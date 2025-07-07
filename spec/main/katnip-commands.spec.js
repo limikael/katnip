@@ -4,8 +4,9 @@ import {fileURLToPath} from 'node:url';
 import fs, {promises as fsp} from "fs";
 import {JSDOM} from "jsdom";
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
-import {QqlDriverSqlite} from "quickmin/qql";
-import sqlite3 from "sqlite3";
+import {QqlDriverBetterSqlite3} from "quickmin/qql";
+//import sqlite3 from "sqlite3";
+import Database from "better-sqlite3"
 import nodeStorageDriver from "quickmin/node-storage";
 import {createRpcProxy} from "fullstack-rpc/client";
 import {cloudflareGetBinding} from "../../src/utils/cloudflare-util.js";
@@ -47,7 +48,7 @@ describe("katnip-commands",()=>{
 		});
 
 		let conf=quickminCanonicalizeConf(fs.readFileSync(path.join(__dirname,"testproject/quickmin.yaml"),"utf8"));
-		conf.qqlDriver=new QqlDriverSqlite(new sqlite3.Database(path.join(__dirname,"testproject/quickmin.db")));
+		conf.qqlDriver=new QqlDriverBetterSqlite3(new Database(path.join(__dirname,"testproject/quickmin.db")));
 		let qm=new QuickminServer(conf,[nodeStorageDriver]);
 		let qql=qm.qql;
 

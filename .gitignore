@@ -16,3 +16,4 @@ examples/hello/upload/
 spec/main/testproject/quickmin.db
 spec/**/node_modules
 spec/main/testproject/public/index.css
+spec/main/testproject/public/*.js
