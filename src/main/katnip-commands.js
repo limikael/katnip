@@ -59,3 +59,7 @@ export async function katnipDeploy(options) {
 export async function katnipClean(options) {
 	await mikrokatClean(options);
 }
+
+export async function katnipCreateProvisionEnv(options) {
+	throw new Error("WIP");
+}

@@ -173,6 +173,8 @@ export default class KatnipProject {
 
 		let imports=[];
 
+		//imports.push({import: ["localNodeBundle"], from: "katnip/quickmin-local-node-bundle", if: {platform: "node"}});
+
 		imports.push({import: "isoqRequestHandler", from: "./.target/isoq-request-handler.js"});
 
 		if (this.config["rpc-api"])

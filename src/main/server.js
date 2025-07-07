@@ -2,7 +2,7 @@ import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
 import {RpcServer} from "fullstack-rpc/server";
 import {createQqlDriver, createStorageDriver} from "./create-drivers.js";
 
-export function onStart({imports, use, fs, env, getServiceMeta}) {
+export function onStart({imports, use, fs, env, getServiceMeta, platform}) {
 	//console.log(env);
 
 	if (env.DB) {
@@ -13,7 +13,12 @@ export function onStart({imports, use, fs, env, getServiceMeta}) {
 		if (env.BUCKET)
 			conf.storageDriver=createStorageDriver(env.BUCKET,getServiceMeta("BUCKET").type);
 
-		env.qm=new QuickminServer(conf);
+		let drivers=[];
+
+		if (env.QUICKMIN_LOCAL_BUNDLE && platform=="node")
+			drivers.push(imports.localNodeBundle);
+
+		env.qm=new QuickminServer(conf,drivers);
 		env.qql=env.qm.qql;
 		use(env.qm.handleRequest);
 	}

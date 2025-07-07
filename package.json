@@ -35,6 +35,7 @@
   "exports": {
     "./qql": "./src/exports/qql.js",
     "./quickmin": "./src/exports/quickmin.js",
+    "./quickmin-local-node-bundle": "./src/exports/quickmin-local-node-bundle.js",
     ".": {
       "browser": "./src/exports/exports-browser.jsx",
       "node": "./src/exports/exports-node.js"
