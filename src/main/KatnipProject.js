@@ -25,10 +25,11 @@ import {resolveImport} from "mikrokat/resolve-import";
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 export default class KatnipProject {
-	constructor({cwd, quiet, platform, local, remote, log, watch}) {
+	constructor({cwd, quiet, platform, local, remote, log, watch, port}) {
 		this.cwd=cwd;
 		this.quiet=quiet;
 		this.platform=platform;
+		this.port=port;
 
 		if (!this.platform)
 			this.platform="node";
@@ -370,7 +371,7 @@ export default class KatnipProject {
 		await this.provision();
 		let server=await mikrokatServe({
 			cwd: this.cwd,
-			port: 3000,
+			port: this.port,
 			config: this.getMikrokatConfig(buildEvent),
 			log: this.log,
 			env: this.getRuntimeEnv(),

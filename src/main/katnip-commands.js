@@ -5,6 +5,9 @@ import {getEffectiveCwd} from "../utils/node-util.js";
 async function initOptions(options) {
 	options={...options};
 
+	if (!options.port)
+		options.port=3000;
+
 	if ((options.silent || options.quiet) && !options.log)
 		options.log=false;
 
