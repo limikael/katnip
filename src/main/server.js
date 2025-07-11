@@ -38,9 +38,10 @@ export function onStart({imports, use, fs, env, getServiceMeta, platform}) {
 	use(async ev=>{
 		let clientProps={...env.__CLIENT_PROPS};
 
-		clientProps.quickminCookieName="qm";
-		if (env.qm)
+		if (env.DB) {
+			clientProps.quickminCookieName=env.__QUICKMIN_CONF.cookie;
 			clientProps.quickminUser=await env.qm.getUserByRequest(ev.request);
+		}
 
 		return await imports.isoqRequestHandler(ev.request,{
 			localFetch: ev.localFetch,
