@@ -40,6 +40,7 @@ export function onStart({imports, use, fs, env, getServiceMeta, platform}) {
 
 		if (env.DB) {
 			clientProps.quickminCookieName=env.__QUICKMIN_CONF.cookie;
+			clientProps.authProviderInfo=env.qm.getAuthProviderInfo(ev.request.url);
 			clientProps.quickminUser=await env.qm.getUserByRequest(ev.request);
 		}
 
