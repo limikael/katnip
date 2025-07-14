@@ -1,7 +1,7 @@
 {
   "name": "katnip",
   "license": "MIT",
-  "version": "5.0.16",
+  "version": "5.0.17",
   "type": "module",
   "bin": {
     "katnip": "src/main/katnip.js"
@@ -21,7 +21,7 @@
     "json5": "^2.2.3",
     "mikrokat": "^1.0.28",
     "postcss": "^8.5.6",
-    "quickmin": "^0.0.115",
+    "quickmin": "^0.0.116",
     "read-package-up": "^11.0.0",
     "resolve.exports": "^2.0.3",
     "tailwindcss": "^3.4.1",
