@@ -254,6 +254,7 @@ export default class KatnipProject {
 			contentdir: path.resolve(this.cwd,"public"),
 			wrappers: wrappers,
 			quiet: true,
+			minify: false,
 			splitting: this.config.clientSplitting,
 			purgeOldJs: clientPurgeOldJs
 		}));

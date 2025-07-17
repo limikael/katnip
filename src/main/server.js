@@ -5,6 +5,10 @@ import {createQqlDriver, createStorageDriver} from "./create-drivers.js";
 export function onStart({imports, use, fs, env, getServiceMeta, platform}) {
 	//console.log(env);
 
+	/*use(async ev=>{
+		await new Promise(r=>setTimeout(r,250));
+	});*/
+
 	if (env.DB) {
 		let conf=env.__QUICKMIN_CONF;
 
