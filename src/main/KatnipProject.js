@@ -248,13 +248,17 @@ export default class KatnipProject {
 		if (clientPurgeOldJs===undefined)
 			clientPurgeOldJs=true;
 
+		let minify=true;
+		if (this.config.clientMinify===false)
+			minify=false;
+
 		tasks.push(isoqBundle({
 			entrypoint: path.resolve(this.cwd,this.config.client),
 			out: path.resolve(this.cwd,".target/isoq-request-handler.js"),
 			contentdir: path.resolve(this.cwd,"public"),
 			wrappers: wrappers,
 			quiet: true,
-			minify: false,
+			minify: minify,
 			splitting: this.config.clientSplitting,
 			purgeOldJs: clientPurgeOldJs
 		}));

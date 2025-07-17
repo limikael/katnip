@@ -1,7 +1,7 @@
 {
   "name": "katnip",
   "license": "MIT",
-  "version": "5.0.18",
+  "version": "5.0.19",
   "type": "module",
   "bin": {
     "katnip": "src/main/katnip.js"
