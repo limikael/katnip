@@ -1,7 +1,7 @@
 {
   "name": "katnip",
   "license": "MIT",
-  "version": "5.0.20",
+  "version": "5.0.21",
   "type": "module",
   "bin": {
     "katnip": "src/main/katnip.js"
@@ -18,9 +18,9 @@
     "fullstack-rpc": "^1.0.3",
     "isoq": "^1.1.32",
     "json5": "^2.2.3",
-    "mikrokat": "^1.0.28",
+    "mikrokat": "^1.0.29",
     "postcss": "^8.5.6",
-    "quickmin": "^0.0.118",
+    "quickmin": "^0.0.119",
     "read-package-up": "^11.0.0",
     "resolve.exports": "^2.0.3",
     "tailwindcss": "^3.4.1",
@@ -28,11 +28,13 @@
     "valtio": "^2.1.5"
   },
   "devDependencies": {
+    "@libsql/client": "^0.15.10",
     "better-sqlite3": "^12.2.0",
     "is-positive": "^3.1.0",
     "jasmine": "^5.8.0",
     "jsdom": "^26.1.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "wrangler": "^4.25.0"
   },
   "exports": {
     "./qql": "./src/exports/qql.js",

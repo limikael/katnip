@@ -1,17 +1,22 @@
 {
 	"client": "src/main/index.jsx",
-	"server": "src/main/server.js",
+	//"server": "src/main/server.js",
 	"services": {
-		"DB": {
-			"type": "better-sqlite3",
+		/*"DB": {
+			"type": "libsql",
 			"filename": "quickmin.db",
-			"if": {"target": "node"}
+			"if": {"platform": "node"}
+		},*/
+		"DB": {
+			"type": "libsqlweb",
+			"url": "libsql://katniptest-limikael.aws-ap-northeast-1.turso.io",
+			"authToken": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3NTMwODAyNjUsImlkIjoiZGNlMmE3ZjctOTQ5Ni00YWE4LWIwYTYtOWZhMGUxZTk3YzNlIiwicmlkIjoiN2NjMjczODUtOTRiMy00OWNhLWEzMWUtY2FiMjBmYjE4NmI3In0.rFtL9JfiCterOst_Oy7JBTN_Z15jqJmZv2TsMt2TmMtnUZYuVx8SzJwS5hgyC4QVKU2DVgAFSN-QGf7UJm3hAA"
 		},
 
 		"BUCKET": {
 			"type": "node-storage",
 			"dirname": "upload",
-			"if": {"target": "node"}
+			"if": {"platform": "node"}
 		}
 	}
 }

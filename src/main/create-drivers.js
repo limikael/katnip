@@ -1,6 +1,7 @@
 import {QqlDriverBetterSqlite3} from "quickmin/qql";
 import {QqlDriverD1} from "quickmin/qql";
 import {QqlDriverPostgres} from "quickmin/qql";
+import {QqlDriverLibSql} from "quickmin/qql";
 import {R2Storage} from "quickmin/r2-storage";
 
 export function createQqlDriver(service, type) {
@@ -15,6 +16,11 @@ export function createQqlDriver(service, type) {
 
 		case "postgres":
 			return new QqlDriverPostgres({pool: service});
+			break;
+
+		case "libsql":
+		case "libsqlweb":
+			return new QqlDriverLibSql({client: service});
 			break;
 
 		default:
