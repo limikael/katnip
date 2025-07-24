@@ -1,7 +1,7 @@
 {
   "name": "katnip",
   "license": "MIT",
-  "version": "5.0.22",
+  "version": "5.0.23",
   "type": "module",
   "bin": {
     "katnip": "src/main/katnip.js"
@@ -18,7 +18,7 @@
     "fullstack-rpc": "^1.0.3",
     "isoq": "^1.1.33",
     "json5": "^2.2.3",
-    "mikrokat": "^1.0.29",
+    "mikrokat": "^1.0.30",
     "postcss": "^8.5.6",
     "quickmin": "^0.0.120",
     "read-package-up": "^11.0.0",
