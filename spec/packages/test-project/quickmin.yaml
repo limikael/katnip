@@ -4,5 +4,9 @@ adminPass: "admin"
 
 collections:
   pages:
+    policies:
+    - roles: admin
+    - roles: public
+      operations: read
     fields:
       <Text id="content"/>

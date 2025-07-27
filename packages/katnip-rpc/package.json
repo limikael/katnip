@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./katnip-project-hooks": "./katnip-rpc-project.js",
+    "./katnip-server-hooks": "./katnip-rpc-server.js",
+    "./isowrap": "./katnip-rpc-isowrap.jsx"
+  }
+}

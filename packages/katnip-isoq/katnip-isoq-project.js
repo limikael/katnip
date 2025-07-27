@@ -10,6 +10,9 @@ export async function build(buildEvent) {
 	if (modulePaths.length>1)
 		throw new Error("More than one client entrypoint.");
 
+	let wrapperPaths=await project.resolveEntrypoints("isowrap");
+	//console.log(wrapperPaths);
+
 	let config={...project.config};
 
 	if (config.clientPurgeOldJs===undefined)
@@ -24,7 +27,7 @@ export async function build(buildEvent) {
 		entrypoint: modulePaths[0],
 		out: handlerOut,
 		contentdir: path.resolve(project.cwd,"public"),
-		//wrappers: wrappers,
+		wrappers: wrapperPaths,
 		quiet: true,
 		minify: config.clientMinify,
 		splitting: config.clientSplitting,

@@ -10,3 +10,15 @@ export async function katnipCommand(options) {
 export async function katnipServe(options) {
 	return await katnipCommand({command: "serve", ...options});
 }
+
+export async function katnipProvision(options) {
+	return await katnipCommand({command: "provision", ...options});
+}
+
+export async function katnipCreateProvisionEnv(options) {
+	let project=new KatnipProject(options);
+	await project.load();
+	await project.dispatchEvent(new AsyncEvent("provision",options));
+
+	return project.env;
+}

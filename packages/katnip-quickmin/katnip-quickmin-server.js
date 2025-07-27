@@ -9,13 +9,23 @@ export async function start(startEvent) {
 	//console.log("starting quickmin server");
 
 	let theConf={...startEvent.target.env.quickminConf};
-
-	let mod=startEvent.target.importModules.qqlFactoryModule;
 	let fn="default";
-	theConf.qqlDriver=await mod[fn]({
-		dsn: startEvent.target.config.dsn,
-		target: startEvent.target
-	});
+
+	if (startEvent.target.config.databaseStorage) {
+		let storageMod=startEvent.target.importModules.storageFactoryModule;
+		theConf.storageDriver=await storageMod[fn]({
+			storage: startEvent.target.config.databaseStorage,
+			target: startEvent.target
+		});
+	}
+
+	if (startEvent.target.config.databaseServiceName) {
+		let qqlMod=startEvent.target.importModules.qqlFactoryModule;
+		theConf.qqlDriver=await qqlMod[fn]({
+			dsn: startEvent.target.config.databaseServiceName,
+			target: startEvent.target
+		});
+	}
 
 	let env=startEvent.target.env;
 	let quickminServer=new QuickminServer(theConf);

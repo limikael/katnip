@@ -12,12 +12,18 @@ export function initCli(ev) {
 		.option("--port <port>","Port to listen to.",3000)
 		.option("--provision","Run provision as part of the build.");
 
+	ev.target.eventCommand("dev")
+		.description("Start development server.")
+		.option("--port <port>","Port to listen to.",3000)
+		.option("--provision","Run provision as part of the build.",true);
+
 	ev.target.eventCommand("provision")
 		.description("Provision project, i.e. migrate database, etc.");
 }
 
-export function build(ev) {
-	//console.log("builing...");
+export async function dev(ev) {
+	let serveEvent=new AsyncEvent("serve",ev);
+	await ev.target.dispatchEvent(serveEvent);
 }
 
 export async function serve(ev) {

@@ -5,11 +5,12 @@ import {Command} from 'commander';
 import {AsyncEvent, AsyncEventTarget} from "../utils/async-events.js";
 import {processProjectFile, resolveProjectEntrypoints} from "./project-util.js";
 import {DeclaredError} from "../utils/js-util.js";
+import JSON5 from "json5";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 export default class KatnipProject extends AsyncEventTarget {
-	constructor({cwd, platform}) {
+	constructor({cwd, platform, log, silent}) {
 		super();
 
 		this.platform=platform;
@@ -27,14 +28,23 @@ export default class KatnipProject extends AsyncEventTarget {
 		this.eventCommand("init")
 			.description("Initialize project.");
 
+		this.logger=log;
+		if (!this.logger && !silent)
+			this.logger=(...args)=>console.log(...args);
+
+		this.env={
+			PLATFORM: this.platform
+		};
+
 		this.addEventListener("build",ev=>{
 			ev.env={};
 			ev.importModules={};
 		},{priority: 0});
 	}
 
-	log(...args) {
-		console.log(...args);
+	log=(...args)=>{
+		if (this.logger)
+			this.logger(...args);
 	}
 
 	eventCommand(name) {
@@ -58,7 +68,7 @@ export default class KatnipProject extends AsyncEventTarget {
 
 		this.config={};
 		if (haveConfig)
-			this.config=JSON.parse(await fsp.readFile(path.join(this.cwd,"katnip.json")));
+			this.config=JSON5.parse(await fsp.readFile(path.join(this.cwd,"katnip.json")));
 
 		await this.dispatchEvent(new AsyncEvent("initCli"));
 	}

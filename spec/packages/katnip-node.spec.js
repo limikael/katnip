@@ -7,9 +7,9 @@ const __dirname=path.dirname(fileURLToPath(import.meta.url));
 describe("katnip-node",()=>{
 	it("can serve",async ()=>{
 		let server=await katnipServe({
-			//platform: "node",
 			cwd: path.join(__dirname,"test-project"),
-			port: 3000
+			port: 3000,
+			silent: true
 		});
 
 		let response=await fetch("http://localhost:3000/hello");

@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./katnip-project-hooks": "./katnip-tailwind-project.js",
+    "./isowrap": "./katnip-tailwind-isowrap.jsx"
+  }
+}

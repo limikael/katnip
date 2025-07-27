@@ -32,13 +32,18 @@ export default class KatnipServer extends AsyncEventTarget {
 		return await this.startPromise;
 	}
 
-	async handleRequest({request, ctx}) {
+	handleRequest=async({request, ctx})=>{
 		try {
 			await this.start();
 
-			let localFetch=()=>{throw new Error("fix local fetch")};
+			//let localFetch=()=>{throw new Error("fix local fetch")};
 
-			let ev=new AsyncEvent("fetch",{request, ctx, localFetch});
+			let ev=new AsyncEvent("fetch",{
+				request, 
+				ctx,
+				localFetch: request=>this.handleRequest({request,ctx})
+			});
+
 			return await this.dispatchEvent(ev);
 		}
 

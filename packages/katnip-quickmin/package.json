@@ -3,6 +3,7 @@
   "type": "module",
   "exports": {
     "./katnip-project-hooks": "./katnip-quickmin-project.js",
-    "./katnip-server-hooks": "./katnip-quickmin-server.js"
+    "./katnip-server-hooks": "./katnip-quickmin-server.js",
+    "./isowrap": "./katnip-quickmin-isowrap.jsx"
   }
 }

@@ -2,12 +2,13 @@ import fs, {promises as fsp} from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from 'url';
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
+import {MockStorage} from "quickmin/mock-storage";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 provision.priority=20;
 export async function provision(provisionEvent) {
-	if (!provisionEvent.target.config.dsn)
+	if (!provisionEvent.target.config.databaseServiceName)
 		return;
 
 	let project=provisionEvent.target;
@@ -18,7 +19,7 @@ export async function provision(provisionEvent) {
     	conf.apiPath="admin";
 
     if (!provisionEvent.qqlFactory) {
-	    let dsnUrl=new URL(project.config.dsn);
+	    let dsnUrl=new URL(project.config.databaseServiceName);
 	    switch (dsnUrl.protocol) {
 	    	case "libsql+file:":
 	    		provisionEvent.qqlFactory=(await import(path.join(__dirname,"qql-factory-node.js"))).default;
@@ -32,18 +33,17 @@ export async function provision(provisionEvent) {
 
     conf.qqlDriver=await provisionEvent.qqlFactory({
     	target: project,
-    	dsn: project.config.dsn
+    	dsn: project.config.databaseServiceName
     });
 
-    let server=new QuickminServer(conf);
-    await server.sync();
+    conf.storageDriver=new MockStorage();
 
-    /*let dsnUrl=new URL(project.config.dsn);
-    switch (dsnUrl.protocol) {
-    	case "libsql+file:":
-    		buildEvent.importModules.qqlFactoryModule=path.join(__dirname,"qql-factory-node.js");
-    		break;
-    }*/
+    let server=new QuickminServer(conf);
+
+    provisionEvent.target.log("Provision: "+provisionEvent.target.platform);
+    await server.sync({log: project.log});
+
+    project.env.qql=server.qql;
 }
 
 export async function build(buildEvent) {
@@ -56,12 +56,25 @@ export async function build(buildEvent) {
 
     buildEvent.env.quickminConf=conf;
 
-    if (project.config.dsn) {
-	    let dsnUrl=new URL(project.config.dsn);
+    if (project.config.databaseServiceName) {
+	    let dsnUrl=new URL(project.config.databaseServiceName);
 	    switch (dsnUrl.protocol) {
 	    	case "libsql+file:":
 	    		buildEvent.importModules.qqlFactoryModule=path.join(__dirname,"qql-factory-node.js");
 	    		break;
 	    }
+    }
+
+    if (project.config.databaseStorage) {
+        let storageUrl=new URL(project.config.databaseStorage);
+        switch (storageUrl.protocol) {
+            case "node+file:":
+                buildEvent.importModules.storageFactoryModule=path.join(__dirname,"storage-factory-node.js");
+                break;
+
+            default:
+                throw new Error("Unknown storage");
+                break;
+        }
     }
 }

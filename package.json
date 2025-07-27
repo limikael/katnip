@@ -12,17 +12,25 @@
   "dependencies": {
     "@libsql/client": "^0.15.10",
     "@ltd/j-toml": "^1.38.0",
+    "autoprefixer": "^10.4.21",
     "commander": "^14.0.0",
+    "fullstack-rpc": "^1.0.3",
     "isoq": "^1.1.33",
+    "json5": "^2.2.3",
     "mime": "^4.0.7",
+    "postcss": "^8.5.6",
     "quickmin": "^0.0.120",
     "read-package-up": "^11.0.0",
     "resolve-import": "^2.0.0",
     "resolve-package-path": "^4.0.3",
-    "serve-fetch": "^1.0.5"
+    "serve-fetch": "^1.0.5",
+    "tailwindcss": "^3.4.17",
+    "url-join": "^5.0.0",
+    "valtio": "^2.1.5"
   },
   "exports": {
     ".": {
+      "browser": "./src/exports/exports-browser.jsx",
       "node": "./src/exports/exports-node.js",
       "default": "./src/exports/exports-default.js"
     }
