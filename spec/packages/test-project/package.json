@@ -1,0 +1,11 @@
+{
+	"name": "test-project",
+	"type": "module",
+	"scripts": {
+		"dev": "../../../src/main/katnip.js serve"
+	},
+	"exports": {
+		"./katnip-server-hooks": "./server.js",
+		"./isomain": "./isomain.jsx"
+	}
+}

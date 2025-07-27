@@ -1,30 +1,37 @@
 import KatnipProject from "../../src/main/KatnipProject.js";
 import path from "node:path";
 import {fileURLToPath} from 'node:url';
-import fs, {promises as fsp} from "fs";
+import fs,{promises as fsp} from "fs";
+import {AsyncEvent} from "katnip"; //../../src/exports/exports-default.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 describe("KatnipProject",()=>{
-	it("can create a provision env",async ()=>{
-		await fsp.rm(path.join(__dirname,"testproject/quickmin.db"),{force: true});
-		await fsp.rm(path.join(__dirname,"testproject/public/index.css"),{force: true});
+	it("can resolve plugins",async ()=>{
+		let projectCwd=path.join(__dirname,"test-project");
+		let project=new KatnipProject({cwd: projectCwd});
+		await fsp.rm(path.join(__dirname,"test-project/node_modules"),{force: true, recursive: true});
+		await fsp.cp(path.join(__dirname,"test-project/node_modules.keep"),path.join(__dirname,"test-project/node_modules"),{recursive: true});
 
-		let katnipProject=new KatnipProject({
-			cwd: path.join(__dirname,"testproject")
-		});
+		let deps;
+		deps=await project.resolveEntrypoints("katnip-project-hooks");
+		//expect(deps.length).toEqual(4);
+		//console.log(deps);
 
-		await katnipProject.load();
+		deps=await project.resolveEntrypoints("katnip-project-hooks",{conditions: ["browser"]});
+		//expect(deps.length).toEqual(3);
+		//console.log(deps);
+	});
 
-		let env=await katnipProject.createProvisionEnv();
+	it("can initialize a project",async()=>{
+		let projectCwd=path.join(__dirname,"../../tmp/test-init-project");
+		await fsp.rm(projectCwd,{force: true, recursive: true});
 
-		let qql=env.qql;
-		await qql.migrate();
-		await qql({insertInto: "pages", set: {content: "hello world"}});
-		await qql({insertInto: "pages", set: {content: "hello again"}});
-		await qql({insertInto: "pages", set: {content: "hello third"}});
+		let project=new KatnipProject({cwd: projectCwd});
+		await project.load({allowMissingPkg: true});
+		await project.dispatchEvent(new AsyncEvent("init"));
 
-		let pages=await qql({manyFrom: "pages"});
-		expect(pages.length).toEqual(3);
+		let pkg=JSON.parse(await fsp.readFile(path.join(projectCwd,"package.json")));
+		expect(pkg.name).toEqual("test-init-project");
 	});
 });

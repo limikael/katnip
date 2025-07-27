@@ -1,0 +1,8 @@
+jwtSecret: "somesecret"
+adminUser: "admin"
+adminPass: "admin"
+
+collections:
+  pages:
+    fields:
+      <Text id="content"/>

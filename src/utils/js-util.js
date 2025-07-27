@@ -52,21 +52,55 @@ export function objectifyArgs(params, fields) {
     return conf;
 }
 
-export function objectMerge(a, b) {
-    a = a ?? {};
-    b = b ?? {};
-    const result = { ...a };
-    for (const [key, bVal] of Object.entries(b)) {
-        const aVal = a[key];
-        if (
-            aVal && bVal &&
-            typeof aVal === 'object' && !Array.isArray(aVal) &&
-            typeof bVal === 'object' && !Array.isArray(bVal)
-        ) {
-            result[key] = objectMerge(aVal, bVal);
-        } else {
-            result[key] = bVal;
-        }
+export class ResolvablePromise extends Promise {
+    constructor(cb = () => {}) {
+        let resolveClosure = null;
+        let rejectClosure = null;
+
+        super((resolve,reject)=>{
+            resolveClosure = resolve;
+            rejectClosure = reject;
+
+            return cb(resolve, reject);
+        });
+
+        this.resolveClosure = resolveClosure;
+        this.rejectClosure = rejectClosure;
     }
-    return result;
+
+    resolve=(result)=>{
+        this.resolveClosure(result);
+    }
+
+    reject=(reason)=>{
+        this.rejectClosure(reason);
+    }
+}
+
+export function awaitEvent(...args) {
+    let argsObj=objectifyArgs(args,["eventTarget", "type", "predicate"]);
+    let {eventTarget, type, predicate, error}=argsObj;
+
+    return new Promise((resolve, reject)=>{
+        function messageHandler(message) {
+            if (!predicate || predicate(message)) {
+                if (error)
+                    eventTarget.off(error,errorHandler);
+
+                resolve(message);
+            }
+        }
+
+        function errorHandler(e) {
+            eventTarget.off(type,messageHandler);
+            if (error)
+                eventTarget.off(error,errorHandler);
+
+            reject(e);
+        }
+
+        eventTarget.on(type,messageHandler);
+        if (error)
+            eventTarget.on(error,errorHandler);
+    });
 }

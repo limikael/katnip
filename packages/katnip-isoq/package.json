@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./katnip-project-hooks": "./katnip-isoq-project.js",
+    "./katnip-server-hooks": "./katnip-isoq-server.js"
+  }
+}

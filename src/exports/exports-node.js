@@ -1,2 +1,2 @@
-export {katnipCreateProvisionEnv, katnipCreateTestEnv} from "../main/katnip-commands.js";
-export * from "isoq/utils";
+export * from "./exports-default.js";
+export {katnipCommand, katnipServe} from "../main/katnip-commands.js";

@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./katnip-project-hooks": "./katnip-quickmin-project.js",
+    "./katnip-server-hooks": "./katnip-quickmin-server.js"
+  }
+}

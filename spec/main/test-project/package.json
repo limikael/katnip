@@ -1,0 +1,9 @@
+{
+	"dependencies": {
+		"some-plugin": "1.2.3",
+		"no-plugin": "1.2.3"
+	},
+	"exports": {
+		"./katnip-project-hooks": "blabla.js"
+	}
+}
