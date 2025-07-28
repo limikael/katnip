@@ -12,7 +12,7 @@ export async function dev(devEvent) {
 	let project=devEvent.target;
 
 	if (devEvent.watch) {
-		let watchPaths=project.config.watchPaths;
+		let watchPaths=project.env.config.watchPaths;
 		if (!watchPaths)
 			watchPaths=["src"];
 

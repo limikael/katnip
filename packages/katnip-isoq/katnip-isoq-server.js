@@ -11,6 +11,7 @@ export async function fetch(fetchEvent) {
 	let props={};
 	await server.dispatchEvent(new AsyncEvent("clientProps",{
 		props,
+		env: fetchEvent.target.env,
 		request: fetchEvent.request
 	}));
 

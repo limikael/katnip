@@ -30,6 +30,7 @@ describe("KatnipProject",()=>{
 		let project=new KatnipProject({cwd: projectCwd});
 		await project.load({allowMissingPkg: true});
 		await project.dispatchEvent(new AsyncEvent("init"));
+		//await project.dispatchEvent(new AsyncEvent("init"));
 
 		let pkg=JSON.parse(await fsp.readFile(path.join(projectCwd,"package.json")));
 		expect(pkg.name).toEqual("test-init-project");

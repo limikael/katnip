@@ -78,6 +78,9 @@ export class ImportWorker {
 		let id=this.callId;
 		this.callId++;
 
+		/*console.log(method);
+		console.log(params);*/
+
 		this._worker.postMessage({
 			type: "call",
 			method: method,

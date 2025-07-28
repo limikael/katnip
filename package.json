@@ -14,6 +14,7 @@
     "@ltd/j-toml": "^1.38.0",
     "autoprefixer": "^10.4.21",
     "commander": "^14.0.0",
+    "dotenv": "^17.2.1",
     "fullstack-rpc": "^1.0.3",
     "isoq": "^1.1.33",
     "json5": "^2.2.3",

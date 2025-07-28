@@ -3,21 +3,38 @@ import path from "node:path";
 import fs, {promises as fsp} from "fs";
 import {resolveDependencies} from "../utils/package-util.js";
 import {resolveImport, resolveAllExports} from "resolve-import";
+import dotenv from "dotenv";
+
+function escapeValue(value) {
+	if (value == null) return "";
+	const needsQuotes = /[\s#'"\\]/.test(value);
+	const escaped = value.replace(/\\/g, '\\\\').replace(/\n/g, '\\n');
+	return needsQuotes ? `"${escaped.replace(/"/g, '\\"')}"` : escaped;
+}
+
+function dotenvStringify(envObj) {
+	return Object.entries(envObj)
+		.map(([key, value]) => `${key}=${escapeValue(value)}`)
+		.join("\n")+"\n";
+}
 
 export async function processProjectFile({cwd, filename, format, processor}) {
 	/*if (!fs.existsSync(cwd))
 		await fsp.mkdir(cwd,{recursive: true});*/
 
 	let filenameAbs=path.resolve(cwd,filename);
+	//console.log(filenameAbs);
 
 	let content;
-	if (fs.existsSync(filenameAbs))
+	if (fs.existsSync(filenameAbs)) {
 		content=await fsp.readFile(filenameAbs,"utf8");
+	}
 
 	switch (format) {
 		case "json": content=content?JSON.parse(content):content; break;
 		case "lines": content=content?content.split("\n").filter(s=>!!s):[]; break;
 		case "toml": content=TOML.parse(content?content:""); break;
+		case "dotenv": content=content?dotenv.parse(content):content; break;
 		case null:
 		case undefined:
 			break;
@@ -42,6 +59,15 @@ export async function processProjectFile({cwd, filename, format, processor}) {
 				newline: "\n",
 				newlineAround: "section"
 			});
+			break;
+
+		case "dotenv": textContent=dotenvStringify(textContent); break;
+		case null:
+		case undefined:
+			break;
+
+		default: 
+			throw new Error("Unknown config file format for stringify: "+format); 
 			break;
 	}
 

@@ -3,7 +3,7 @@ import fs, {promises as fsp} from "node:fs";
 import mime from 'mime/lite';
 import {readPackageUp} from 'read-package-up';
 import { spawn } from 'node:child_process';
-import {DeclaredError, objectifyArgs, ResolvablePromise} from "../utils/js-util.js";
+import {DeclaredError, objectifyArgs, ResolvablePromise} from "./js-util.js";
 /*import findNodeModules from "find-node-modules";
 import treeKill from "tree-kill";
 import psTree from "ps-tree";*/

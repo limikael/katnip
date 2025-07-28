@@ -1,7 +1,7 @@
 import {AsyncEventTarget, AsyncEvent} from "../utils/async-events.js";
 
 export default class KatnipServer extends AsyncEventTarget {
-	constructor({modules, importModules, env, config, cwd}) {
+	constructor({modules, importModules, env}) {
 		super();
 
 		for (let mod of modules)
@@ -9,15 +9,13 @@ export default class KatnipServer extends AsyncEventTarget {
 
 		this.importModules=importModules;
 		this.env={...env};
-		this.config=config;
-		this.cwd=cwd;
 	}
 
 	async start() {
 		if (!this.startPromise) {
 			this.startPromise=new Promise(async (resolve, reject)=>{
 				try {
-					let ev=new AsyncEvent("start");
+					let ev=new AsyncEvent("start",{env: this.env});
 					await this.dispatchEvent(ev);
 				}
 
@@ -41,6 +39,7 @@ export default class KatnipServer extends AsyncEventTarget {
 			let ev=new AsyncEvent("fetch",{
 				request, 
 				ctx,
+				env: this.env,
 				localFetch: request=>this.handleRequest({request,ctx})
 			});
 

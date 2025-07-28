@@ -2,13 +2,12 @@ import {createClient} from "@libsql/client";
 import {QqlDriverLibSql} from "quickmin/qql";
 import path from "node:path";
 
-export default async function createQqlDriver({target, dsn}) {
-	let dsnUrl=new URL(dsn);
+export default async function createQqlDriver({env}) {
+	let dsnUrl=new URL(env.DATABASE_URL);
 
 	switch (dsnUrl.protocol) {
 		case "libsql+file:":
-			let resolvedFn=path.resolve(target.cwd,dsnUrl.pathname);
-			//console.log(resolvedFn);
+			let resolvedFn=path.resolve(env.CWD,dsnUrl.pathname);
 			let client=createClient({url: "file:"+resolvedFn});
 			return new QqlDriverLibSql({client: client});
 			break;

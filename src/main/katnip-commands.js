@@ -18,7 +18,9 @@ export async function katnipProvision(options) {
 export async function katnipCreateProvisionEnv(options) {
 	let project=new KatnipProject(options);
 	await project.load();
-	await project.dispatchEvent(new AsyncEvent("provision",options));
 
-	return project.env;
+	let provisionEvent=new AsyncEvent("provision",options);
+	await project.dispatchEvent(provisionEvent);
+
+	return provisionEvent.env;
 }

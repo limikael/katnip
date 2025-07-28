@@ -8,38 +8,37 @@ import KatnipProject from "./KatnipProject.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-let earlyProgram=parseEarlyOptions(["--cwd <cwd>"]);
-let {cwd}=earlyProgram.opts();
-
-if (!cwd)
-	cwd=process.cwd();
-
-if (earlyProgram.args[0]!="init")
-	cwd=await getEffectiveCwd(cwd);
-
-let project=new KatnipProject({cwd});
-let program=project.program;
-program
-	.option("--version","Print version.")
-	.action(async options=>{
-		if (program.args.length)
-			console.log("Unknown command: "+program.args[0]);
-
-		else if (options.version)
-			console.log(await getPackageVersion(__dirname));
-
-		else
-			program.outputHelp();
-	});
-
-
-if (earlyProgram.args[0]=="init")
-	await project.load({allowMissingPkg: true});
-
-else
-	await project.load();
-
 try {
+	let earlyProgram=parseEarlyOptions(["--cwd <cwd>"]);
+	let {cwd}=earlyProgram.opts();
+
+	if (!cwd)
+		cwd=process.cwd();
+
+	if (earlyProgram.args[0] && earlyProgram.args[0]!="init")
+		cwd=await getEffectiveCwd(cwd);
+
+	let project=new KatnipProject({cwd});
+	let program=project.program;
+	program
+		.option("--version","Print version.")
+		.action(async options=>{
+			if (program.args.length)
+				console.log("Unknown command: "+program.args[0]);
+
+			else if (options.version)
+				console.log(await getPackageVersion(__dirname));
+
+			else
+				program.outputHelp();
+		});
+
+	if (earlyProgram.args[0]=="init" || !earlyProgram.args[0])
+		await project.load({allowMissingPkg: true});
+
+	else
+		await project.load();
+
 	await project.program.parseAsync();
 }
 

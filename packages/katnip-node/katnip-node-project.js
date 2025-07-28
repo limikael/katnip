@@ -24,17 +24,35 @@ export function initCli(ev) {
 		.description("Provision project, i.e. migrate database, etc.");
 }
 
+init.priority=5;
 export async function init(ev) {
 	let project=ev.target;
-	await project.processProjectFile("package.json","json",async pkg=>{
+	let pkg=await project.processProjectFile("package.json","json",async pkg=>{
 		if (!pkg)
 			pkg={};
 
 		if (!pkg.name)
 			pkg.name=path.basename(project.cwd);
 
+		ev.target.log("Initializing project: "+pkg.name);
+
+		pkg.type="module";
+
+		if (!pkg.scripts)
+			pkg.scripts={};
+
+		if (!pkg.scripts.dev)
+			pkg.scripts.dev="katnip dev";
+
 		return pkg;
 	});
+}
+
+export async function build(ev) {
+	if (ev.target.platform!="node")
+		return;
+
+	ev.env.CWD=ev.target.cwd;
 }
 
 dev.priority=5;
@@ -51,9 +69,7 @@ export async function dev(ev) {
 		await worker.start({
 			modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
 			importModulePaths: buildEvent.importModules,
-			env: buildEvent.env,
-			cwd: project.cwd,
-			config: project.config,
+			env: {...buildEvent.env},
 			port: ev.port
 		});
 
@@ -85,8 +101,6 @@ export async function serve(ev) {
 		modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
 		importModulePaths: buildEvent.importModules,
 		env: buildEvent.env,
-		cwd: project.cwd,
-		config: project.config,
 		port: ev.port
 	});
 

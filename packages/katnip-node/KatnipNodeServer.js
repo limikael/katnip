@@ -5,13 +5,11 @@ import {KatnipServer} from "../../src/exports/exports-default.js";
 import path from "node:path";
 
 export default class KatnipNodeServer {
-	constructor({modulePaths, importModulePaths, port, env, config, cwd}) {
+	constructor({modulePaths, importModulePaths, port, env}) {
 		this.modulePaths=modulePaths;
 		this.importModulePaths=importModulePaths;
 		this.port=port;
 		this.env=env;
-		this.config=config;
-		this.cwd=cwd;
 	}
 
 	async start() {
@@ -25,14 +23,14 @@ export default class KatnipNodeServer {
 			modules,
 			importModules,
 			env: this.env,
-			cwd: this.cwd,
-			config: this.config
 		});
+
+		await server.start();
 
 		let listener=createNodeRequestListener(async request=>{
 			let assetResponse=await createStaticResponse({
 				request: request,
-				cwd: path.join(this.cwd,"public")
+				cwd: path.join(this.env.CWD,"public")
 			});
 
 			if (assetResponse)

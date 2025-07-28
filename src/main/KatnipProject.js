@@ -6,6 +6,7 @@ import {AsyncEvent, AsyncEventTarget} from "../utils/async-events.js";
 import {processProjectFile, resolveProjectEntrypoints} from "./project-util.js";
 import {DeclaredError} from "../utils/js-util.js";
 import JSON5 from "json5";
+import {loadTaggedEnv} from "../utils/env-util.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,18 +35,15 @@ export default class KatnipProject extends AsyncEventTarget {
 		if (!this.logger && !silent)
 			this.logger=(...args)=>console.log(...args);
 
-		this.env={
-			PLATFORM: this.platform
-		};
-
 		this.addEventListener("build",ev=>{
 			this.log("Build: "+this.platform);
-			ev.env={};
+			ev.env={...this.env}
 			ev.importModules={};
 		},{priority: 0});
 
 		this.addEventListener("provision",ev=>{
 			this.log("Provision: "+this.platform);
+			ev.env={...this.env};
 		},{priority: 0});
 	}
 
@@ -73,13 +71,15 @@ export default class KatnipProject extends AsyncEventTarget {
 			await this.addListenerModule(await import(entrypoint));
 		}
 
-		let haveConfig=fs.existsSync(path.join(this.cwd,"katnip.json"));
-		if (!haveConfig && !allowMissingPkg)
-			throw new DeclaredError("Missing katnip.json");
+		this.env={
+			CWD: this.cwd,
+			PLATFORM: this.platform,
+			...await loadTaggedEnv(this.cwd,[this.platform,"local"])
+		};
 
-		this.config={};
-		if (haveConfig)
-			this.config=JSON5.parse(await fsp.readFile(path.join(this.cwd,"katnip.json")));
+		this.env.config={};
+		if (fs.existsSync(path.join(this.cwd,"katnip.json")))
+			this.env.config=JSON5.parse(await fsp.readFile(path.join(this.cwd,"katnip.json")));
 
 		await this.dispatchEvent(new AsyncEvent("initCli"));
 	}
@@ -101,9 +101,6 @@ export default class KatnipProject extends AsyncEventTarget {
 			format,
 			processor
 		});
-
-		/*if (["mikrokat.json","package.json"].includes(filename))
-			this.config=undefined;*/
 
 		return content;
 	}

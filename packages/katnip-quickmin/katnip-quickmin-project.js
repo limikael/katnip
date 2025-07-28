@@ -6,9 +6,45 @@ import {MockStorage} from "quickmin/mock-storage";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const QUICKMIN_YAML=
+`
+jwtSecret: "changeme"
+adminUser: "admin"
+adminPass: "admin"
+
+collections:
+  pages:
+    fields:
+      <Text id="title" listable/>
+      <Text id="content" multiline fullWidth/>
+`;
+
+export async function init(ev) {
+    let quickminYamlFile=path.join(ev.target.cwd,"quickmin.yaml");
+    if (!fs.existsSync(quickminYamlFile)) {
+        //console.log("Creating "+quickminYamlFile);
+        fs.writeFileSync(quickminYamlFile,QUICKMIN_YAML);
+    }
+
+    await ev.target.processProjectFile(".env","dotenv",async dotenv=>{
+        if (!dotenv)
+            dotenv={};
+
+        if (!dotenv.DATABASE_URL)
+            dotenv.DATABASE_URL="libsql+file:quickmin.db";
+
+        if (!dotenv.DATABASE_STORAGE_URL)
+            dotenv.DATABASE_STORAGE_URL="node+file:upload";
+
+        return dotenv;
+    });
+}
+
 provision.priority=20;
 export async function provision(provisionEvent) {
-	if (!provisionEvent.target.config.databaseServiceName)
+    let env=provisionEvent.env;
+
+	if (!env.DATABASE_URL)
 		return;
 
 	let project=provisionEvent.target;
@@ -19,7 +55,7 @@ export async function provision(provisionEvent) {
     	conf.apiPath="admin";
 
     if (!provisionEvent.qqlFactory) {
-	    let dsnUrl=new URL(project.config.databaseServiceName);
+	    let dsnUrl=new URL(env.DATABASE_URL);
 	    switch (dsnUrl.protocol) {
 	    	case "libsql+file:":
 	    		provisionEvent.qqlFactory=(await import(path.join(__dirname,"qql-factory-node.js"))).default;
@@ -32,8 +68,7 @@ export async function provision(provisionEvent) {
     }
 
     conf.qqlDriver=await provisionEvent.qqlFactory({
-    	target: project,
-    	dsn: project.config.databaseServiceName
+        env: env
     });
 
     conf.storageDriver=new MockStorage();
@@ -42,7 +77,7 @@ export async function provision(provisionEvent) {
 
     await server.sync({log: project.log});
 
-    project.env.qql=server.qql;
+    env.qql=server.qql;
 }
 
 export async function build(buildEvent) {
@@ -54,9 +89,11 @@ export async function build(buildEvent) {
     	conf.apiPath="admin";
 
     buildEvent.env.quickminConf=conf;
+    buildEvent.env.DATABASE_URL=project.env.DATABASE_URL;
+    buildEvent.env.DATABASE_STORAGE_URL=project.env.DATABASE_STORAGE_URL;
 
-    if (project.config.databaseServiceName) {
-	    let dsnUrl=new URL(project.config.databaseServiceName);
+    if (project.env.DATABASE_URL) {
+	    let dsnUrl=new URL(project.env.DATABASE_URL);
 	    switch (dsnUrl.protocol) {
 	    	case "libsql+file:":
 	    		buildEvent.importModules.qqlFactoryModule=path.join(__dirname,"qql-factory-node.js");
@@ -64,8 +101,8 @@ export async function build(buildEvent) {
 	    }
     }
 
-    if (project.config.databaseStorage) {
-        let storageUrl=new URL(project.config.databaseStorage);
+    if (project.env.DATABASE_STORAGE_URL) {
+        let storageUrl=new URL(project.env.DATABASE_STORAGE_URL);
         switch (storageUrl.protocol) {
             case "node+file:":
                 buildEvent.importModules.storageFactoryModule=path.join(__dirname,"storage-factory-node.js");

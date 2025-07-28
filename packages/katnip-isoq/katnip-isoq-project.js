@@ -1,5 +1,34 @@
 import path from "node:path";
+import fs, {promises as fsp} from "node:fs";
 import {isoqBundle, isoqGetEsbuildOptions} from "isoq/bundler";
+
+const INDEX_JSX=
+`export default function() {
+    return (<>
+        <div class="mb-5 font-bold">Hello World</div>
+        <div>The project begins here...</div>
+    </>);
+}
+`;
+
+export async function init(ev) {
+	let project=ev.target;
+
+	let pkg=await project.processProjectFile("package.json","json",async pkg=>{
+		if (!pkg.exports)
+			pkg.exports={};
+
+		if (!pkg.exports["./isomain"])
+			pkg.exports["./isomain"]="src/main/client.jsx";
+	});
+
+	let fullEp=path.join(ev.target.cwd,pkg.exports["./isomain"]);
+	if (!fs.existsSync(fullEp)) {
+		//console.log("init isoq");
+		fs.mkdirSync(path.dirname(fullEp),{recursive: true});
+		fs.writeFileSync(fullEp,INDEX_JSX);
+	}
+}
 
 export async function build(buildEvent) {
 	let project=buildEvent.target;
@@ -13,7 +42,7 @@ export async function build(buildEvent) {
 	let wrapperPaths=await project.resolveEntrypoints("isowrap");
 	//console.log(wrapperPaths);
 
-	let config={...project.config};
+	let config={...project.env.config};
 
 	if (config.clientPurgeOldJs===undefined)
 		config.clientPurgeOldJs=true;

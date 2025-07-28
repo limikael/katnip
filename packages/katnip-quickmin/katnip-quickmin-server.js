@@ -11,19 +11,17 @@ export async function start(startEvent) {
 	let theConf={...startEvent.target.env.quickminConf};
 	let fn="default";
 
-	if (startEvent.target.config.databaseStorage) {
+	if (startEvent.target.env.DATABASE_STORAGE_URL) {
 		let storageMod=startEvent.target.importModules.storageFactoryModule;
 		theConf.storageDriver=await storageMod[fn]({
-			storage: startEvent.target.config.databaseStorage,
-			target: startEvent.target
+			env: startEvent.target.env
 		});
 	}
 
-	if (startEvent.target.config.databaseServiceName) {
+	if (startEvent.target.env.DATABASE_URL) {
 		let qqlMod=startEvent.target.importModules.qqlFactoryModule;
 		theConf.qqlDriver=await qqlMod[fn]({
-			dsn: startEvent.target.config.databaseServiceName,
-			target: startEvent.target
+			env: startEvent.target.env
 		});
 	}
 
