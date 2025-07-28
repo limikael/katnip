@@ -17,6 +17,8 @@ export default class KatnipProject extends AsyncEventTarget {
 		if (!this.platform)
 			this.platform="node";
 
+		this.eventCommands={};
+
 		this.cwd=cwd;
 		this.program=new Command();
 		this.program.name("katnip")
@@ -37,8 +39,13 @@ export default class KatnipProject extends AsyncEventTarget {
 		};
 
 		this.addEventListener("build",ev=>{
+			this.log("Build: "+this.platform);
 			ev.env={};
 			ev.importModules={};
+		},{priority: 0});
+
+		this.addEventListener("provision",ev=>{
+			this.log("Provision: "+this.platform);
 		},{priority: 0});
 	}
 
@@ -48,7 +55,11 @@ export default class KatnipProject extends AsyncEventTarget {
 	}
 
 	eventCommand(name) {
+		if (this.eventCommands[name])
+			return this.eventCommands[name];
+
 		let command=this.program.command(name);
+		this.eventCommands[name]=command;
 		command.action(async (options)=>{
 			await this.dispatchEvent(new AsyncEvent(name,options));
 		});

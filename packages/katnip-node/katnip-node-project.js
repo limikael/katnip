@@ -1,9 +1,12 @@
 import path from "node:path";
-import http from "node:http";
-import {KatnipServer, AsyncEvent} from "../../src/exports/exports-default.js";
-import {serverListenPromise, serverClosePromise, createStaticResponse} from "../../src/utils/node-util.js";
-import {createNodeRequestListener} from "serve-fetch";
+import {AsyncEvent} from "../../src/exports/exports-default.js";
+import KatnipNodeServer from "./KatnipNodeServer.js";
+import {fileURLToPath} from 'url';
+import {importWorker} from "../../src/utils/import-worker.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+initCli.priority=5;
 export function initCli(ev) {
 	//ev.target.eventCommand("build").description("Build project.");
 
@@ -15,70 +18,10 @@ export function initCli(ev) {
 	ev.target.eventCommand("dev")
 		.description("Start development server.")
 		.option("--port <port>","Port to listen to.",3000)
-		.option("--provision","Run provision as part of the build.",true);
+		.option("--no-provision","Don't run provision as part of the build.");
 
 	ev.target.eventCommand("provision")
 		.description("Provision project, i.e. migrate database, etc.");
-}
-
-export async function dev(ev) {
-	let serveEvent=new AsyncEvent("serve",ev);
-	await ev.target.dispatchEvent(serveEvent);
-}
-
-export async function serve(ev) {
-	if (ev.target.platform!="node")
-		return;
-
-	if (!ev.port)
-		throw new Error("No port specified");
-
-	let project=ev.target;
-	let buildEvent=new AsyncEvent("build");
-	await project.dispatchEvent(buildEvent);
-
-	if (ev.provision) {
-		let provisionEvent=new AsyncEvent("provision");
-		await project.dispatchEvent(provisionEvent);
-	}
-
-	let modulesPaths=await ev.target.resolveEntrypoints("katnip-server-hooks");
-	let modules=await Promise.all(modulesPaths.map(p=>import(p)));
-
-	let importModules={}
-	for (let k in buildEvent.importModules)
-		importModules[k]=await import(buildEvent.importModules[k]);
-
-	let server=new KatnipServer({
-		modules,
-		importModules,
-		env: buildEvent.env,
-		cwd: project.cwd,
-		config: project.config
-	});
-
-	let listener=createNodeRequestListener(async request=>{
-		let assetResponse=await createStaticResponse({
-			request: request,
-			cwd: path.join(project.cwd,"public")
-		});
-
-		if (assetResponse)
-			return assetResponse;
-
-		return await server.handleRequest({request});
-	});
-
-	let httpServer=http.createServer(listener);
-	await serverListenPromise(httpServer,ev.port);
-
-	await project.log("Listening to port: "+ev.port);
-
-	async function stop() {
-		await serverClosePromise(httpServer);
-	}
-
-	return {stop};
 }
 
 export async function init(ev) {
@@ -92,4 +35,67 @@ export async function init(ev) {
 
 		return pkg;
 	});
+}
+
+dev.priority=5;
+export async function dev(ev) {
+	let project=ev.target;
+	let buildEvent=new AsyncEvent("build");
+	await project.dispatchEvent(buildEvent);
+
+	if (ev.provision)
+		await project.dispatchEvent(new AsyncEvent("provision"));
+
+	if (project.platform=="node") {
+		let worker=await importWorker(path.join(__dirname,"katnip-node-dev-worker.js"));
+		await worker.start({
+			modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
+			importModulePaths: buildEvent.importModules,
+			env: buildEvent.env,
+			cwd: project.cwd,
+			config: project.config,
+			port: ev.port
+		});
+
+		project.log("Listen: "+ev.port);
+
+		async function stop() {
+			await worker.terminate();
+		}
+
+		return {stop};
+	}
+}
+
+export async function serve(ev) {
+	if (ev.target.platform!="node")
+		throw new Error("Can only serve node");
+
+	if (!ev.port)
+		throw new Error("No port specified");
+
+	let project=ev.target;
+	let buildEvent=new AsyncEvent("build");
+	await project.dispatchEvent(buildEvent);
+
+	if (ev.provision)
+		await project.dispatchEvent(new AsyncEvent("provision"));
+
+	let server=new KatnipNodeServer({
+		modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
+		importModulePaths: buildEvent.importModules,
+		env: buildEvent.env,
+		cwd: project.cwd,
+		config: project.config,
+		port: ev.port
+	});
+
+	await server.start();
+	project.log("Listen: "+ev.port);
+
+	async function stop() {
+		await server.stop();
+	}
+
+	return {stop};
 }

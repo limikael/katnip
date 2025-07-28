@@ -35,8 +35,11 @@ export async function start(startEvent) {
 }
 
 export async function clientProps(ev) {
-	ev.props.quickminUser=await ev.target.env.quickminApi.getUserByRequest(ev.request);
-	ev.props.quickminCookieName=ev.target.env.quickminConf.cookie;
+	let env=ev.target.env;
+
+	ev.props.quickminUser=await env.quickminApi.getUserByRequest(ev.request);
+	ev.props.quickminCookieName=env.quickminConf.cookie;
+	ev.props.authProviderInfo=env.quickminServer.getAuthProviderInfo(ev.request.url);
 }
 
 fetch.priority=15;

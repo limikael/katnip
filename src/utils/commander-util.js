@@ -4,7 +4,8 @@ export function parseEarlyOptions(earlyOptions) {
 	const program = new Command();
 	program
 		.allowUnknownOption(true)
-		.allowExcessArguments();
+		.allowExcessArguments()
+		.passThroughOptions();
 
 	for (let earlyOption of earlyOptions)
 	    program.option(earlyOption);

@@ -7,6 +7,6 @@
 	"exports": {
 		"./katnip-server-hooks": "./server.js",
 		"./katnip-rpc-api": "./Api.js",
-		"./isomain": "./isomain.jsx"
+		"./isomain": "./src/isomain.jsx"
 	}
 }

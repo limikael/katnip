@@ -40,7 +40,6 @@ export async function provision(provisionEvent) {
 
     let server=new QuickminServer(conf);
 
-    provisionEvent.target.log("Provision: "+provisionEvent.target.platform);
     await server.sync({log: project.log});
 
     project.env.qql=server.qql;

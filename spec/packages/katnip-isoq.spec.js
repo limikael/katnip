@@ -34,4 +34,26 @@ describe("katnip-isoq",()=>{
 
 		await server.stop();
 	});
+
+	it("does provision as part of serve",async ()=>{
+		await fsp.rm(path.join(__dirname,"test-project/quickmin.db"),{force: true});
+
+		let server=await katnipServe({
+			cwd: path.join(__dirname,"test-project"),
+			port: 3000,
+			silent: true,
+			provision: true
+		});
+
+		let response=await fetch("http://localhost:3000/");
+		let result=await response.text();
+		//console.log(result);
+
+		expect(result).toContain("hello isoq");
+		/*expect(result).toContain(`<div id="isoq"`);
+		expect(result).toContain(`"content":"page1"`);
+		expect(result).toContain(`"content":"page2"`);*/
+
+		await server.stop();
+	});
 });
