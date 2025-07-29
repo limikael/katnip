@@ -7,6 +7,7 @@ import {processProjectFile, resolveProjectEntrypoints} from "./project-util.js";
 import {DeclaredError} from "../utils/js-util.js";
 import JSON5 from "json5";
 import {loadTaggedEnv} from "../utils/env-util.js";
+import {getPackageVersion} from "../utils/node-util.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -103,5 +104,9 @@ export default class KatnipProject extends AsyncEventTarget {
 		});
 
 		return content;
+	}
+
+	async getKatnipVersion() {
+		return await await getPackageVersion(path.join(__dirname,"../.."));
 	}
 }

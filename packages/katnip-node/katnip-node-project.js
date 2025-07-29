@@ -44,7 +44,29 @@ export async function init(ev) {
 		if (!pkg.scripts.dev)
 			pkg.scripts.dev="katnip dev";
 
+		if (!pkg.dependencies)
+			pkg.dependencies={};
+
+		if (!pkg.dependencies.katnip)
+			pkg.dependencies.katnip="^"+await project.getKatnipVersion();
+
 		return pkg;
+	});
+
+	await project.processProjectFile(".gitignore","lines",async ignore=>{
+		if (!ignore)
+			ignore=[];
+
+		if (!ignore.includes("node_modules"))
+			ignore.push("node_modules");
+
+		if (ignore.includes("upload"))
+			ignore.push("upoad");
+
+		if (ignore.includes("quickmin.db"))
+			ignore.push("quickmin.db");
+
+		return ignore;
 	});
 }
 
