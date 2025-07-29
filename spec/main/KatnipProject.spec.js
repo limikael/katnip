@@ -27,7 +27,7 @@ describe("KatnipProject",()=>{
 		let projectCwd=path.join(__dirname,"../../tmp/test-init-project");
 		await fsp.rm(projectCwd,{force: true, recursive: true});
 
-		let project=new KatnipProject({cwd: projectCwd});
+		let project=new KatnipProject({cwd: projectCwd, silent: true});
 		await project.load({allowMissingPkg: true});
 		await project.dispatchEvent(new AsyncEvent("init"));
 		//await project.dispatchEvent(new AsyncEvent("init"));

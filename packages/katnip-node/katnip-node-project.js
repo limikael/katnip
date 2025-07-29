@@ -57,6 +57,8 @@ export async function build(ev) {
 
 dev.priority=5;
 export async function dev(ev) {
+	let start=Date.now();
+
 	let project=ev.target;
 	let buildEvent=new AsyncEvent("build");
 	await project.dispatchEvent(buildEvent);
@@ -73,7 +75,8 @@ export async function dev(ev) {
 			port: ev.port
 		});
 
-		project.log("Listen: "+ev.port);
+		let duration=Date.now()-start;
+		project.log(`Started (${duration/1000}s), Listen: ${ev.port}`);
 
 		async function stop() {
 			await worker.terminate();

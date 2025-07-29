@@ -3,6 +3,8 @@ import path from "node:path";
 import {fileURLToPath} from 'url';
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
 import {MockStorage} from "quickmin/mock-storage";
+import {isoqGetEsbuildOptions} from "isoq/bundler";
+import esbuild from "esbuild";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -87,6 +89,21 @@ export async function build(buildEvent) {
     let conf=quickminCanonicalizeConf(confText);
     if (!conf.hasOwnProperty("apiPath"))
     	conf.apiPath="admin";
+
+    let clientEntrypoints=await project.resolveEntrypoints("quickmin-client-functions");
+    if (clientEntrypoints.length>1)
+        throw new Error("More than one admin client entrypoint");
+
+    if (clientEntrypoints.length) {
+        await esbuild.build({
+            ...await isoqGetEsbuildOptions(),
+            entryPoints: clientEntrypoints,
+            outfile: path.join(project.cwd,"public","admin-client-functions.js"),
+            minify: true,
+        });
+
+        conf.clientImports.push("/admin-client-functions.js");
+    }
 
     buildEvent.env.quickminConf=conf;
     buildEvent.env.DATABASE_URL=project.env.DATABASE_URL;
