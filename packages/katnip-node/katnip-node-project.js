@@ -58,8 +58,12 @@ export async function build(ev) {
 dev.priority=5;
 export async function dev(ev) {
 	let start=Date.now();
-
 	let project=ev.target;
+
+	let workerPromise;
+	if (project.platform=="node")
+		workerPromise=importWorker(path.join(__dirname,"katnip-node-dev-worker.js"));
+
 	let buildEvent=new AsyncEvent("build");
 	await project.dispatchEvent(buildEvent);
 
@@ -67,7 +71,8 @@ export async function dev(ev) {
 		await project.dispatchEvent(new AsyncEvent("provision"));
 
 	if (project.platform=="node") {
-		let worker=await importWorker(path.join(__dirname,"katnip-node-dev-worker.js"));
+		let worker=await workerPromise;
+
 		await worker.start({
 			modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
 			importModulePaths: buildEvent.importModules,
