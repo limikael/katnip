@@ -21,7 +21,15 @@ collections:
       <Text id="content" multiline fullWidth/>
 `;
 
+export async function initCli(ev) {
+    ev.target.eventCommand("init")
+        .option("--no-database","Don't initialize database.");
+}
+
 export async function init(ev) {
+    if (!ev.database)
+        return;
+
     let quickminYamlFile=path.join(ev.target.cwd,"quickmin.yaml");
     if (!fs.existsSync(quickminYamlFile)) {
         //console.log("Creating "+quickminYamlFile);
@@ -45,11 +53,13 @@ export async function init(ev) {
 provision.priority=20;
 export async function provision(provisionEvent) {
     let env=provisionEvent.env;
+    let project=provisionEvent.target;
 
 	if (!env.DATABASE_URL && !provisionEvent.qqlFactory)
 		return;
 
-	let project=provisionEvent.target;
+    if (!fs.existsSync(path.join(project.cwd,"quickmin.yaml")))
+        return;
 
     let confText=await fsp.readFile(path.join(project.cwd,"quickmin.yaml"),"utf8");
     let conf=quickminCanonicalizeConf(confText);
@@ -99,6 +109,9 @@ export async function buildExtend(buildEvent) {
 export async function build(buildEvent) {
 	let project=buildEvent.target;
 
+    if (!fs.existsSync(path.join(project.cwd,"quickmin.yaml")))
+        return;
+
     let confText=await fsp.readFile(path.join(project.cwd,"quickmin.yaml"),"utf8");
     let conf=quickminCanonicalizeConf(confText);
     if (!conf.hasOwnProperty("apiPath"))
@@ -120,8 +133,6 @@ export async function build(buildEvent) {
     }
 
     buildEvent.env.quickminConf=conf;
-    buildEvent.env.DATABASE_URL=project.env.DATABASE_URL;
-    buildEvent.env.DATABASE_STORAGE_URL=project.env.DATABASE_STORAGE_URL;
 
     let resourcesPath=path.join(__dirname,"katnip-quickmin-resources-node.js");
     if (project.env.DATABASE_URL) {

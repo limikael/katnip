@@ -8,10 +8,14 @@ export async function start(startEvent) {
 
 	//console.log("starting quickmin server");
 
+	if (!startEvent.target.env.quickminConf)
+		return;
+
 	let theConf={...startEvent.target.env.quickminConf};
 	let fn="default";
 
-	if (startEvent.target.env.DATABASE_STORAGE_URL) {
+	if (startEvent.target.env.DATABASE_STORAGE_URL ||
+			startEvent.target.importModules.storageFactoryModule) {
 		let storageMod=startEvent.target.importModules.storageFactoryModule;
 		let storageFn=startEvent.target.env.storageFactoryFunction;
 		theConf.storageDriver=await storageMod[storageFn]({
@@ -36,6 +40,9 @@ export async function start(startEvent) {
 }
 
 export async function clientProps(ev) {
+	if (!ev.target.env.quickminConf)
+		return;
+
 	let env=ev.target.env;
 
 	ev.props.quickminUser=await env.quickminApi.getUserByRequest(ev.request);
@@ -45,6 +52,9 @@ export async function clientProps(ev) {
 
 fetch.priority=15;
 export async function fetch(fetchEvent) {
+	if (!fetchEvent.target.env.quickminConf)
+		return;
+
 	let quickminServer=fetchEvent.target.env.quickminServer;
 
 	return await quickminServer.handleRequest(fetchEvent.request);

@@ -329,8 +329,12 @@ export async function runCommand(command, args = [], options = {}) {
 
         child.on('close', (code, signal) => {
             if (options.hasOwnProperty("expect") &&
-                    code!=options.expect)
+                    code!=options.expect) {
+                if (captureOutput)
+                    console.log(output);
+
                 reject(new DeclaredError(`Command failed (${code}).`));
+            }
 
             if (captureOutput)
                 resolve(output);

@@ -1,5 +1,5 @@
 import path from "node:path";
-import {AsyncEvent} from "../../src/exports/exports-default.js";
+import {AsyncEvent, DeclaredError} from "../../src/exports/exports-default.js";
 import KatnipNodeServer from "./KatnipNodeServer.js";
 import {fileURLToPath} from 'url';
 import {importWorker} from "../../src/utils/import-worker.js";
@@ -20,6 +20,16 @@ export function initCli(ev) {
 		.option("--port <port>","Port to listen to.",3000)
 		.option("--platform <platform>","Dev platform.")
 		.option("--no-provision","Don't run provision as part of the build.");
+
+	ev.target.eventCommand("build")
+		.description("Build project.")
+		.option("--platform <platform>","Build for platform.");
+
+	ev.target.eventCommand("deploy")
+		.description("Deploy project.")
+		.option("--no-build","Don't build, requires a previous build.")
+		.option("--no-provision","Don't run provision as part of the deploy.")
+		.option("--platform <platform>","Deploy to platform.");
 
 	ev.target.eventCommand("provision")
 		.description("Provision project, i.e. migrate database, etc.")
@@ -113,6 +123,20 @@ export async function dev(ev) {
 
 		return {stop};
 	}
+}
+
+deploy.priority=5;
+export async function deploy(ev) {
+	let project=ev.target;
+
+	if (project.platform=="node")
+		throw new DeclaredError("Nothing to deploy for node.");
+
+	if (ev.build)
+		await project.dispatchEvent(new AsyncEvent("build"));
+
+	if (ev.provision)
+		await project.dispatchEvent(new AsyncEvent("provision",{remote: true}));
 }
 
 export async function serve(ev) {

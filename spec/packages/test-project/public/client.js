@@ -2438,6 +2438,8 @@ function urlJoin2() {
 // packages/katnip-quickmin/katnip-quickmin-isowrap.jsx
 function QuickminWrapper({ quickminUser, quickminCookieName, authProviderInfo, children }) {
   let iso = useIsoContext();
+  if (!quickminCookieName)
+    return children;
   if (!iso.quickminState)
     iso.quickminState = new QuickminState({
       fetch: iso.fetch,
