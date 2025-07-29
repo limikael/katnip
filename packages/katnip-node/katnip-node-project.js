@@ -18,10 +18,12 @@ export function initCli(ev) {
 	ev.target.eventCommand("dev")
 		.description("Start development server.")
 		.option("--port <port>","Port to listen to.",3000)
+		.option("--platform <platform>","Dev platform.")
 		.option("--no-provision","Don't run provision as part of the build.");
 
 	ev.target.eventCommand("provision")
-		.description("Provision project, i.e. migrate database, etc.");
+		.description("Provision project, i.e. migrate database, etc.")
+		.option("--platform <platform>","Provision platform.");
 }
 
 init.priority=5;
@@ -90,7 +92,7 @@ export async function dev(ev) {
 	await project.dispatchEvent(buildEvent);
 
 	if (ev.provision)
-		await project.dispatchEvent(new AsyncEvent("provision"));
+		await project.dispatchEvent(new AsyncEvent("provision",{local: true}));
 
 	if (project.platform=="node") {
 		let worker=await workerPromise;

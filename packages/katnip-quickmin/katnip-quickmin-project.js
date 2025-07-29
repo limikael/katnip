@@ -28,7 +28,7 @@ export async function init(ev) {
         fs.writeFileSync(quickminYamlFile,QUICKMIN_YAML);
     }
 
-    await ev.target.processProjectFile(".env","dotenv",async dotenv=>{
+    await ev.target.processProjectFile(".env.node","dotenv",async dotenv=>{
         if (!dotenv)
             dotenv={};
 
@@ -46,7 +46,7 @@ provision.priority=20;
 export async function provision(provisionEvent) {
     let env=provisionEvent.env;
 
-	if (!env.DATABASE_URL)
+	if (!env.DATABASE_URL && !provisionEvent.qqlFactory)
 		return;
 
 	let project=provisionEvent.target;
@@ -60,7 +60,7 @@ export async function provision(provisionEvent) {
 	    let dsnUrl=new URL(env.DATABASE_URL);
 	    switch (dsnUrl.protocol) {
 	    	case "libsql+file:":
-	    		provisionEvent.qqlFactory=(await import(path.join(__dirname,"qql-factory-node.js"))).default;
+	    		provisionEvent.qqlFactory=(await import(path.join(__dirname,"katnip-quickmin-resources-node.js"))).createQqlDriver;
 	    		break;
 
 	    	default:
@@ -80,6 +80,20 @@ export async function provision(provisionEvent) {
     await server.sync({log: project.log});
 
     env.qql=server.qql;
+}
+
+buildExtend.event="build";
+buildExtend.priority=1;
+export async function buildExtend(buildEvent) {
+    buildEvent.registerQqlFactory=(modulePath, fn)=>{
+        buildEvent.importModules.qqlFactoryModule=modulePath;
+        buildEvent.env.qqlFactoryFunction=fn;
+    }
+
+    buildEvent.registerStorageFactory=(modulePath, fn)=>{
+        buildEvent.importModules.storageFactoryModule=modulePath;
+        buildEvent.env.storageFactoryFunction=fn;
+    }
 }
 
 export async function build(buildEvent) {
@@ -109,11 +123,12 @@ export async function build(buildEvent) {
     buildEvent.env.DATABASE_URL=project.env.DATABASE_URL;
     buildEvent.env.DATABASE_STORAGE_URL=project.env.DATABASE_STORAGE_URL;
 
+    let resourcesPath=path.join(__dirname,"katnip-quickmin-resources-node.js");
     if (project.env.DATABASE_URL) {
 	    let dsnUrl=new URL(project.env.DATABASE_URL);
 	    switch (dsnUrl.protocol) {
 	    	case "libsql+file:":
-	    		buildEvent.importModules.qqlFactoryModule=path.join(__dirname,"qql-factory-node.js");
+                buildEvent.registerQqlFactory(resourcesPath,"createQqlDriver");
 	    		break;
 	    }
     }
@@ -122,7 +137,7 @@ export async function build(buildEvent) {
         let storageUrl=new URL(project.env.DATABASE_STORAGE_URL);
         switch (storageUrl.protocol) {
             case "node+file:":
-                buildEvent.importModules.storageFactoryModule=path.join(__dirname,"storage-factory-node.js");
+                buildEvent.registerStorageFactory(resourcesPath,"createStorageDriver");
                 break;
 
             default:

@@ -120,3 +120,22 @@ export function awaitEvent(...args) {
             eventTarget.on(error,errorHandler);
     });
 }
+
+export function promiseAnyIndex(promises) {
+  return new Promise((resolve, reject) => {
+    const errors = [];
+    let rejectedCount = 0;
+
+    promises.forEach((p, i) => {
+      Promise.resolve(p)
+        .then(() => resolve(i))
+        .catch(err => {
+          errors[i] = err;
+          rejectedCount++;
+          if (rejectedCount === promises.length) {
+            reject(new AggregateError(errors, 'All promises were rejected'));
+          }
+        });
+    });
+  });
+}

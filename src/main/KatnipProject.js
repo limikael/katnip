@@ -27,7 +27,8 @@ export default class KatnipProject extends AsyncEventTarget {
 			.description("Zero conf web framework.")
 			.passThroughOptions()
 			.allowExcessArguments()
-			.option("--cwd <cwd>","Run as if started from this dir.");
+			.option("--cwd <cwd>","Run as if started from this dir.")
+			.option("--platform <platform>","Specify platform.");
 
 		this.eventCommand("init")
 			.description("Initialize project.");
@@ -60,6 +61,9 @@ export default class KatnipProject extends AsyncEventTarget {
 		let command=this.program.command(name);
 		this.eventCommands[name]=command;
 		command.action(async (options)=>{
+			if (options.platform && options.platform!=this.platform)
+				throw new Error("Changing platform?");
+
 			await this.dispatchEvent(new AsyncEvent(name,options));
 		});
 
@@ -71,6 +75,8 @@ export default class KatnipProject extends AsyncEventTarget {
 		for (let entrypoint of entrypoints) {
 			await this.addListenerModule(await import(entrypoint));
 		}
+
+		//console.log("load: "+this.platform);
 
 		this.env={
 			CWD: this.cwd,

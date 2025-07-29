@@ -9,8 +9,8 @@ import KatnipProject from "./KatnipProject.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 try {
-	let earlyProgram=parseEarlyOptions(["--cwd <cwd>"]);
-	let {cwd}=earlyProgram.opts();
+	let earlyProgram=parseEarlyOptions(["--cwd <cwd>","--platform <platform>","--help","--version"]);
+	let {cwd, platform}=earlyProgram.opts();
 
 	if (!cwd)
 		cwd=process.cwd();
@@ -18,7 +18,14 @@ try {
 	if (earlyProgram.args[0] && earlyProgram.args[0]!="init")
 		cwd=await getEffectiveCwd(cwd);
 
-	let project=new KatnipProject({cwd});
+	// Redirect `--help <cmd>` to `<cmd> --help
+	const rawArgs = process.argv.slice(2);
+	if (rawArgs[0] === '--help' && rawArgs[1]) {
+		const helpTarget = rawArgs[1];
+		process.argv = [process.argv[0], process.argv[1], helpTarget, '--help'];
+	}
+
+	let project=new KatnipProject({cwd, platform});
 	let program=project.program;
 	program
 		.option("--version","Print version.")

@@ -13,14 +13,17 @@ export async function start(startEvent) {
 
 	if (startEvent.target.env.DATABASE_STORAGE_URL) {
 		let storageMod=startEvent.target.importModules.storageFactoryModule;
-		theConf.storageDriver=await storageMod[fn]({
+		let storageFn=startEvent.target.env.storageFactoryFunction;
+		theConf.storageDriver=await storageMod[storageFn]({
 			env: startEvent.target.env
 		});
 	}
 
-	if (startEvent.target.env.DATABASE_URL) {
+	if (startEvent.target.env.DATABASE_URL ||
+			startEvent.target.importModules.qqlFactoryModule) {
 		let qqlMod=startEvent.target.importModules.qqlFactoryModule;
-		theConf.qqlDriver=await qqlMod[fn]({
+		let qqlFn=startEvent.target.env.qqlFactoryFunction;
+		theConf.qqlDriver=await qqlMod[qqlFn]({
 			env: startEvent.target.env
 		});
 	}

@@ -4,9 +4,9 @@ import mime from 'mime/lite';
 import {readPackageUp} from 'read-package-up';
 import { spawn } from 'node:child_process';
 import {DeclaredError, objectifyArgs, ResolvablePromise} from "./js-util.js";
-/*import findNodeModules from "find-node-modules";
+import findNodeModules from "find-node-modules";
 import treeKill from "tree-kill";
-import psTree from "ps-tree";*/
+import psTree from "ps-tree";
 import net from 'net';
 
 export async function getPackageVersion(cwd) {
@@ -97,7 +97,7 @@ export function createStreamBody(stream) {
     return body
 }
 
-/*export function findNodeBin(...args) {
+export function findNodeBin(...args) {
     let {cwd, name, includeProcessCwd}=objectifyArgs(args,["cwd","name","includeProcessCwd"]);
 
     if (includeProcessCwd===undefined)
@@ -339,4 +339,4 @@ export async function runCommand(command, args = [], options = {}) {
                 resolve();
         });
     });
-}*/
+}

@@ -1,5 +1,6 @@
 import {AsyncEvent} from "../../src/utils/async-events.js";
 import {startFileWatcher} from "../../src/utils/file-watcher.js";
+import {promiseAnyIndex} from "../../src/utils/js-util.js";
 import path from "node:path";
 
 export function initCli(ev) {
@@ -32,15 +33,32 @@ export async function dev(devEvent) {
 
 			catch (e) {
 				if (!e.message.includes("Build failed") ||
-						!e.errors)
-					console.log(e);
+						!e.errors) {
+					if (e.declared)
+						console.log("Error: "+e.message);
+			
+					else
+						console.log(e);
+				}
 			}
 
-			await watcher.wait();
-			project.log("File change...");
+			if (!devServer) {
+				devEvent.target.log("No dev server started...");
+				process.exit(1);
+			}
 
-			if (devServer)
-				await devServer.stop();
+			let promises=[watcher.wait()];
+			if (devServer.wait)
+				promises.push(devServer.wait());
+
+			let i=await promiseAnyIndex(promises);
+			if (i>=1) {
+				devEvent.target.log("Dev server exited...");
+				process.exit();
+			}
+
+			project.log("File change...");
+			await devServer.stop();
 		}
 	}
 }
