@@ -10,8 +10,8 @@ export async function katnipCommand(options) {
 	return await project.dispatchEvent(new AsyncEvent(options.command,options));
 }
 
-export async function katnipServe(options) {
-	return await katnipCommand({command: "serve", ...options});
+export async function katnipStart(options) {
+	return await katnipCommand({command: "start", ...options});
 }
 
 export async function katnipProvision(options) {

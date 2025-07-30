@@ -1,4 +1,4 @@
-import {katnipServe, katnipCreateProvisionEnv} from "katnip";
+import {katnipStart, katnipCreateProvisionEnv} from "katnip";
 import path from "node:path";
 import {fileURLToPath} from 'node:url';
 import fs, {promises as fsp} from "fs";
@@ -17,7 +17,7 @@ describe("katnip-isoq",()=>{
 		await env.qql({insertInto: "pages",set: {content: "page1"}});
 		await env.qql({insertInto: "pages",set: {content: "page2"}});
 
-		let server=await katnipServe({
+		let server=await katnipStart({
 			cwd: path.join(__dirname,"test-project"),
 			port: 3000,
 			silent: true,
@@ -39,7 +39,7 @@ describe("katnip-isoq",()=>{
 	it("does provision as part of serve",async ()=>{
 		await fsp.rm(path.join(__dirname,"test-project/quickmin.db"),{force: true});
 
-		let server=await katnipServe({
+		let server=await katnipStart({
 			cwd: path.join(__dirname,"test-project"),
 			port: 3000,
 			silent: true,

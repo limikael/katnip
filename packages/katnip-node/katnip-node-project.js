@@ -11,8 +11,8 @@ initCli.priority=5;
 export function initCli(ev) {
 	//ev.target.eventCommand("build").description("Build project.");
 
-	ev.target.eventCommand("serve")
-		.description("Serve project.")
+	ev.target.eventCommand("start")
+		.description("Start server for production.")
 		.option("--port <port>","Port to listen to.",3000)
 		.option("--provision","Run provision before serving.")
 		.option("--build","Run build before serving, otherwise requires a previous build.");
@@ -161,7 +161,7 @@ export async function deploy(ev) {
 		await project.dispatchEvent(new AsyncEvent("provision",{remote: true}));
 }
 
-export async function serve(ev) {
+export async function start(ev) {
 	if (ev.target.platform!="node")
 		throw new Error("Can only serve node");
 
