@@ -8,14 +8,18 @@ export default class KatnipServer extends AsyncEventTarget {
 			this.addListenerModule(mod);
 
 		this.importModules=importModules;
-		this.env={...env};
+		this.env=env;
+
+		this.addEventListener("*",ev=>{
+			ev.env=this.env;
+		},{priority: 0});
 	}
 
 	async start() {
 		if (!this.startPromise) {
 			this.startPromise=new Promise(async (resolve, reject)=>{
 				try {
-					let ev=new AsyncEvent("start",{env: this.env});
+					let ev=new AsyncEvent("start");
 					await this.dispatchEvent(ev);
 				}
 
@@ -34,12 +38,9 @@ export default class KatnipServer extends AsyncEventTarget {
 		try {
 			await this.start();
 
-			//let localFetch=()=>{throw new Error("fix local fetch")};
-
 			let ev=new AsyncEvent("fetch",{
 				request, 
 				ctx,
-				env: this.env,
 				localFetch: request=>this.handleRequest({request,ctx})
 			});
 

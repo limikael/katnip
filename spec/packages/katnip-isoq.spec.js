@@ -21,6 +21,7 @@ describe("katnip-isoq",()=>{
 			cwd: path.join(__dirname,"test-project"),
 			port: 3000,
 			silent: true,
+			build: true
 		});
 
 		let response=await fetch("http://localhost:3000/");
@@ -42,7 +43,8 @@ describe("katnip-isoq",()=>{
 			cwd: path.join(__dirname,"test-project"),
 			port: 3000,
 			silent: true,
-			provision: true
+			provision: true,
+			build: true
 		});
 
 		let response=await fetch("http://localhost:3000/");

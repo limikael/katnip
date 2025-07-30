@@ -5,4 +5,4 @@ export * from "fullstack-rpc/react";
 export * from "../utils/valtio-util.jsx";
 export * from "../utils/use-data.jsx";
 export * from "valtio";
-export * from "./exports-default.js";
+//export * from "./exports-default.js";

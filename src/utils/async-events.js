@@ -75,8 +75,11 @@ export class AsyncEventTarget {
 		hookEvent.target=this;
 
 		let listeners=[];
+		if (this.listeners["*"])
+			listeners.push(...this.listeners["*"]);
+
 		if (this.listeners[hookEvent.type])
-			listeners=[...this.listeners[hookEvent.type]];
+			listeners.push(...this.listeners[hookEvent.type]);
 
 		if (options.concurrent) {
 			let priorityGroups={};

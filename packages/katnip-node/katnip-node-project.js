@@ -3,6 +3,7 @@ import {AsyncEvent, DeclaredError} from "../../src/exports/exports-default.js";
 import KatnipNodeServer from "./KatnipNodeServer.js";
 import {fileURLToPath} from 'url';
 import {importWorker} from "../../src/utils/import-worker.js";
+import fs, {promises as fsp} from "node:fs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -13,7 +14,8 @@ export function initCli(ev) {
 	ev.target.eventCommand("serve")
 		.description("Serve project.")
 		.option("--port <port>","Port to listen to.",3000)
-		.option("--provision","Run provision as part of the build.");
+		.option("--provision","Run provision before serving.")
+		.option("--build","Run build before serving, otherwise requires a previous build.");
 
 	ev.target.eventCommand("dev")
 		.description("Start development server.")
@@ -72,11 +74,14 @@ export async function init(ev) {
 		if (!ignore.includes("node_modules"))
 			ignore.push("node_modules");
 
-		if (ignore.includes("upload"))
+		if (!ignore.includes("upload"))
 			ignore.push("upoad");
 
-		if (ignore.includes("quickmin.db"))
+		if (!ignore.includes("quickmin.db"))
 			ignore.push("quickmin.db");
+
+		if (!ignore.includes(".target"))
+			ignore.push(".target");
 
 		return ignore;
 	});
@@ -89,6 +94,23 @@ export async function build(ev) {
 	ev.env.CWD=ev.target.cwd;
 }
 
+saveBuild.event="build";
+saveBuild.priority=20;
+export async function saveBuild(ev) {
+	if (ev.target.platform!="node" ||
+			ev.save===false)
+		return;
+
+	let buildData={
+		modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
+		importModulePaths: ev.importModules,
+		env: ev.getRuntimeEnv(),
+	}
+
+	await fsp.mkdir(path.join(ev.target.cwd,".target"),{recursive: true});
+	await fsp.writeFile(path.join(ev.target.cwd,".target/node-build.json"),JSON.stringify(buildData,null,2));
+}
+
 dev.priority=5;
 export async function dev(ev) {
 	let start=Date.now();
@@ -98,7 +120,7 @@ export async function dev(ev) {
 	if (project.platform=="node")
 		workerPromise=importWorker(path.join(__dirname,"katnip-node-dev-worker.js"));
 
-	let buildEvent=new AsyncEvent("build");
+	let buildEvent=new AsyncEvent("build",{save: false});
 	await project.dispatchEvent(buildEvent);
 
 	if (ev.provision)
@@ -110,7 +132,7 @@ export async function dev(ev) {
 		await worker.start({
 			modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
 			importModulePaths: buildEvent.importModules,
-			env: {...buildEvent.env},
+			env: buildEvent.getRuntimeEnv(),
 			port: ev.port
 		});
 
@@ -147,16 +169,22 @@ export async function serve(ev) {
 		throw new Error("No port specified");
 
 	let project=ev.target;
-	let buildEvent=new AsyncEvent("build");
-	await project.dispatchEvent(buildEvent);
+	if (ev.build)
+		await project.dispatchEvent(new AsyncEvent("build"));
 
 	if (ev.provision)
 		await project.dispatchEvent(new AsyncEvent("provision"));
 
+	let artifactPath=path.join(ev.target.cwd,".target/node-build.json");
+	if (!fs.existsSync(artifactPath))
+		throw new DeclaredError("No previous build to serve.");
+
+	let artifact=JSON.parse(await fsp.readFile(artifactPath));
+
 	let server=new KatnipNodeServer({
-		modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
-		importModulePaths: buildEvent.importModules,
-		env: buildEvent.env,
+		modulePaths: artifact.modulePaths,
+		importModulePaths: artifact.importModulePaths,
+		env: artifact.env,
 		port: ev.port
 	});
 

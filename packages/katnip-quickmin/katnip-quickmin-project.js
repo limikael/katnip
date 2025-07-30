@@ -2,7 +2,6 @@ import fs, {promises as fsp} from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from 'url';
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
-import {MockStorage} from "quickmin/mock-storage";
 import {isoqGetEsbuildOptions} from "isoq/bundler";
 import esbuild from "esbuild";
 
@@ -36,18 +35,40 @@ export async function init(ev) {
         fs.writeFileSync(quickminYamlFile,QUICKMIN_YAML);
     }
 
-    await ev.target.processProjectFile(".env.node","dotenv",async dotenv=>{
-        if (!dotenv)
-            dotenv={};
+    if (!fs.existsSync(path.join(ev.target.cwd,".env")) &&
+            !fs.existsSync(path.join(ev.target.cwd,".env.node"))) {
+        await ev.target.processProjectFile(".env.node","dotenv",async dotenv=>{
+            if (!dotenv)
+                dotenv={};
 
-        if (!dotenv.DATABASE_URL)
-            dotenv.DATABASE_URL="libsql+file:quickmin.db";
+            if (!dotenv.DATABASE_URL)
+                dotenv.DATABASE_URL="libsql+file:quickmin.db";
 
-        if (!dotenv.DATABASE_STORAGE_URL)
-            dotenv.DATABASE_STORAGE_URL="node+file:upload";
+            if (!dotenv.DATABASE_STORAGE_URL)
+                dotenv.DATABASE_STORAGE_URL="node+file:upload";
 
-        return dotenv;
-    });
+            return dotenv;
+        });
+    }
+}
+
+initProvision.event="provision";
+initProvision.priority=1;
+export async function initProvision(ev) {
+    let project=ev.target;
+
+    ev.isDatabaseUsed=async ()=>{
+        return fs.existsSync(path.join(project.cwd,"quickmin.yaml"));
+    }
+
+    ev.isDatabaseStorageUsed=async ()=>{
+        let confText=await fsp.readFile(path.join(project.cwd,"quickmin.yaml"),"utf8");
+        let conf=quickminCanonicalizeConf(confText);
+        conf.storageDriver="mock";
+        conf.qqlDriver="mock";
+        let server=new QuickminServer(conf);
+        return server.isStorageUsed();
+    }
 }
 
 provision.priority=20;
@@ -83,11 +104,13 @@ export async function provision(provisionEvent) {
         env: env
     });
 
-    conf.storageDriver=new MockStorage();
+    conf.storageDriver="mock";
 
     let server=new QuickminServer(conf);
 
     await server.sync({log: project.log});
+
+    project.excludeFromRuntimeEnv("qql");
 
     env.qql=server.qql;
 }

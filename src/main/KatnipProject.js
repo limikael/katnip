@@ -20,6 +20,7 @@ export default class KatnipProject extends AsyncEventTarget {
 			this.platform="node";
 
 		this.eventCommands={};
+		this.excludedRuntimeEnvKeys=[];
 
 		this.cwd=cwd;
 		this.program=new Command();
@@ -37,16 +38,33 @@ export default class KatnipProject extends AsyncEventTarget {
 		if (!this.logger && !silent)
 			this.logger=(...args)=>console.log(...args);
 
+		this.addEventListener("*",ev=>{
+			ev.env=this.env;
+		},{priority: 0});
+
 		this.addEventListener("build",ev=>{
 			this.log("Build: "+this.platform);
-			ev.env={...this.env}
+			ev.getRuntimeEnv=()=>this.getRuntimeEnv();
 			ev.importModules={};
 		},{priority: 0});
 
 		this.addEventListener("provision",ev=>{
 			this.log("Provision: "+this.platform);
-			ev.env={...this.env};
 		},{priority: 0});
+	}
+
+	getRuntimeEnv() {
+		let runtimeEnv={};
+		for (let key in this.env)
+			if (!this.excludedRuntimeEnvKeys.includes(key))
+				runtimeEnv[key]=this.env[key];
+
+		return runtimeEnv;
+	}
+
+	excludeFromRuntimeEnv(key) {
+		if (!this.excludedRuntimeEnvKeys.includes(key))
+			this.excludedRuntimeEnvKeys.push(key);
 	}
 
 	log=(...args)=>{
@@ -76,13 +94,18 @@ export default class KatnipProject extends AsyncEventTarget {
 			await this.addListenerModule(await import(entrypoint));
 		}
 
+		if (!this.platform)
+			throw new Error("No platform when loading");
+
 		//console.log("load: "+this.platform);
 
 		this.env={
-			CWD: this.cwd,
 			PLATFORM: this.platform,
 			...await loadTaggedEnv(this.cwd,[this.platform,"local"])
 		};
+
+		if (this.platform=="node")
+			this.env.CWD=this.cwd;
 
 		this.env.config={};
 		if (fs.existsSync(path.join(this.cwd,"katnip.json")))

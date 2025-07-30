@@ -54,4 +54,5 @@ catch (e) {
 		throw e;
 
 	console.log("Error: "+e.message);
+	process.exit(1);
 }
