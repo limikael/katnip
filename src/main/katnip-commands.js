@@ -6,8 +6,7 @@ export async function katnipCommand(options) {
 		options.platform="node";
 
 	let project=new KatnipProject(options);
-	await project.load();
-	return await project.dispatchEvent(new AsyncEvent(options.command,options));
+	return await project.runCommand(options.command,options);
 }
 
 export async function katnipStart(options) {
@@ -23,10 +22,7 @@ export async function katnipCreateProvisionEnv(options) {
 		options.platform="node";
 
 	let project=new KatnipProject(options);
-	await project.load();
+	await project.runCommand("provision",options);
 
-	let provisionEvent=new AsyncEvent("provision",options);
-	await project.dispatchEvent(provisionEvent);
-
-	return provisionEvent.env;
+	return project.env;
 }

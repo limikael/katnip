@@ -13,29 +13,36 @@ export function initCli(ev) {
 
 	ev.target.eventCommand("start")
 		.description("Start server for production.")
+		.defaultMode("prod")
 		.option("--port <port>","Port to listen to.",3000)
 		.option("--provision","Run provision before serving.")
 		.option("--build","Run build before serving, otherwise requires a previous build.");
 
 	ev.target.eventCommand("dev")
 		.description("Start development server.")
+		.defaultMode("dev")
 		.option("--port <port>","Port to listen to.",3000)
 		.option("--platform <platform>","Dev platform.")
 		.option("--no-provision","Don't run provision as part of the build.");
 
 	ev.target.eventCommand("build")
 		.description("Build project.")
-		.option("--platform <platform>","Build for platform.");
+		.defaultMode("prod")
+		.option("--platform <platform>","Build for platform.")
+		.option("--mode <mode>","Specify mode (prod/dev).");
 
 	ev.target.eventCommand("deploy")
 		.description("Deploy project.")
+		.defaultMode("prod")
 		.option("--no-build","Don't build, requires a previous build.")
 		.option("--no-provision","Don't run provision as part of the deploy.")
 		.option("--platform <platform>","Deploy to platform.");
 
 	ev.target.eventCommand("provision")
 		.description("Provision project, i.e. migrate database, etc.")
-		.option("--platform <platform>","Provision platform.");
+		.defaultMode("prod")
+		.option("--platform <platform>","Provision platform.")
+		.option("--mode <mode>","Specify mode (prod/dev).");
 }
 
 init.priority=5;
@@ -115,6 +122,9 @@ dev.priority=5;
 export async function dev(ev) {
 	let start=Date.now();
 	let project=ev.target;
+
+	if (project.mode!="dev")
+		throw new DeclaredError("Dev requires dev mode");
 
 	let workerPromise;
 	if (project.platform=="node")

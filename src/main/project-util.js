@@ -4,6 +4,7 @@ import fs, {promises as fsp} from "fs";
 import {resolveDependencies} from "../utils/package-util.js";
 import {resolveImport, resolveAllExports} from "resolve-import";
 import dotenv from "dotenv";
+import {DeclaredError} from "../utils/js-util.js";
 
 function escapeValue(value) {
 	if (value == null) return "";

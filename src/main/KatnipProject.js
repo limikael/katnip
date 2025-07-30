@@ -29,9 +29,11 @@ export default class KatnipProject extends AsyncEventTarget {
 			.passThroughOptions()
 			.allowExcessArguments()
 			.option("--cwd <cwd>","Run as if started from this dir.")
-			.option("--platform <platform>","Specify platform.");
+			.option("--platform <platform>","Specify platform.")
+			.option("--mode <mode>","Specify mode (prod/dev).");
 
 		this.eventCommand("init")
+			.allowMissingPkg()
 			.description("Initialize project.");
 
 		this.logger=log;
@@ -43,13 +45,13 @@ export default class KatnipProject extends AsyncEventTarget {
 		},{priority: 0});
 
 		this.addEventListener("build",ev=>{
-			this.log("Build: "+this.platform);
+			this.log("Build: "+this.platform+"/"+this.mode);
 			ev.getRuntimeEnv=()=>this.getRuntimeEnv();
 			ev.importModules={};
 		},{priority: 0});
 
 		this.addEventListener("provision",ev=>{
-			this.log("Provision: "+this.platform);
+			this.log("Provision: "+this.platform+"/"+this.mode);
 		},{priority: 0});
 	}
 
@@ -77,18 +79,33 @@ export default class KatnipProject extends AsyncEventTarget {
 			return this.eventCommands[name];
 
 		let command=this.program.command(name);
+		command.allowMissingPkg=()=>{
+			command.isAllowMissingPkg=true;
+			return command;
+		}
+		command.defaultMode=(mode)=>{
+			command.commandDefaultMode=mode;
+			return command;
+		}
 		this.eventCommands[name]=command;
 		command.action(async (options)=>{
-			if (options.platform && options.platform!=this.platform)
+			let runOptions={...this.program.opts(),...options}
+
+			if (runOptions.platform && runOptions.platform!=this.platform)
 				throw new Error("Changing platform?");
 
-			await this.dispatchEvent(new AsyncEvent(name,options));
+			await this.runCommand(name,runOptions);
 		});
 
 		return command;
 	}
 
 	async load({allowMissingPkg}={}) {
+		if (this.loaded)
+			throw new Error("already loaded");
+
+		this.loaded=true;
+
 		let entrypoints=await this.resolveEntrypoints("katnip-project-hooks",{allowMissingPkg});
 		for (let entrypoint of entrypoints) {
 			await this.addListenerModule(await import(entrypoint));
@@ -97,11 +114,29 @@ export default class KatnipProject extends AsyncEventTarget {
 		if (!this.platform)
 			throw new Error("No platform when loading");
 
+		await this.dispatchEvent(new AsyncEvent("initCli"));
+
 		//console.log("load: "+this.platform);
+	}
+
+	async populateEnv() {
+		let tags=[this.platform,"local"];
+		switch (this.mode) {
+			case "dev":
+				tags.push("dev","development");
+				break;
+
+			case "prod":
+				tags.push("prod","production");
+				break;
+
+			default:
+				throw new Error("Unknown mode: "+this.mode);
+		}
 
 		this.env={
 			PLATFORM: this.platform,
-			...await loadTaggedEnv(this.cwd,[this.platform,"local"])
+			...await loadTaggedEnv(this.cwd,tags)
 		};
 
 		if (this.platform=="node")
@@ -110,8 +145,43 @@ export default class KatnipProject extends AsyncEventTarget {
 		this.env.config={};
 		if (fs.existsSync(path.join(this.cwd,"katnip.json")))
 			this.env.config=JSON5.parse(await fsp.readFile(path.join(this.cwd,"katnip.json")));
+	}
 
-		await this.dispatchEvent(new AsyncEvent("initCli"));
+	async runCommand(command, options) {
+		//console.log(options);
+
+		let allowMissingPkg=false;
+		if (this.eventCommands[command] &&
+				this.eventCommands[command].isAllowMissingPkg)
+			allowMissingPkg=true;
+
+		if (!this.loaded)
+			await this.load({allowMissingPkg});
+
+		if (!this.eventCommands[command])
+			throw new DeclaredError("Unknown command: "+command);
+
+		if (options.mode) {
+			if (this.mode && options.mode!=this.mode)
+				throw new Error("Can't change mode");
+
+			this.mode=options.mode;
+		}
+
+		if (!this.mode)
+			this.mode=this.eventCommands[command].commandDefaultMode;
+
+		if (!this.mode)
+			this.mode="dev";
+
+		if (!["dev","prod"].includes(this.mode))
+			throw new Error("Unknown mode: "+this.mode);
+
+		if (!this.env)
+			await this.populateEnv();
+
+		let event=new AsyncEvent(command,options);
+		return await this.dispatchEvent(event);
 	}
 
 	async resolveEntrypoints(importPath, {conditions, allowMissingPkg}={}) {

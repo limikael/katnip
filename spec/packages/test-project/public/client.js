@@ -24,9 +24,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../../Repo/isoq/node_modules/.pnpm/@einheit+path-resolve@1.2.0/node_modules/@einheit/path-resolve/index.js
+// ../isoq/node_modules/.pnpm/@einheit+path-resolve@1.2.0/node_modules/@einheit/path-resolve/index.js
 var require_path_resolve = __commonJS({
-  "../../Repo/isoq/node_modules/.pnpm/@einheit+path-resolve@1.2.0/node_modules/@einheit/path-resolve/index.js"(exports, module) {
+  "../isoq/node_modules/.pnpm/@einheit+path-resolve@1.2.0/node_modules/@einheit/path-resolve/index.js"(exports, module) {
     "use strict";
     var SLASH = 47;
     var DOT = 46;
@@ -144,9 +144,9 @@ var require_path_resolve = __commonJS({
   }
 });
 
-// ../../Repo/qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/lib/SqlString.js
+// ../qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/lib/SqlString.js
 var require_SqlString = __commonJS({
-  "../../Repo/qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/lib/SqlString.js"(exports) {
+  "../qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/lib/SqlString.js"(exports) {
     var SqlString = exports;
     var ID_GLOBAL_REGEXP = /`/g;
     var QUAL_GLOBAL_REGEXP = /\./g;
@@ -332,16 +332,16 @@ var require_SqlString = __commonJS({
   }
 });
 
-// ../../Repo/qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/index.js
+// ../qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/index.js
 var require_sqlstring_sqlite = __commonJS({
-  "../../Repo/qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/index.js"(exports, module) {
+  "../qql/node_modules/.pnpm/sqlstring-sqlite@0.1.1/node_modules/sqlstring-sqlite/index.js"(exports, module) {
     module.exports = require_SqlString();
   }
 });
 
-// ../../Repo/qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/lib/SqlString.js
+// ../qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/lib/SqlString.js
 var require_SqlString2 = __commonJS({
-  "../../Repo/qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/lib/SqlString.js"(exports) {
+  "../qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/lib/SqlString.js"(exports) {
     var SqlString = exports;
     var ID_GLOBAL_REGEXP = /`/g;
     var QUAL_GLOBAL_REGEXP = /\./g;
@@ -535,14 +535,14 @@ var require_SqlString2 = __commonJS({
   }
 });
 
-// ../../Repo/qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/index.js
+// ../qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/index.js
 var require_sqlstring = __commonJS({
-  "../../Repo/qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/index.js"(exports, module) {
+  "../qql/node_modules/.pnpm/sqlstring@2.3.3/node_modules/sqlstring/index.js"(exports, module) {
     module.exports = require_SqlString2();
   }
 });
 
-// ../../Repo/isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/dist/preact.module.js
+// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/dist/preact.module.js
 var n;
 var l;
 var u;
@@ -896,7 +896,7 @@ n = v.slice, l = { __e: function(n2, l3, u4, t3) {
   return n2.__v.__b - l3.__v.__b;
 }, $.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = F(false), a = F(true), h = 0;
 
-// ../../Repo/isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/hooks/dist/hooks.module.js
+// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/hooks/dist/hooks.module.js
 var t2;
 var r2;
 var u2;
@@ -1055,7 +1055,7 @@ function D2(n2, t3) {
   return "function" == typeof t3 ? t3(n2) : t3;
 }
 
-// ../../Repo/isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/compat/dist/compat.module.js
+// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/compat/dist/compat.module.js
 function g3(n2, t3) {
   for (var e3 in t3)
     n2[e3] = t3[e3];
@@ -1258,7 +1258,7 @@ l.diffed = function(n2) {
   null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), ln = null;
 };
 
-// ../../Repo/qql/src/utils/js-util.js
+// ../qql/src/utils/js-util.js
 function objectifyArgs(params, fields) {
   function isPlainObject(value) {
     if (!value)
@@ -1284,7 +1284,7 @@ var CallableClass = class extends Function {
   }
 };
 
-// ../../Repo/qql/src/net/QqlClient.js
+// ../qql/src/net/QqlClient.js
 var QqlClient = class extends CallableClass {
   constructor(...args) {
     super((q5) => this.query(q5));
@@ -1310,7 +1310,7 @@ function createQqlClient(...args) {
   return new QqlClient(...args);
 }
 
-// ../../Repo/isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/jsx-runtime/dist/jsxRuntime.module.js
+// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/jsx-runtime/dist/jsxRuntime.module.js
 var f3 = 0;
 var i3 = Array.isArray;
 function u3(e3, t3, n2, o3, i4, u4) {
@@ -1326,7 +1326,7 @@ function u3(e3, t3, n2, o3, i4, u4) {
   return l.vnode && l.vnode(l3), l3;
 }
 
-// ../../Repo/qql/src/lib/qql-react.jsx
+// ../qql/src/lib/qql-react.jsx
 var QqlContext = K();
 function QqlProvider({ fetch: fetch2, url, children, qql }) {
   let ref = A2();
@@ -1342,7 +1342,7 @@ function useQql() {
   return x2(QqlContext);
 }
 
-// ../../Repo/quickmin/node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
+// ../quickmin/node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
 function normalize(strArray) {
   var resultArray = [];
   if (strArray.length === 0) {
@@ -1394,7 +1394,7 @@ function urlJoin() {
   return normalize(input);
 }
 
-// ../../Repo/quickmin/src/export/quickmin-api.js
+// ../quickmin/src/export/quickmin-api.js
 var QuickminApi = class {
   constructor(options = {}) {
     this.fetch = globalThis.fetch.bind(globalThis);
@@ -1491,7 +1491,7 @@ var QuickminApi = class {
   }
 };
 
-// ../../Repo/quickmin/node_modules/.pnpm/preact@10.26.9/node_modules/preact/compat/dist/compat.module.js
+// ../quickmin/node_modules/.pnpm/preact@10.26.9/node_modules/preact/compat/dist/compat.module.js
 function g4(n2, t3) {
   for (var e3 in t3)
     n2[e3] = t3[e3];
@@ -1675,7 +1675,7 @@ l.diffed = function(n2) {
   null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), ln2 = null;
 };
 
-// ../../Repo/quickmin/src/utils/js-util.js
+// ../quickmin/src/utils/js-util.js
 async function responseAssert(response) {
   if (response.status >= 200 && response.status < 300)
     return;
@@ -1694,7 +1694,7 @@ function clearCookie(name) {
   globalThis.window.document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 }
 
-// ../../Repo/quickmin/src/utils/react-util.jsx
+// ../quickmin/src/utils/react-util.jsx
 function useConstructor(fn3) {
   let value = A2();
   let called = A2();
@@ -1705,7 +1705,7 @@ function useConstructor(fn3) {
   return value.current;
 }
 
-// ../../Repo/quickmin/src/export/quickmin-api-react.jsx
+// ../quickmin/src/export/quickmin-api-react.jsx
 var QuickminState = class extends EventTarget {
   constructor({ fetch: fetch2, url, initialUser, quickminCookieName, apiKey, headers, authProviderInfo, children }) {
     super();
@@ -1798,14 +1798,14 @@ function QuickminProvider({ children, quickminState, ...props }) {
   ) });
 }
 
-// ../../Repo/isoq/src/isoq/IsoContext.js
+// ../isoq/src/isoq/IsoContext.js
 var IsoContext = K();
 function useIsoContext() {
   return x2(IsoContext);
 }
 var IsoContext_default = IsoContext;
 
-// ../../Repo/isoq/src/components/Head.js
+// ../isoq/src/components/Head.js
 function Head({ children }) {
   let isoContext = useIsoContext();
   if (isoContext.isSsr())
@@ -1813,7 +1813,7 @@ function Head({ children }) {
   return _(k);
 }
 
-// ../../Repo/isoq/src/utils/js-util.js
+// ../isoq/src/utils/js-util.js
 function parseCookie2(str) {
   if (!str)
     return {};
@@ -1840,7 +1840,7 @@ function arrayRemove(array, item) {
   return array;
 }
 
-// ../../Repo/isoq/src/utils/react-util.js
+// ../isoq/src/utils/react-util.js
 function useEventListener(o3, ev, fn3) {
   _2(() => {
     o3.addEventListener(ev, fn3);
@@ -1855,7 +1855,7 @@ function useEventUpdate2(o3, ev) {
   useEventListener(o3, ev, forceUpdate);
 }
 
-// ../../Repo/isoq/src/components/useIsLoading.js
+// ../isoq/src/components/useIsLoading.js
 var LoadingState = class extends EventTarget {
   constructor() {
     super();
@@ -1888,7 +1888,7 @@ function useLoadingState() {
   return iso.loadingState;
 }
 
-// ../../Repo/isoq/src/utils/preact-refid.js
+// ../isoq/src/utils/preact-refid.js
 var currentVNode;
 var refIndex;
 var includeFnames = false;
@@ -1931,7 +1931,7 @@ function useRefId() {
   return vnodePath(currentVNode) + "#" + refIndex;
 }
 
-// ../../Repo/isoq/src/utils/iso-ref.js
+// ../isoq/src/utils/iso-ref.js
 var IsoRefContext = K();
 var IsoRef = class {
   constructor(isoRefState, initialValue, options) {
@@ -2032,7 +2032,7 @@ function useIsoRef(initialValue, options = {}) {
   return ref;
 }
 
-// ../../Repo/isoq/src/components/useIsoMemo.js
+// ../isoq/src/components/useIsoMemo.js
 function useIsoMemo(asyncFn, deps = [], options = {}) {
   let loadingState = useLoadingState();
   let iso = useIsoContext();
@@ -2107,7 +2107,7 @@ function useIsoMemo(asyncFn, deps = [], options = {}) {
   return ref.current.result;
 }
 
-// ../../Repo/isoq/node_modules/.pnpm/stacktrace-parser@0.1.11/node_modules/stacktrace-parser/dist/stack-trace-parser.esm.js
+// ../isoq/node_modules/.pnpm/stacktrace-parser@0.1.11/node_modules/stacktrace-parser/dist/stack-trace-parser.esm.js
 var UNKNOWN_FUNCTION = "<unknown>";
 function parse(stackString) {
   var lines = stackString.split("\n");
@@ -2207,7 +2207,7 @@ function parseNode(line) {
   };
 }
 
-// ../../Repo/isoq/src/utils/SourceMapper.js
+// ../isoq/src/utils/SourceMapper.js
 var import_path_resolve = __toESM(require_path_resolve(), 1);
 var SourceMapper = class {
   constructor() {
@@ -2249,7 +2249,7 @@ var SourceMapper = class {
   }
 };
 
-// ../../Repo/isoq/src/components/IsoErrorBoundary.js
+// ../isoq/src/components/IsoErrorBoundary.js
 var ErrorBoundaryComponent = class extends x {
   componentDidCatch(error, info) {
   }
@@ -2304,7 +2304,7 @@ function IsoErrorBoundary({ fallback, children, error }) {
   );
 }
 
-// ../../Repo/isoq/src/components/router.jsx
+// ../isoq/src/components/router.jsx
 var RouterContext = K();
 var RouteContext = K();
 var RouteMatchContext = K();
@@ -2451,7 +2451,7 @@ function QuickminWrapper({ quickminUser, quickminCookieName, authProviderInfo, c
   return /* @__PURE__ */ u3(QuickminProvider, { quickminState: iso.quickminState, children });
 }
 
-// ../../Repo/fullstack-rpc/fullstack-rpc-client.js
+// ../fullstack-rpc/fullstack-rpc-client.js
 var proxyMethodHandler = {
   get: (target, prop, _receiver) => {
     return async (...params) => {
@@ -2484,7 +2484,7 @@ var RpcClient = class {
   }
 };
 
-// ../../Repo/fullstack-rpc/fullstack-rpc-react.jsx
+// ../fullstack-rpc/fullstack-rpc-react.jsx
 var RpcContext = K();
 function RpcProvider({ fetch: fetch2, url, children }) {
   let api = new RpcClient({ fetch: fetch2, url });
@@ -3001,20 +3001,20 @@ function useSnapshot(proxyObject, options) {
   return createProxy(currSnapshot, affected, proxyCache2, targetCache);
 }
 
-// ../../Repo/qql/src/drivers/QqlDriverBase.js
+// ../qql/src/drivers/QqlDriverBase.js
 var import_sqlstring_sqlite = __toESM(require_sqlstring_sqlite(), 1);
 var import_sqlstring = __toESM(require_sqlstring(), 1);
 
-// ../../Repo/qql/src/drivers/QqlDriverSqlite.js
+// ../qql/src/drivers/QqlDriverSqlite.js
 var import_sqlstring_sqlite2 = __toESM(require_sqlstring_sqlite(), 1);
 
-// ../../Repo/qql/src/drivers/QqlDriverSqlJs.js
+// ../qql/src/drivers/QqlDriverSqlJs.js
 var import_sqlstring_sqlite3 = __toESM(require_sqlstring_sqlite(), 1);
 
-// ../../Repo/qql/src/qql/Qql.js
+// ../qql/src/qql/Qql.js
 var import_sqlstring2 = __toESM(require_sqlstring(), 1);
 
-// ../../Repo/qql/src/lib/qql-hydrate.js
+// ../qql/src/lib/qql-hydrate.js
 function appendFunction(target, name, fn3) {
   Object.defineProperty(target, name, {
     enumeratable: false,
@@ -3211,7 +3211,7 @@ function isomain_default() {
   ] });
 }
 
-// ../../Repo/isoq/node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
+// ../isoq/node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
 function normalize3(strArray) {
   var resultArray = [];
   if (strArray.length === 0) {
@@ -3263,7 +3263,7 @@ function urlJoin3() {
   return normalize3(input);
 }
 
-// ../../Repo/isoq/src/isoq/IsoqClient.js
+// ../isoq/src/isoq/IsoqClient.js
 var IsoqClient = class {
   constructor({ props, refs, appPathname, window: window2 }) {
     this.window = window2;
@@ -3308,7 +3308,7 @@ var IsoqClient = class {
   }
 };
 
-// ../../Repo/isoq/src/isoq/DefaultErrorFallback.js
+// ../isoq/src/isoq/DefaultErrorFallback.js
 function DefaultErrorFallback({ error }) {
   let style = {
     position: "fixed",
@@ -3334,7 +3334,7 @@ function DefaultErrorFallback({ error }) {
   return _("div", { style }, message);
 }
 
-// ../../Repo/isoq/src/isoq/client.jsx
+// ../isoq/src/isoq/client.jsx
 if (!window.__isoError && window.__iso) {
   let isoClient = new IsoqClient({ ...window.__iso, window });
   let content = /* @__PURE__ */ u3(isomain_default, { ...isoClient.props });

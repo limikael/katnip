@@ -76,6 +76,10 @@ export async function provision(provisionEvent) {
     let env=provisionEvent.env;
     let project=provisionEvent.target;
 
+    /*console.log(env);
+    console.log("FIIIXXX MEEE");
+    return;*/
+
 	if (!env.DATABASE_URL && !provisionEvent.qqlFactory)
 		return;
 

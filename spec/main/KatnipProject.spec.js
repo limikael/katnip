@@ -28,8 +28,10 @@ describe("KatnipProject",()=>{
 		await fsp.rm(projectCwd,{force: true, recursive: true});
 
 		let project=new KatnipProject({cwd: projectCwd, silent: true});
-		await project.load({allowMissingPkg: true});
-		await project.dispatchEvent(new AsyncEvent("init"));
+		await project.runCommand("init",{});
+
+		/*await project.load({allowMissingPkg: true});
+		await project.dispatchEvent(new AsyncEvent("init"));*/
 		//await project.dispatchEvent(new AsyncEvent("init"));
 
 		let pkg=JSON.parse(await fsp.readFile(path.join(projectCwd,"package.json")));
