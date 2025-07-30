@@ -1,5 +1,5 @@
-packages
 examples
 lab
 spec
 tmp
+pnpm-workspace.yaml
