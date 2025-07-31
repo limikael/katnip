@@ -8,19 +8,23 @@ import {DeclaredError} from "../utils/js-util.js";
 import JSON5 from "json5";
 import {loadTaggedEnv} from "../utils/env-util.js";
 import {getPackageVersion} from "../utils/node-util.js";
+import EnvBakeMode from "./EnvBakeMode.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
 export default class KatnipProject extends AsyncEventTarget {
-	constructor({cwd, platform, log, silent}) {
+	constructor({cwd, platform, mode, log, silent}) {
 		super();
 
 		this.platform=platform;
 		if (!this.platform)
 			this.platform="node";
 
+		if (mode)
+			this.mode=mode;
+
 		this.eventCommands={};
-		this.excludedRuntimeEnvKeys=[];
+		this.envBakeMode={};
 
 		this.cwd=cwd;
 		this.program=new Command();
@@ -57,16 +61,22 @@ export default class KatnipProject extends AsyncEventTarget {
 
 	getRuntimeEnv() {
 		let runtimeEnv={};
-		for (let key in this.env)
-			if (!this.excludedRuntimeEnvKeys.includes(key))
+		for (let key in this.env) {
+			if (!this.envBakeMode[key]) {
 				runtimeEnv[key]=this.env[key];
+			}
+
+			else if (this.envBakeMode[key].mode=="different" &&
+					this.env[key]!==this.envBakeMode[key].value) {
+				runtimeEnv[key]=this.env[key];
+			}
+		}
 
 		return runtimeEnv;
 	}
 
 	excludeFromRuntimeEnv(key) {
-		if (!this.excludedRuntimeEnvKeys.includes(key))
-			this.excludedRuntimeEnvKeys.push(key);
+		this.envBakeMode[key]=new EnvBakeMode("never");
 	}
 
 	log=(...args)=>{
@@ -120,6 +130,9 @@ export default class KatnipProject extends AsyncEventTarget {
 	}
 
 	async populateEnv() {
+		if (!this.platform)
+			throw new Error("Need platform to populate env");
+
 		let tags=[this.platform,"local"];
 		switch (this.mode) {
 			case "dev":
@@ -134,13 +147,19 @@ export default class KatnipProject extends AsyncEventTarget {
 				throw new Error("Unknown mode: "+this.mode);
 		}
 
-		this.env={
-			PLATFORM: this.platform,
-			...await loadTaggedEnv(this.cwd,tags)
-		};
+		this.env=await loadTaggedEnv(this.cwd,tags);
+		this.env={...this.env,...process.env};
 
-		if (this.platform=="node")
+		for (let key in process.env)
+			this.envBakeMode[key]=new EnvBakeMode("different",process.env[key]);
+
+		delete this.envBakeMode["PLATFORM"];
+
+		this.env.PLATFORM=this.platform;
+		if (this.platform=="node") {
+			delete this.envBakeMode["CWD"];
 			this.env.CWD=this.cwd;
+		}
 
 		this.env.config={};
 		if (fs.existsSync(path.join(this.cwd,"katnip.json")))
@@ -148,8 +167,6 @@ export default class KatnipProject extends AsyncEventTarget {
 	}
 
 	async runCommand(command, options) {
-		//console.log(options);
-
 		let allowMissingPkg=false;
 		if (this.eventCommands[command] &&
 				this.eventCommands[command].isAllowMissingPkg)

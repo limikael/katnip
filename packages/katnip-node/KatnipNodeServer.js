@@ -9,7 +9,7 @@ export default class KatnipNodeServer {
 		this.modulePaths=modulePaths;
 		this.importModulePaths=importModulePaths;
 		this.port=port;
-		this.env=env;
+		this.env={...env,...process.env};
 	}
 
 	async start() {

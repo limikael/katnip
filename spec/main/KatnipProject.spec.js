@@ -2,7 +2,7 @@ import KatnipProject from "../../src/main/KatnipProject.js";
 import path from "node:path";
 import {fileURLToPath} from 'node:url';
 import fs,{promises as fsp} from "fs";
-import {AsyncEvent} from "katnip"; //../../src/exports/exports-default.js";
+import {AsyncEvent, katnipInit} from "katnip"; //../../src/exports/exports-default.js";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
@@ -36,5 +36,32 @@ describe("KatnipProject",()=>{
 
 		let pkg=JSON.parse(await fsp.readFile(path.join(projectCwd,"package.json")));
 		expect(pkg.name).toEqual("test-init-project");
+	});
+
+	it("can populate env",async()=>{
+		let projectCwd=path.join(__dirname,"../../tmp/test-init-project");
+		await fsp.rm(projectCwd,{force: true, recursive: true});
+
+		await fsp.mkdir(projectCwd);
+		await katnipInit({cwd: projectCwd, silent: true});
+
+		//console.log(process.env);
+		process.env.SOME_NEW_VAR="somenewvalue";
+
+		await fsp.writeFile(path.join(projectCwd,".env"),"HELLO=123\nWORLD=testing");
+		let project=new KatnipProject({cwd: projectCwd, mode: "dev"});
+		await project.populateEnv();
+
+		project.excludeFromRuntimeEnv("WORLD");
+
+		expect(project.env.HELLO).toEqual("123");
+		expect(project.env.SOME_NEW_VAR).toEqual("somenewvalue");
+		//console.log(project.env);
+
+		let baked=project.getRuntimeEnv();
+		expect(baked.PLATFORM).toEqual("node");
+		expect(baked.HELLO).toEqual("123");
+		expect(baked.SOME_NEW_VAR).toBeUndefined();
+		expect(baked.WORLD).toBeUndefined();
 	});
 });
