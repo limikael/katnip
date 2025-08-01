@@ -39,10 +39,6 @@ export async function katnipCreateTestEnv(options={}) {
 		options.silent=true;
 
 	options.mode="test";
-	options.qqlFactory=({env})=>{
-		return new QqlDriverLibSql({client: createClient({url: ":memory:"})});
-	}
-
 	let project=new KatnipProject(options);
 	await project.runCommand("provision",options);
 

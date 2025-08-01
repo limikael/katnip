@@ -4,7 +4,12 @@ import {NodeStorage} from "quickmin/node-storage";
 import path from "node:path";
 
 createDatabaseQqlDriver.priority=15;
-export async function createDatabaseQqlDriver({env}) {
+export async function createDatabaseQqlDriver(ev) {
+	if (ev.target.mode=="test") {
+		return new QqlDriverLibSql({client: createClient({url: ":memory:"})});
+	}
+
+	let env=ev.env;
 	if (!env.DATABASE_URL)
 		return;
 
