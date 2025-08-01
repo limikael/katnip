@@ -4,6 +4,10 @@ import {fileURLToPath} from 'url';
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
 import {isoqGetEsbuildOptions} from "isoq/bundler";
 import esbuild from "esbuild";
+import {DeclaredError} from "../../src/exports/exports-default.js";
+import {AsyncEvent} from "katnip";
+
+export * from "./katnip-quickmin-resources-node.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -76,13 +80,6 @@ export async function provision(provisionEvent) {
     let env=provisionEvent.env;
     let project=provisionEvent.target;
 
-    /*console.log(env);
-    console.log("FIIIXXX MEEE");
-    return;*/
-
-	if (!env.DATABASE_URL && !provisionEvent.qqlFactory)
-		return;
-
     if (!fs.existsSync(path.join(project.cwd,"quickmin.yaml")))
         return;
 
@@ -91,46 +88,13 @@ export async function provision(provisionEvent) {
     if (!conf.hasOwnProperty("apiPath"))
     	conf.apiPath="admin";
 
-    if (!provisionEvent.qqlFactory) {
-	    let dsnUrl=new URL(env.DATABASE_URL);
-	    switch (dsnUrl.protocol) {
-	    	case "libsql+file:":
-	    		provisionEvent.qqlFactory=(await import(path.join(__dirname,"katnip-quickmin-resources-node.js"))).createQqlDriver;
-	    		break;
-
-	    	default:
-	    		throw new Error("Unable to create driver for provision");
-	    		break;
-	    }
-    }
-
-    conf.qqlDriver=await provisionEvent.qqlFactory({
-        env: env
-    });
-
+    conf.qqlDriver=await provisionEvent.target.dispatchEvent(new AsyncEvent("createDatabaseQqlDriver"));
     conf.storageDriver="mock";
 
     let server=new QuickminServer(conf);
-
     await server.sync({log: project.log});
-
     project.excludeFromRuntimeEnv("qql");
-
     env.qql=server.qql;
-}
-
-buildExtend.event="build";
-buildExtend.priority=1;
-export async function buildExtend(buildEvent) {
-    buildEvent.registerQqlFactory=(modulePath, fn)=>{
-        buildEvent.importModules.qqlFactoryModule=modulePath;
-        buildEvent.env.qqlFactoryFunction=fn;
-    }
-
-    buildEvent.registerStorageFactory=(modulePath, fn)=>{
-        buildEvent.importModules.storageFactoryModule=modulePath;
-        buildEvent.env.storageFactoryFunction=fn;
-    }
 }
 
 export async function build(buildEvent) {
@@ -160,27 +124,4 @@ export async function build(buildEvent) {
     }
 
     buildEvent.env.quickminConf=conf;
-
-    let resourcesPath=path.join(__dirname,"katnip-quickmin-resources-node.js");
-    if (project.env.DATABASE_URL) {
-	    let dsnUrl=new URL(project.env.DATABASE_URL);
-	    switch (dsnUrl.protocol) {
-	    	case "libsql+file:":
-                buildEvent.registerQqlFactory(resourcesPath,"createQqlDriver");
-	    		break;
-	    }
-    }
-
-    if (project.env.DATABASE_STORAGE_URL) {
-        let storageUrl=new URL(project.env.DATABASE_STORAGE_URL);
-        switch (storageUrl.protocol) {
-            case "node+file:":
-                buildEvent.registerStorageFactory(resourcesPath,"createStorageDriver");
-                break;
-
-            default:
-                throw new Error("Unknown storage");
-                break;
-        }
-    }
 }

@@ -1,36 +1,22 @@
 import QuickminServer from "quickmin/server";
+import {AsyncEvent} from "katnip";
 
 export async function start(startEvent) {
+	//console.log("**** quickmin start",startEvent.target.env.quickminConf);
+
 	/*if (startEvent.options.qmLocalBundle) {
 		console.log("Loading quickmin bundle locally...");
 		drivers.push(localNodeBundle);
 	}*/
 
-	//console.log("starting quickmin server");
-
 	if (!startEvent.target.env.quickminConf)
 		return;
 
 	let theConf={...startEvent.target.env.quickminConf};
-	let fn="default";
+	theConf.qqlDriver=await startEvent.target.dispatchEvent(new AsyncEvent("createDatabaseQqlDriver"));
+	theConf.storageDriver=await startEvent.target.dispatchEvent(new AsyncEvent("createDatabaseStorageDriver"));
 
-	if (startEvent.target.env.DATABASE_STORAGE_URL ||
-			startEvent.target.importModules.storageFactoryModule) {
-		let storageMod=startEvent.target.importModules.storageFactoryModule;
-		let storageFn=startEvent.target.env.storageFactoryFunction;
-		theConf.storageDriver=await storageMod[storageFn]({
-			env: startEvent.target.env
-		});
-	}
-
-	if (startEvent.target.env.DATABASE_URL ||
-			startEvent.target.importModules.qqlFactoryModule) {
-		let qqlMod=startEvent.target.importModules.qqlFactoryModule;
-		let qqlFn=startEvent.target.env.qqlFactoryFunction;
-		theConf.qqlDriver=await qqlMod[qqlFn]({
-			env: startEvent.target.env
-		});
-	}
+	//await new Promise(r=>setTimeout(r,1000));
 
 	let env=startEvent.target.env;
 	let quickminServer=new QuickminServer(theConf);

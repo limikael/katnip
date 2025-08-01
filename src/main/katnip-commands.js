@@ -1,5 +1,8 @@
 import {AsyncEvent} from "../utils/async-events.js";
 import KatnipProject from "./KatnipProject.js";
+import {getEffectiveCwd} from "../utils/node-util.js";
+import {QqlDriverLibSql} from "quickmin/qql";
+import {createClient} from "@libsql/client";
 
 export async function katnipCommand(command, options={}) {
 	let project=new KatnipProject(options);
@@ -21,6 +24,24 @@ export async function katnipInit(options) {
 export async function katnipCreateProvisionEnv(options) {
 	if (!options.platform)
 		options.platform="node";
+
+	let project=new KatnipProject(options);
+	await project.runCommand("provision",options);
+
+	return project.env;
+}
+
+export async function katnipCreateTestEnv(options={}) {
+	if (!options.cwd)
+		options.cwd=await getEffectiveCwd(process.cwd());
+
+	if (options.silent===undefined)
+		options.silent=true;
+
+	options.mode="test";
+	options.qqlFactory=({env})=>{
+		return new QqlDriverLibSql({client: createClient({url: ":memory:"})});
+	}
 
 	let project=new KatnipProject(options);
 	await project.runCommand("provision",options);

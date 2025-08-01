@@ -143,6 +143,9 @@ export default class KatnipProject extends AsyncEventTarget {
 				tags.push("prod","production");
 				break;
 
+			case "test":
+				break;
+
 			default:
 				throw new Error("Unknown mode: "+this.mode);
 		}
@@ -191,7 +194,7 @@ export default class KatnipProject extends AsyncEventTarget {
 		if (!this.mode)
 			this.mode="dev";
 
-		if (!["dev","prod"].includes(this.mode))
+		if (!["dev","prod","test"].includes(this.mode))
 			throw new Error("Unknown mode: "+this.mode);
 
 		if (!this.env)
