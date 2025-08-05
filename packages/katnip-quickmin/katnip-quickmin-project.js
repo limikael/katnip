@@ -94,6 +94,8 @@ export async function provision(provisionEvent) {
     let server=new QuickminServer(conf);
     await server.sync({log: project.log});
     project.excludeFromRuntimeEnv("qql");
+    project.excludeFromRuntimeEnv("quickminServer");
+    env.quickminServer=server;
     env.qql=server.qql;
 }
 

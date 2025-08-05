@@ -21,7 +21,10 @@ export async function katnipInit(options) {
 	return await katnipCommand("init",options);
 }
 
-export async function katnipCreateProvisionEnv(options) {
+export async function katnipCreateProvisionEnv(options={}) {
+	if (!options.cwd)
+		options.cwd=await getEffectiveCwd(process.cwd());
+
 	if (!options.platform)
 		options.platform="node";
 
