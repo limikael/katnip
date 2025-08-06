@@ -42,7 +42,16 @@ export async function dev(devEvent) {
 				}
 			}
 
-			if (!devServer) {
+			if (!devServer)
+				devEvent.target.log("No dev server started...");
+
+			await watcher.wait();
+			project.log("File change...");
+
+			if (devServer)
+				await devServer.stop();
+
+			/*if (!devServer) {
 				devEvent.target.log("No dev server started...");
 				process.exit(1);
 			}
@@ -58,7 +67,7 @@ export async function dev(devEvent) {
 			}
 
 			project.log("File change...");
-			await devServer.stop();
+			await devServer.stop();*/
 		}
 	}
 }
