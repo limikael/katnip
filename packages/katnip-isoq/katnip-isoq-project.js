@@ -1,6 +1,6 @@
 import path from "node:path";
 import fs, {promises as fsp} from "node:fs";
-import {isoqBundle, isoqGetEsbuildOptions} from "isoq/bundler";
+import {isoqBundle} from "isoq/commands";
 
 const INDEX_JSX=
 `export default function() {
@@ -51,9 +51,9 @@ export async function build(buildEvent) {
 		config.clientMinify=true;
 
 	let handlerOut=path.resolve(project.cwd,".target/isoq-request-handler.js");
-
-	await isoqBundle({
+	let bundleOptions={
 		entrypoint: modulePaths[0],
+		tmpdir: path.resolve(project.cwd,".target"),
 		out: handlerOut,
 		contentdir: path.resolve(project.cwd,"public"),
 		wrappers: wrapperPaths,
@@ -61,7 +61,18 @@ export async function build(buildEvent) {
 		minify: config.clientMinify,
 		splitting: config.clientSplitting,
 		purgeOldJs: config.clientPurgeOldJs
-	});
+	}
+
+	if (buildEvent.target.platform=="node" && 
+			buildEvent.target.mode=="dev" &&
+			config.clientSourcemap!==false) {
+		bundleOptions={...bundleOptions,
+			sourcemap: true,
+			sourceRoot: path.resolve(project.cwd),
+		};
+	}
+
+	await isoqBundle(bundleOptions);
 
 	buildEvent.importModules.isoqRequestHandler=handlerOut;
 }

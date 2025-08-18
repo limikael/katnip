@@ -9,7 +9,7 @@ export default function RpcWrapper({children}) {
 	//console.log("isofetch: ",iso.fetch);
 
 	return (
-		<RpcProvider url={urlJoin(iso.appPathname,"rpc")} fetch={iso.fetch}>
+		<RpcProvider url={"/rpc"} fetch={iso.fetch}>
 			{children}
 		</RpcProvider>
 	);

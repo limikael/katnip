@@ -2,7 +2,7 @@ import fs, {promises as fsp} from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from 'url';
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
-import {isoqGetEsbuildOptions} from "isoq/bundler";
+import {isoqGetEsbuildOptions} from "isoq/commands";
 import esbuild from "esbuild";
 import {DeclaredError} from "../../src/exports/exports-default.js";
 import {AsyncEvent} from "katnip";
