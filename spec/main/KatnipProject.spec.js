@@ -10,17 +10,22 @@ describe("KatnipProject",()=>{
 	it("can resolve plugins",async ()=>{
 		let projectCwd=path.join(__dirname,"test-project");
 		let project=new KatnipProject({cwd: projectCwd});
+		project.config={};
 		await fsp.rm(path.join(__dirname,"test-project/node_modules"),{force: true, recursive: true});
 		await fsp.cp(path.join(__dirname,"test-project/node_modules.keep"),path.join(__dirname,"test-project/node_modules"),{recursive: true});
 
 		let deps;
 		deps=await project.resolveEntrypoints("katnip-project-hooks");
-		//expect(deps.length).toEqual(4);
+		expect(deps.length).toEqual(8);
 		//console.log(deps);
 
 		deps=await project.resolveEntrypoints("katnip-project-hooks",{conditions: ["browser"]});
-		//expect(deps.length).toEqual(3);
+		expect(deps.length).toEqual(8);
 		//console.log(deps);
+
+		project.config.disablePlugins=["katnip-quickmin"];
+		deps=await project.resolveEntrypoints("katnip-project-hooks",{conditions: ["browser"]});
+		expect(deps.length).toEqual(7);
 	});
 
 	it("can initialize a project",async()=>{

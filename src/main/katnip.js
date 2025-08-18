@@ -40,11 +40,13 @@ try {
 				program.outputHelp();
 		});
 
-	if (earlyProgram.args[0]=="init" || !earlyProgram.args[0])
-		await project.load({allowMissingPkg: true});
+	if (earlyProgram.args[0]!="init") {
+		if (!earlyProgram.args[0])
+			await project.load({allowMissingPkg: true});
 
-	else
-		await project.load();
+		else
+			await project.load();
+	}
 
 	await project.program.parseAsync();
 }

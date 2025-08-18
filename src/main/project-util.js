@@ -78,7 +78,8 @@ export async function processProjectFile({cwd, filename, format, processor}) {
 	return content;
 }
 
-export async function resolveProjectEntrypoints({cwd, importPath, conditions, allowMissingPkg, defaultPluginPath}) {
+export async function resolveProjectEntrypoints({cwd, importPath, conditions,
+		allowMissingPkg, defaultPluginPath, disablePlugins}) {
 	let havePkg=fs.existsSync(path.join(cwd,"package.json"));
 	if (!havePkg && !allowMissingPkg)
 		throw new DeclaredError("No package.json found");
@@ -86,25 +87,36 @@ export async function resolveProjectEntrypoints({cwd, importPath, conditions, al
 	if (!importPath.startsWith("./"))
 		importPath="./"+importPath;
 
+	if (!disablePlugins)
+		disablePlugins=[];
+
 	let resPaths=[];
 
 	// Default plugins.
 	//let defaultPluginPath=path.join(__dirname,"../../packages");
 	let dirs=await fsp.readdir(defaultPluginPath);
 	for (let dir of dirs) {
-		let pluginPath=path.join(defaultPluginPath,dir,"package.json");
-		let allExports=await resolveAllExports(pluginPath,{conditions});
-		//console.log(allExports);
-		if (allExports[importPath])
-			resPaths.push(allExports[importPath].pathname);
+		let pluginPkgPath=path.join(defaultPluginPath,dir,"package.json");
+		let pluginPkgJson=JSON.parse(await fsp.readFile(pluginPkgPath));
+		if (!pluginPkgJson.name)
+			throw new Error("Plugin doesn't have a name");
+
+		if (!disablePlugins.includes(pluginPkgJson.name)) {
+			let allExports=await resolveAllExports(pluginPkgPath,{conditions});
+			//console.log(allExports);
+			if (allExports[importPath])
+				resPaths.push(allExports[importPath].pathname);
+		}
 	}
 
 	if (havePkg) {
 		// Dependencies.
-		let deps=await resolveDependencies(path.join(cwd,"package.json"));
+		let deps=await resolveDependencies(path.join(cwd,"package.json"),{skip: disablePlugins});
 		for (let [dep, depPkgJsonPath] of Object.entries(deps)) {
 			let depPkgJson=JSON.parse(await fsp.readFile(depPkgJsonPath));
-			if (depPkgJson.keywords && depPkgJson.keywords.includes("katnip-plugin")) {
+			if (depPkgJson.keywords && 
+					depPkgJson.keywords.includes("katnip-plugin") &&
+					!disablePlugins.includes(depPkgJson.name)) {
 				let allExports=await resolveAllExports(depPkgJsonPath,{conditions});
 				if (allExports[importPath])
 					resPaths.push(allExports[importPath].pathname);

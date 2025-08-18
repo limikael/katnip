@@ -1,4 +1,5 @@
 {
+  "name": "katnip-tailwind",
   "private": true,
   "type": "module",
   "exports": {

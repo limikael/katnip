@@ -1,4 +1,5 @@
 {
+  "name": "katnip-quickmin",
   "private": true,
   "type": "module",
   "exports": {

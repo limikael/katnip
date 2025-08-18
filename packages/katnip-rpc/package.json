@@ -1,4 +1,5 @@
 {
+  "name": "katnip-rpc",
   "private": true,
   "type": "module",
   "exports": {

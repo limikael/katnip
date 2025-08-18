@@ -24,14 +24,14 @@ collections:
       <Text id="content" multiline fullWidth/>
 `;
 
-export async function initCli(ev) {
+/*export async function initCli(ev) {
     ev.target.eventCommand("init")
         .option("--no-database","Don't initialize database.");
-}
+}*/
 
 export async function init(ev) {
-    if (!ev.database)
-        return;
+    /*if (!ev.database)
+        return;*/
 
     let quickminYamlFile=path.join(ev.target.cwd,"quickmin.yaml");
     if (!fs.existsSync(quickminYamlFile)) {

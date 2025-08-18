@@ -37,8 +37,39 @@ export default class KatnipProject extends AsyncEventTarget {
 			.option("--mode <mode>","Specify mode (prod/dev).");
 
 		this.eventCommand("init")
-			.allowMissingPkg()
-			.description("Initialize project.");
+			.description("Initialize project.")
+			.option("--no-isoq","No isoq client rendering.")
+			.option("--no-quickmin","No quickmin database.")
+			.option("--no-rpc","No client/server rpc.")
+			.option("--no-tailwind","No tailwind.")
+			.preload(async options=>{
+				await fsp.mkdir(cwd,{recursive: true});
+				await this.processProjectFile("package.json","json",async pkg=>{
+					if (!pkg)
+						pkg={};
+
+					return pkg;
+				});
+
+				await this.processProjectFile("katnip.json","json",async katnip=>{
+					if (!katnip)
+						katnip={};
+
+					if (!katnip.disablePlugins)
+						katnip.disablePlugins=[];
+
+					let canDisables=["isoq","quickmin","rpc","tailwind"];
+					for (let canDisable of canDisables) {
+						if (options[canDisable]===false) {
+							let key="katnip-"+canDisable;
+							if (!katnip.disablePlugins.includes(key))
+								katnip.disablePlugins.push(key);
+						}
+					}
+
+					return katnip;
+				});
+			});
 
 		this.logger=log;
 		if (!this.logger && !silent)
@@ -89,8 +120,8 @@ export default class KatnipProject extends AsyncEventTarget {
 			return this.eventCommands[name];
 
 		let command=this.program.command(name);
-		command.allowMissingPkg=()=>{
-			command.isAllowMissingPkg=true;
+		command.preload=(func)=>{
+			command.preloadFunc=func;
 			return command;
 		}
 		command.defaultMode=(mode)=>{
@@ -115,6 +146,12 @@ export default class KatnipProject extends AsyncEventTarget {
 			throw new Error("already loaded");
 
 		this.loaded=true;
+
+		if (fs.existsSync(path.join(this.cwd,"katnip.json")))
+			this.config=JSON5.parse(await fsp.readFile(path.join(this.cwd,"katnip.json")));
+
+		if (!this.config)
+			this.config={};
 
 		let entrypoints=await this.resolveEntrypoints("katnip-project-hooks",{allowMissingPkg});
 		for (let entrypoint of entrypoints) {
@@ -164,19 +201,16 @@ export default class KatnipProject extends AsyncEventTarget {
 			this.env.CWD=this.cwd;
 		}
 
-		this.env.config={};
-		if (fs.existsSync(path.join(this.cwd,"katnip.json")))
-			this.env.config=JSON5.parse(await fsp.readFile(path.join(this.cwd,"katnip.json")));
+		this.env.config=this.config;
 	}
 
 	async runCommand(command, options) {
-		let allowMissingPkg=false;
 		if (this.eventCommands[command] &&
-				this.eventCommands[command].isAllowMissingPkg)
-			allowMissingPkg=true;
+				this.eventCommands[command].preloadFunc)
+			await this.eventCommands[command].preloadFunc(options);
 
 		if (!this.loaded)
-			await this.load({allowMissingPkg});
+			await this.load();
 
 		if (!this.eventCommands[command])
 			throw new DeclaredError("Unknown command: "+command);
@@ -205,12 +239,20 @@ export default class KatnipProject extends AsyncEventTarget {
 	}
 
 	async resolveEntrypoints(importPath, {conditions, allowMissingPkg}={}) {
+		if (!this.config)
+			throw new Error("No config loaded in resolveEntrypoints");
+
+		let disablePlugins=this.config.disablePlugins;
+		if (!disablePlugins)
+			disablePlugins=[];
+
 		return await resolveProjectEntrypoints({
 			cwd: this.cwd,
 			defaultPluginPath: path.join(__dirname,"../../packages"),
 			importPath,
 			conditions,
-			allowMissingPkg
+			allowMissingPkg,
+			disablePlugins: ["katnip",...disablePlugins]
 		});
 	}
 

@@ -24,82 +24,250 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// ../isoq/node_modules/.pnpm/@einheit+path-resolve@1.2.0/node_modules/@einheit/path-resolve/index.js
-var require_path_resolve = __commonJS({
-  "../isoq/node_modules/.pnpm/@einheit+path-resolve@1.2.0/node_modules/@einheit/path-resolve/index.js"(exports, module) {
+// ../isoq/node_modules/.pnpm/@jridgewell+resolve-uri@3.1.2/node_modules/@jridgewell/resolve-uri/dist/resolve-uri.umd.js
+var require_resolve_uri_umd = __commonJS({
+  "../isoq/node_modules/.pnpm/@jridgewell+resolve-uri@3.1.2/node_modules/@jridgewell/resolve-uri/dist/resolve-uri.umd.js"(exports, module) {
+    (function(global, factory) {
+      typeof exports === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define(factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, global.resolveURI = factory());
+    })(exports, (function() {
+      "use strict";
+      const schemeRegex = /^[\w+.-]+:\/\//;
+      const urlRegex = /^([\w+.-]+:)\/\/([^@/#?]*@)?([^:/#?]*)(:\d+)?(\/[^#?]*)?(\?[^#]*)?(#.*)?/;
+      const fileRegex = /^file:(?:\/\/((?![a-z]:)[^/#?]*)?)?(\/?[^#?]*)(\?[^#]*)?(#.*)?/i;
+      function isAbsoluteUrl(input) {
+        return schemeRegex.test(input);
+      }
+      function isSchemeRelativeUrl(input) {
+        return input.startsWith("//");
+      }
+      function isAbsolutePath(input) {
+        return input.startsWith("/");
+      }
+      function isFileUrl(input) {
+        return input.startsWith("file:");
+      }
+      function isRelative(input) {
+        return /^[.?#]/.test(input);
+      }
+      function parseAbsoluteUrl(input) {
+        const match = urlRegex.exec(input);
+        return makeUrl(match[1], match[2] || "", match[3], match[4] || "", match[5] || "/", match[6] || "", match[7] || "");
+      }
+      function parseFileUrl(input) {
+        const match = fileRegex.exec(input);
+        const path2 = match[2];
+        return makeUrl("file:", "", match[1] || "", "", isAbsolutePath(path2) ? path2 : "/" + path2, match[3] || "", match[4] || "");
+      }
+      function makeUrl(scheme, user, host, port, path2, query, hash) {
+        return {
+          scheme,
+          user,
+          host,
+          port,
+          path: path2,
+          query,
+          hash,
+          type: 7
+        };
+      }
+      function parseUrl(input) {
+        if (isSchemeRelativeUrl(input)) {
+          const url2 = parseAbsoluteUrl("http:" + input);
+          url2.scheme = "";
+          url2.type = 6;
+          return url2;
+        }
+        if (isAbsolutePath(input)) {
+          const url2 = parseAbsoluteUrl("http://foo.com" + input);
+          url2.scheme = "";
+          url2.host = "";
+          url2.type = 5;
+          return url2;
+        }
+        if (isFileUrl(input))
+          return parseFileUrl(input);
+        if (isAbsoluteUrl(input))
+          return parseAbsoluteUrl(input);
+        const url = parseAbsoluteUrl("http://foo.com/" + input);
+        url.scheme = "";
+        url.host = "";
+        url.type = input ? input.startsWith("?") ? 3 : input.startsWith("#") ? 2 : 4 : 1;
+        return url;
+      }
+      function stripPathFilename(path2) {
+        if (path2.endsWith("/.."))
+          return path2;
+        const index = path2.lastIndexOf("/");
+        return path2.slice(0, index + 1);
+      }
+      function mergePaths(url, base) {
+        normalizePath(base, base.type);
+        if (url.path === "/") {
+          url.path = base.path;
+        } else {
+          url.path = stripPathFilename(base.path) + url.path;
+        }
+      }
+      function normalizePath(url, type) {
+        const rel = type <= 4;
+        const pieces = url.path.split("/");
+        let pointer = 1;
+        let positive = 0;
+        let addTrailingSlash = false;
+        for (let i4 = 1; i4 < pieces.length; i4++) {
+          const piece = pieces[i4];
+          if (!piece) {
+            addTrailingSlash = true;
+            continue;
+          }
+          addTrailingSlash = false;
+          if (piece === ".")
+            continue;
+          if (piece === "..") {
+            if (positive) {
+              addTrailingSlash = true;
+              positive--;
+              pointer--;
+            } else if (rel) {
+              pieces[pointer++] = piece;
+            }
+            continue;
+          }
+          pieces[pointer++] = piece;
+          positive++;
+        }
+        let path2 = "";
+        for (let i4 = 1; i4 < pointer; i4++) {
+          path2 += "/" + pieces[i4];
+        }
+        if (!path2 || addTrailingSlash && !path2.endsWith("/..")) {
+          path2 += "/";
+        }
+        url.path = path2;
+      }
+      function resolve(input, base) {
+        if (!input && !base)
+          return "";
+        const url = parseUrl(input);
+        let inputType = url.type;
+        if (base && inputType !== 7) {
+          const baseUrl = parseUrl(base);
+          const baseType = baseUrl.type;
+          switch (inputType) {
+            case 1:
+              url.hash = baseUrl.hash;
+            // fall through
+            case 2:
+              url.query = baseUrl.query;
+            // fall through
+            case 3:
+            case 4:
+              mergePaths(url, baseUrl);
+            // fall through
+            case 5:
+              url.user = baseUrl.user;
+              url.host = baseUrl.host;
+              url.port = baseUrl.port;
+            // fall through
+            case 6:
+              url.scheme = baseUrl.scheme;
+          }
+          if (baseType > inputType)
+            inputType = baseType;
+        }
+        normalizePath(url, inputType);
+        const queryHash = url.query + url.hash;
+        switch (inputType) {
+          // This is impossible, because of the empty checks at the start of the function.
+          // case UrlType.Empty:
+          case 2:
+          case 3:
+            return queryHash;
+          case 4: {
+            const path2 = url.path.slice(1);
+            if (!path2)
+              return queryHash || ".";
+            if (isRelative(base || input) && !isRelative(path2)) {
+              return "./" + path2 + queryHash;
+            }
+            return path2 + queryHash;
+          }
+          case 5:
+            return url.path + queryHash;
+          default:
+            return url.scheme + "//" + url.user + url.host + url.port + url.path + queryHash;
+        }
+      }
+      return resolve;
+    }));
+  }
+});
+
+// ../isoq/node_modules/.pnpm/path-browserify@1.0.1/node_modules/path-browserify/index.js
+var require_path_browserify = __commonJS({
+  "../isoq/node_modules/.pnpm/path-browserify@1.0.1/node_modules/path-browserify/index.js"(exports, module) {
     "use strict";
-    var SLASH = 47;
-    var DOT = 46;
-    var getCWD;
-    if (typeof process !== "undefined" && typeof process.cwd !== "undefined") {
-      getCWD = process.cwd;
-    } else {
-      getCWD = function() {
-        var pathname = window.location.pathname;
-        return pathname.slice(0, pathname.lastIndexOf("/") + 1);
-      };
+    function assertPath(path2) {
+      if (typeof path2 !== "string") {
+        throw new TypeError("Path must be a string. Received " + JSON.stringify(path2));
+      }
     }
-    function normalizeStringPosix(path, allowAboveRoot) {
+    function normalizeStringPosix(path2, allowAboveRoot) {
       var res = "";
+      var lastSegmentLength = 0;
       var lastSlash = -1;
       var dots = 0;
-      var code = void 0;
-      var isAboveRoot = false;
-      for (var i4 = 0; i4 <= path.length; ++i4) {
-        if (i4 < path.length) {
-          code = path.charCodeAt(i4);
-        } else if (code === SLASH) {
+      var code;
+      for (var i4 = 0; i4 <= path2.length; ++i4) {
+        if (i4 < path2.length)
+          code = path2.charCodeAt(i4);
+        else if (code === 47)
           break;
-        } else {
-          code = SLASH;
-        }
-        if (code === SLASH) {
+        else
+          code = 47;
+        if (code === 47) {
           if (lastSlash === i4 - 1 || dots === 1) {
           } else if (lastSlash !== i4 - 1 && dots === 2) {
-            if (res.length < 2 || !isAboveRoot || res.charCodeAt(res.length - 1) !== DOT || res.charCodeAt(res.length - 2) !== DOT) {
+            if (res.length < 2 || lastSegmentLength !== 2 || res.charCodeAt(res.length - 1) !== 46 || res.charCodeAt(res.length - 2) !== 46) {
               if (res.length > 2) {
-                var start = res.length - 1;
-                var j5 = start;
-                for (; j5 >= 0; --j5) {
-                  if (res.charCodeAt(j5) === SLASH) {
-                    break;
+                var lastSlashIndex = res.lastIndexOf("/");
+                if (lastSlashIndex !== res.length - 1) {
+                  if (lastSlashIndex === -1) {
+                    res = "";
+                    lastSegmentLength = 0;
+                  } else {
+                    res = res.slice(0, lastSlashIndex);
+                    lastSegmentLength = res.length - 1 - res.lastIndexOf("/");
                   }
-                }
-                if (j5 !== start) {
-                  res = j5 === -1 ? "" : res.slice(0, j5);
                   lastSlash = i4;
                   dots = 0;
-                  isAboveRoot = false;
                   continue;
                 }
               } else if (res.length === 2 || res.length === 1) {
                 res = "";
+                lastSegmentLength = 0;
                 lastSlash = i4;
                 dots = 0;
-                isAboveRoot = false;
                 continue;
               }
             }
             if (allowAboveRoot) {
-              if (res.length > 0) {
+              if (res.length > 0)
                 res += "/..";
-              } else {
+              else
                 res = "..";
-              }
-              isAboveRoot = true;
+              lastSegmentLength = 2;
             }
           } else {
-            var slice = path.slice(lastSlash + 1, i4);
-            if (res.length > 0) {
-              res += "/" + slice;
-            } else {
-              res = slice;
-            }
-            isAboveRoot = false;
+            if (res.length > 0)
+              res += "/" + path2.slice(lastSlash + 1, i4);
+            else
+              res = path2.slice(lastSlash + 1, i4);
+            lastSegmentLength = i4 - lastSlash - 1;
           }
           lastSlash = i4;
           dots = 0;
-        } else if (code === DOT && dots !== -1) {
+        } else if (code === 46 && dots !== -1) {
           ++dots;
         } else {
           dots = -1;
@@ -107,40 +275,338 @@ var require_path_resolve = __commonJS({
       }
       return res;
     }
-    function resolvePath2() {
-      var paths = [];
-      for (var _i = 0; _i < arguments.length; _i++) {
-        paths[_i] = arguments[_i];
+    function _format(sep, pathObject) {
+      var dir = pathObject.dir || pathObject.root;
+      var base = pathObject.base || (pathObject.name || "") + (pathObject.ext || "");
+      if (!dir) {
+        return base;
       }
-      var resolvedPath = "";
-      var resolvedAbsolute = false;
-      var cwd = void 0;
-      for (var i4 = paths.length - 1; i4 >= -1 && !resolvedAbsolute; i4--) {
-        var path = void 0;
-        if (i4 >= 0) {
-          path = paths[i4];
-        } else {
-          if (cwd === void 0) {
-            cwd = getCWD();
-          }
-          path = cwd;
-        }
-        if (path.length === 0) {
-          continue;
-        }
-        resolvedPath = path + "/" + resolvedPath;
-        resolvedAbsolute = path.charCodeAt(0) === SLASH;
+      if (dir === pathObject.root) {
+        return dir + base;
       }
-      resolvedPath = normalizeStringPosix(resolvedPath, !resolvedAbsolute);
-      if (resolvedAbsolute) {
-        return "/" + resolvedPath;
-      } else if (resolvedPath.length > 0) {
-        return resolvedPath;
-      } else {
-        return ".";
-      }
+      return dir + sep + base;
     }
-    module.exports = resolvePath2;
+    var posix = {
+      // path.resolve([from ...], to)
+      resolve: function resolve() {
+        var resolvedPath = "";
+        var resolvedAbsolute = false;
+        var cwd;
+        for (var i4 = arguments.length - 1; i4 >= -1 && !resolvedAbsolute; i4--) {
+          var path2;
+          if (i4 >= 0)
+            path2 = arguments[i4];
+          else {
+            if (cwd === void 0)
+              cwd = process.cwd();
+            path2 = cwd;
+          }
+          assertPath(path2);
+          if (path2.length === 0) {
+            continue;
+          }
+          resolvedPath = path2 + "/" + resolvedPath;
+          resolvedAbsolute = path2.charCodeAt(0) === 47;
+        }
+        resolvedPath = normalizeStringPosix(resolvedPath, !resolvedAbsolute);
+        if (resolvedAbsolute) {
+          if (resolvedPath.length > 0)
+            return "/" + resolvedPath;
+          else
+            return "/";
+        } else if (resolvedPath.length > 0) {
+          return resolvedPath;
+        } else {
+          return ".";
+        }
+      },
+      normalize: function normalize2(path2) {
+        assertPath(path2);
+        if (path2.length === 0) return ".";
+        var isAbsolute = path2.charCodeAt(0) === 47;
+        var trailingSeparator = path2.charCodeAt(path2.length - 1) === 47;
+        path2 = normalizeStringPosix(path2, !isAbsolute);
+        if (path2.length === 0 && !isAbsolute) path2 = ".";
+        if (path2.length > 0 && trailingSeparator) path2 += "/";
+        if (isAbsolute) return "/" + path2;
+        return path2;
+      },
+      isAbsolute: function isAbsolute(path2) {
+        assertPath(path2);
+        return path2.length > 0 && path2.charCodeAt(0) === 47;
+      },
+      join: function join() {
+        if (arguments.length === 0)
+          return ".";
+        var joined;
+        for (var i4 = 0; i4 < arguments.length; ++i4) {
+          var arg = arguments[i4];
+          assertPath(arg);
+          if (arg.length > 0) {
+            if (joined === void 0)
+              joined = arg;
+            else
+              joined += "/" + arg;
+          }
+        }
+        if (joined === void 0)
+          return ".";
+        return posix.normalize(joined);
+      },
+      relative: function relative(from, to) {
+        assertPath(from);
+        assertPath(to);
+        if (from === to) return "";
+        from = posix.resolve(from);
+        to = posix.resolve(to);
+        if (from === to) return "";
+        var fromStart = 1;
+        for (; fromStart < from.length; ++fromStart) {
+          if (from.charCodeAt(fromStart) !== 47)
+            break;
+        }
+        var fromEnd = from.length;
+        var fromLen = fromEnd - fromStart;
+        var toStart = 1;
+        for (; toStart < to.length; ++toStart) {
+          if (to.charCodeAt(toStart) !== 47)
+            break;
+        }
+        var toEnd = to.length;
+        var toLen = toEnd - toStart;
+        var length = fromLen < toLen ? fromLen : toLen;
+        var lastCommonSep = -1;
+        var i4 = 0;
+        for (; i4 <= length; ++i4) {
+          if (i4 === length) {
+            if (toLen > length) {
+              if (to.charCodeAt(toStart + i4) === 47) {
+                return to.slice(toStart + i4 + 1);
+              } else if (i4 === 0) {
+                return to.slice(toStart + i4);
+              }
+            } else if (fromLen > length) {
+              if (from.charCodeAt(fromStart + i4) === 47) {
+                lastCommonSep = i4;
+              } else if (i4 === 0) {
+                lastCommonSep = 0;
+              }
+            }
+            break;
+          }
+          var fromCode = from.charCodeAt(fromStart + i4);
+          var toCode = to.charCodeAt(toStart + i4);
+          if (fromCode !== toCode)
+            break;
+          else if (fromCode === 47)
+            lastCommonSep = i4;
+        }
+        var out = "";
+        for (i4 = fromStart + lastCommonSep + 1; i4 <= fromEnd; ++i4) {
+          if (i4 === fromEnd || from.charCodeAt(i4) === 47) {
+            if (out.length === 0)
+              out += "..";
+            else
+              out += "/..";
+          }
+        }
+        if (out.length > 0)
+          return out + to.slice(toStart + lastCommonSep);
+        else {
+          toStart += lastCommonSep;
+          if (to.charCodeAt(toStart) === 47)
+            ++toStart;
+          return to.slice(toStart);
+        }
+      },
+      _makeLong: function _makeLong(path2) {
+        return path2;
+      },
+      dirname: function dirname(path2) {
+        assertPath(path2);
+        if (path2.length === 0) return ".";
+        var code = path2.charCodeAt(0);
+        var hasRoot = code === 47;
+        var end = -1;
+        var matchedSlash = true;
+        for (var i4 = path2.length - 1; i4 >= 1; --i4) {
+          code = path2.charCodeAt(i4);
+          if (code === 47) {
+            if (!matchedSlash) {
+              end = i4;
+              break;
+            }
+          } else {
+            matchedSlash = false;
+          }
+        }
+        if (end === -1) return hasRoot ? "/" : ".";
+        if (hasRoot && end === 1) return "//";
+        return path2.slice(0, end);
+      },
+      basename: function basename(path2, ext) {
+        if (ext !== void 0 && typeof ext !== "string") throw new TypeError('"ext" argument must be a string');
+        assertPath(path2);
+        var start = 0;
+        var end = -1;
+        var matchedSlash = true;
+        var i4;
+        if (ext !== void 0 && ext.length > 0 && ext.length <= path2.length) {
+          if (ext.length === path2.length && ext === path2) return "";
+          var extIdx = ext.length - 1;
+          var firstNonSlashEnd = -1;
+          for (i4 = path2.length - 1; i4 >= 0; --i4) {
+            var code = path2.charCodeAt(i4);
+            if (code === 47) {
+              if (!matchedSlash) {
+                start = i4 + 1;
+                break;
+              }
+            } else {
+              if (firstNonSlashEnd === -1) {
+                matchedSlash = false;
+                firstNonSlashEnd = i4 + 1;
+              }
+              if (extIdx >= 0) {
+                if (code === ext.charCodeAt(extIdx)) {
+                  if (--extIdx === -1) {
+                    end = i4;
+                  }
+                } else {
+                  extIdx = -1;
+                  end = firstNonSlashEnd;
+                }
+              }
+            }
+          }
+          if (start === end) end = firstNonSlashEnd;
+          else if (end === -1) end = path2.length;
+          return path2.slice(start, end);
+        } else {
+          for (i4 = path2.length - 1; i4 >= 0; --i4) {
+            if (path2.charCodeAt(i4) === 47) {
+              if (!matchedSlash) {
+                start = i4 + 1;
+                break;
+              }
+            } else if (end === -1) {
+              matchedSlash = false;
+              end = i4 + 1;
+            }
+          }
+          if (end === -1) return "";
+          return path2.slice(start, end);
+        }
+      },
+      extname: function extname(path2) {
+        assertPath(path2);
+        var startDot = -1;
+        var startPart = 0;
+        var end = -1;
+        var matchedSlash = true;
+        var preDotState = 0;
+        for (var i4 = path2.length - 1; i4 >= 0; --i4) {
+          var code = path2.charCodeAt(i4);
+          if (code === 47) {
+            if (!matchedSlash) {
+              startPart = i4 + 1;
+              break;
+            }
+            continue;
+          }
+          if (end === -1) {
+            matchedSlash = false;
+            end = i4 + 1;
+          }
+          if (code === 46) {
+            if (startDot === -1)
+              startDot = i4;
+            else if (preDotState !== 1)
+              preDotState = 1;
+          } else if (startDot !== -1) {
+            preDotState = -1;
+          }
+        }
+        if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+        preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+        preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+          return "";
+        }
+        return path2.slice(startDot, end);
+      },
+      format: function format(pathObject) {
+        if (pathObject === null || typeof pathObject !== "object") {
+          throw new TypeError('The "pathObject" argument must be of type Object. Received type ' + typeof pathObject);
+        }
+        return _format("/", pathObject);
+      },
+      parse: function parse3(path2) {
+        assertPath(path2);
+        var ret = { root: "", dir: "", base: "", ext: "", name: "" };
+        if (path2.length === 0) return ret;
+        var code = path2.charCodeAt(0);
+        var isAbsolute = code === 47;
+        var start;
+        if (isAbsolute) {
+          ret.root = "/";
+          start = 1;
+        } else {
+          start = 0;
+        }
+        var startDot = -1;
+        var startPart = 0;
+        var end = -1;
+        var matchedSlash = true;
+        var i4 = path2.length - 1;
+        var preDotState = 0;
+        for (; i4 >= start; --i4) {
+          code = path2.charCodeAt(i4);
+          if (code === 47) {
+            if (!matchedSlash) {
+              startPart = i4 + 1;
+              break;
+            }
+            continue;
+          }
+          if (end === -1) {
+            matchedSlash = false;
+            end = i4 + 1;
+          }
+          if (code === 46) {
+            if (startDot === -1) startDot = i4;
+            else if (preDotState !== 1) preDotState = 1;
+          } else if (startDot !== -1) {
+            preDotState = -1;
+          }
+        }
+        if (startDot === -1 || end === -1 || // We saw a non-dot character immediately before the dot
+        preDotState === 0 || // The (right-most) trimmed path component is exactly '..'
+        preDotState === 1 && startDot === end - 1 && startDot === startPart + 1) {
+          if (end !== -1) {
+            if (startPart === 0 && isAbsolute) ret.base = ret.name = path2.slice(1, end);
+            else ret.base = ret.name = path2.slice(startPart, end);
+          }
+        } else {
+          if (startPart === 0 && isAbsolute) {
+            ret.name = path2.slice(1, startDot);
+            ret.base = path2.slice(1, end);
+          } else {
+            ret.name = path2.slice(startPart, startDot);
+            ret.base = path2.slice(startPart, end);
+          }
+          ret.ext = path2.slice(startDot, end);
+        }
+        if (startPart > 0) ret.dir = path2.slice(0, startPart - 1);
+        else if (isAbsolute) ret.dir = "/";
+        return ret;
+      },
+      sep: "/",
+      delimiter: ":",
+      win32: null,
+      posix: null
+    };
+    posix.posix = posix;
+    module.exports = posix;
   }
 });
 
@@ -542,7 +1008,7 @@ var require_sqlstring = __commonJS({
   }
 });
 
-// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/dist/preact.module.js
+// ../isoq/node_modules/.pnpm/preact@10.27.0/node_modules/preact/dist/preact.module.js
 var n;
 var l;
 var u;
@@ -561,8 +1027,7 @@ var v = [];
 var y = /acit|ex(?:s|g|n|p|$)|rph|grid|ows|mnc|ntw|ine[ch]|zoo|^ord|itera/i;
 var w = Array.isArray;
 function d(n2, l3) {
-  for (var u4 in l3)
-    n2[u4] = l3[u4];
+  for (var u4 in l3) n2[u4] = l3[u4];
   return n2;
 }
 function g(n2) {
@@ -570,11 +1035,8 @@ function g(n2) {
 }
 function _(l3, u4, t3) {
   var i4, r3, o3, e3 = {};
-  for (o3 in u4)
-    "key" == o3 ? i4 = u4[o3] : "ref" == o3 ? r3 = u4[o3] : e3[o3] = u4[o3];
-  if (arguments.length > 2 && (e3.children = arguments.length > 3 ? n.call(arguments, 2) : t3), "function" == typeof l3 && null != l3.defaultProps)
-    for (o3 in l3.defaultProps)
-      void 0 === e3[o3] && (e3[o3] = l3.defaultProps[o3]);
+  for (o3 in u4) "key" == o3 ? i4 = u4[o3] : "ref" == o3 ? r3 = u4[o3] : e3[o3] = u4[o3];
+  if (arguments.length > 2 && (e3.children = arguments.length > 3 ? n.call(arguments, 2) : t3), "function" == typeof l3 && null != l3.defaultProps) for (o3 in l3.defaultProps) void 0 === e3[o3] && (e3[o3] = l3.defaultProps[o3]);
   return m(l3, e3, i4, r3, null);
 }
 function m(n2, t3, i4, r3, o3) {
@@ -588,21 +1050,17 @@ function x(n2, l3) {
   this.props = n2, this.context = l3;
 }
 function S(n2, l3) {
-  if (null == l3)
-    return n2.__ ? S(n2.__, n2.__i + 1) : null;
-  for (var u4; l3 < n2.__k.length; l3++)
-    if (null != (u4 = n2.__k[l3]) && null != u4.__e)
-      return u4.__e;
+  if (null == l3) return n2.__ ? S(n2.__, n2.__i + 1) : null;
+  for (var u4; l3 < n2.__k.length; l3++) if (null != (u4 = n2.__k[l3]) && null != u4.__e) return u4.__e;
   return "function" == typeof n2.type ? S(n2) : null;
 }
 function C(n2) {
   var l3, u4;
   if (null != (n2 = n2.__) && null != n2.__c) {
-    for (n2.__e = n2.__c.base = null, l3 = 0; l3 < n2.__k.length; l3++)
-      if (null != (u4 = n2.__k[l3]) && null != u4.__e) {
-        n2.__e = n2.__c.base = u4.__e;
-        break;
-      }
+    for (n2.__e = n2.__c.base = null, l3 = 0; l3 < n2.__k.length; l3++) if (null != (u4 = n2.__k[l3]) && null != u4.__e) {
+      n2.__e = n2.__c.base = u4.__e;
+      break;
+    }
     return C(n2);
   }
 }
@@ -610,30 +1068,24 @@ function M(n2) {
   (!n2.__d && (n2.__d = true) && i.push(n2) && !$.__r++ || r != l.debounceRendering) && ((r = l.debounceRendering) || o)($);
 }
 function $() {
-  for (var n2, u4, t3, r3, o3, f4, c3, s3 = 1; i.length; )
-    i.length > s3 && i.sort(e), n2 = i.shift(), s3 = i.length, n2.__d && (t3 = void 0, o3 = (r3 = (u4 = n2).__v).__e, f4 = [], c3 = [], u4.__P && ((t3 = d({}, r3)).__v = r3.__v + 1, l.vnode && l.vnode(t3), O(u4.__P, t3, r3, u4.__n, u4.__P.namespaceURI, 32 & r3.__u ? [o3] : null, f4, null == o3 ? S(r3) : o3, !!(32 & r3.__u), c3), t3.__v = r3.__v, t3.__.__k[t3.__i] = t3, z(f4, t3, c3), t3.__e != o3 && C(t3)));
+  for (var n2, u4, t3, r3, o3, f4, c3, s3 = 1; i.length; ) i.length > s3 && i.sort(e), n2 = i.shift(), s3 = i.length, n2.__d && (t3 = void 0, o3 = (r3 = (u4 = n2).__v).__e, f4 = [], c3 = [], u4.__P && ((t3 = d({}, r3)).__v = r3.__v + 1, l.vnode && l.vnode(t3), O(u4.__P, t3, r3, u4.__n, u4.__P.namespaceURI, 32 & r3.__u ? [o3] : null, f4, null == o3 ? S(r3) : o3, !!(32 & r3.__u), c3), t3.__v = r3.__v, t3.__.__k[t3.__i] = t3, N(f4, t3, c3), t3.__e != o3 && C(t3)));
   $.__r = 0;
 }
 function I(n2, l3, u4, t3, i4, r3, o3, e3, f4, c3, s3) {
-  var a3, h3, y3, w3, d3, g5, _3 = t3 && t3.__k || v, m3 = l3.length;
-  for (f4 = P(u4, l3, _3, f4, m3), a3 = 0; a3 < m3; a3++)
-    null != (y3 = u4.__k[a3]) && (h3 = -1 == y3.__i ? p : _3[y3.__i] || p, y3.__i = a3, g5 = O(n2, y3, h3, i4, r3, o3, e3, f4, c3, s3), w3 = y3.__e, y3.ref && h3.ref != y3.ref && (h3.ref && q(h3.ref, null, y3), s3.push(y3.ref, y3.__c || w3, y3)), null == d3 && null != w3 && (d3 = w3), 4 & y3.__u || h3.__k === y3.__k ? f4 = A(y3, f4, n2) : "function" == typeof y3.type && void 0 !== g5 ? f4 = g5 : w3 && (f4 = w3.nextSibling), y3.__u &= -7);
+  var a3, h3, y3, w3, d3, g4, _3 = t3 && t3.__k || v, m3 = l3.length;
+  for (f4 = P(u4, l3, _3, f4, m3), a3 = 0; a3 < m3; a3++) null != (y3 = u4.__k[a3]) && (h3 = -1 == y3.__i ? p : _3[y3.__i] || p, y3.__i = a3, g4 = O(n2, y3, h3, i4, r3, o3, e3, f4, c3, s3), w3 = y3.__e, y3.ref && h3.ref != y3.ref && (h3.ref && B(h3.ref, null, y3), s3.push(y3.ref, y3.__c || w3, y3)), null == d3 && null != w3 && (d3 = w3), 4 & y3.__u || h3.__k === y3.__k ? f4 = A(y3, f4, n2) : "function" == typeof y3.type && void 0 !== g4 ? f4 = g4 : w3 && (f4 = w3.nextSibling), y3.__u &= -7);
   return u4.__e = d3, f4;
 }
 function P(n2, l3, u4, t3, i4) {
   var r3, o3, e3, f4, c3, s3 = u4.length, a3 = s3, h3 = 0;
-  for (n2.__k = new Array(i4), r3 = 0; r3 < i4; r3++)
-    null != (o3 = l3[r3]) && "boolean" != typeof o3 && "function" != typeof o3 ? (f4 = r3 + h3, (o3 = n2.__k[r3] = "string" == typeof o3 || "number" == typeof o3 || "bigint" == typeof o3 || o3.constructor == String ? m(null, o3, null, null, null) : w(o3) ? m(k, { children: o3 }, null, null, null) : null == o3.constructor && o3.__b > 0 ? m(o3.type, o3.props, o3.key, o3.ref ? o3.ref : null, o3.__v) : o3).__ = n2, o3.__b = n2.__b + 1, e3 = null, -1 != (c3 = o3.__i = L(o3, u4, f4, a3)) && (a3--, (e3 = u4[c3]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c3 && (i4 > s3 ? h3-- : i4 < s3 && h3++), "function" != typeof o3.type && (o3.__u |= 4)) : c3 != f4 && (c3 == f4 - 1 ? h3-- : c3 == f4 + 1 ? h3++ : (c3 > f4 ? h3-- : h3++, o3.__u |= 4))) : n2.__k[r3] = null;
-  if (a3)
-    for (r3 = 0; r3 < s3; r3++)
-      null != (e3 = u4[r3]) && 0 == (2 & e3.__u) && (e3.__e == t3 && (t3 = S(e3)), B(e3, e3));
+  for (n2.__k = new Array(i4), r3 = 0; r3 < i4; r3++) null != (o3 = l3[r3]) && "boolean" != typeof o3 && "function" != typeof o3 ? (f4 = r3 + h3, (o3 = n2.__k[r3] = "string" == typeof o3 || "number" == typeof o3 || "bigint" == typeof o3 || o3.constructor == String ? m(null, o3, null, null, null) : w(o3) ? m(k, { children: o3 }, null, null, null) : null == o3.constructor && o3.__b > 0 ? m(o3.type, o3.props, o3.key, o3.ref ? o3.ref : null, o3.__v) : o3).__ = n2, o3.__b = n2.__b + 1, e3 = null, -1 != (c3 = o3.__i = L(o3, u4, f4, a3)) && (a3--, (e3 = u4[c3]) && (e3.__u |= 2)), null == e3 || null == e3.__v ? (-1 == c3 && (i4 > s3 ? h3-- : i4 < s3 && h3++), "function" != typeof o3.type && (o3.__u |= 4)) : c3 != f4 && (c3 == f4 - 1 ? h3-- : c3 == f4 + 1 ? h3++ : (c3 > f4 ? h3-- : h3++, o3.__u |= 4))) : n2.__k[r3] = null;
+  if (a3) for (r3 = 0; r3 < s3; r3++) null != (e3 = u4[r3]) && 0 == (2 & e3.__u) && (e3.__e == t3 && (t3 = S(e3)), D(e3, e3));
   return t3;
 }
 function A(n2, l3, u4) {
   var t3, i4;
   if ("function" == typeof n2.type) {
-    for (t3 = n2.__k, i4 = 0; t3 && i4 < t3.length; i4++)
-      t3[i4] && (t3[i4].__ = n2, l3 = A(t3[i4], l3, u4));
+    for (t3 = n2.__k, i4 = 0; t3 && i4 < t3.length; i4++) t3[i4] && (t3[i4].__ = n2, l3 = A(t3[i4], l3, u4));
     return l3;
   }
   n2.__e != l3 && (l3 && n2.type && !u4.contains(l3) && (l3 = S(n2)), u4.insertBefore(n2.__e, l3 || null), l3 = n2.__e);
@@ -648,22 +1100,11 @@ function H(n2, l3) {
   }) : l3.push(n2)), l3;
 }
 function L(n2, l3, u4, t3) {
-  var i4, r3, o3 = n2.key, e3 = n2.type, f4 = l3[u4];
-  if (null === f4 && null == n2.key || f4 && o3 == f4.key && e3 == f4.type && 0 == (2 & f4.__u))
-    return u4;
-  if (t3 > (null != f4 && 0 == (2 & f4.__u) ? 1 : 0))
-    for (i4 = u4 - 1, r3 = u4 + 1; i4 >= 0 || r3 < l3.length; ) {
-      if (i4 >= 0) {
-        if ((f4 = l3[i4]) && 0 == (2 & f4.__u) && o3 == f4.key && e3 == f4.type)
-          return i4;
-        i4--;
-      }
-      if (r3 < l3.length) {
-        if ((f4 = l3[r3]) && 0 == (2 & f4.__u) && o3 == f4.key && e3 == f4.type)
-          return r3;
-        r3++;
-      }
-    }
+  var i4, r3, o3, e3 = n2.key, f4 = n2.type, c3 = l3[u4], s3 = null != c3 && 0 == (2 & c3.__u);
+  if (null === c3 && null == n2.key || s3 && e3 == c3.key && f4 == c3.type) return u4;
+  if (t3 > (s3 ? 1 : 0)) {
+    for (i4 = u4 - 1, r3 = u4 + 1; i4 >= 0 || r3 < l3.length; ) if (null != (c3 = l3[o3 = i4 >= 0 ? i4-- : r3++]) && 0 == (2 & c3.__u) && e3 == c3.key && f4 == c3.type) return o3;
+  }
   return -1;
 }
 function T(n2, l3, u4) {
@@ -671,96 +1112,76 @@ function T(n2, l3, u4) {
 }
 function j(n2, l3, u4, t3, i4) {
   var r3, o3;
-  n:
-    if ("style" == l3)
-      if ("string" == typeof u4)
-        n2.style.cssText = u4;
-      else {
-        if ("string" == typeof t3 && (n2.style.cssText = t3 = ""), t3)
-          for (l3 in t3)
-            u4 && l3 in u4 || T(n2.style, l3, "");
-        if (u4)
-          for (l3 in u4)
-            t3 && u4[l3] == t3[l3] || T(n2.style, l3, u4[l3]);
-      }
-    else if ("o" == l3[0] && "n" == l3[1])
-      r3 = l3 != (l3 = l3.replace(f, "$1")), o3 = l3.toLowerCase(), l3 = o3 in n2 || "onFocusOut" == l3 || "onFocusIn" == l3 ? o3.slice(2) : l3.slice(2), n2.l || (n2.l = {}), n2.l[l3 + r3] = u4, u4 ? t3 ? u4.u = t3.u : (u4.u = c, n2.addEventListener(l3, r3 ? a : s, r3)) : n2.removeEventListener(l3, r3 ? a : s, r3);
-    else {
-      if ("http://www.w3.org/2000/svg" == i4)
-        l3 = l3.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
-      else if ("width" != l3 && "height" != l3 && "href" != l3 && "list" != l3 && "form" != l3 && "tabIndex" != l3 && "download" != l3 && "rowSpan" != l3 && "colSpan" != l3 && "role" != l3 && "popover" != l3 && l3 in n2)
-        try {
-          n2[l3] = null == u4 ? "" : u4;
-          break n;
-        } catch (n3) {
-        }
-      "function" == typeof u4 || (null == u4 || false === u4 && "-" != l3[4] ? n2.removeAttribute(l3) : n2.setAttribute(l3, "popover" == l3 && 1 == u4 ? "" : u4));
+  n: if ("style" == l3) if ("string" == typeof u4) n2.style.cssText = u4;
+  else {
+    if ("string" == typeof t3 && (n2.style.cssText = t3 = ""), t3) for (l3 in t3) u4 && l3 in u4 || T(n2.style, l3, "");
+    if (u4) for (l3 in u4) t3 && u4[l3] == t3[l3] || T(n2.style, l3, u4[l3]);
+  }
+  else if ("o" == l3[0] && "n" == l3[1]) r3 = l3 != (l3 = l3.replace(f, "$1")), o3 = l3.toLowerCase(), l3 = o3 in n2 || "onFocusOut" == l3 || "onFocusIn" == l3 ? o3.slice(2) : l3.slice(2), n2.l || (n2.l = {}), n2.l[l3 + r3] = u4, u4 ? t3 ? u4.u = t3.u : (u4.u = c, n2.addEventListener(l3, r3 ? a : s, r3)) : n2.removeEventListener(l3, r3 ? a : s, r3);
+  else {
+    if ("http://www.w3.org/2000/svg" == i4) l3 = l3.replace(/xlink(H|:h)/, "h").replace(/sName$/, "s");
+    else if ("width" != l3 && "height" != l3 && "href" != l3 && "list" != l3 && "form" != l3 && "tabIndex" != l3 && "download" != l3 && "rowSpan" != l3 && "colSpan" != l3 && "role" != l3 && "popover" != l3 && l3 in n2) try {
+      n2[l3] = null == u4 ? "" : u4;
+      break n;
+    } catch (n3) {
     }
+    "function" == typeof u4 || (null == u4 || false === u4 && "-" != l3[4] ? n2.removeAttribute(l3) : n2.setAttribute(l3, "popover" == l3 && 1 == u4 ? "" : u4));
+  }
 }
 function F(n2) {
   return function(u4) {
     if (this.l) {
       var t3 = this.l[u4.type + n2];
-      if (null == u4.t)
-        u4.t = c++;
-      else if (u4.t < t3.u)
-        return;
+      if (null == u4.t) u4.t = c++;
+      else if (u4.t < t3.u) return;
       return t3(l.event ? l.event(u4) : u4);
     }
   };
 }
 function O(n2, u4, t3, i4, r3, o3, e3, f4, c3, s3) {
-  var a3, h3, p3, v3, y3, _3, m3, b2, S2, C4, M2, $2, P5, A5, H4, L2, T5, j5 = u4.type;
-  if (null != u4.constructor)
-    return null;
+  var a3, h3, p3, v3, y3, _3, m3, b2, S2, C4, M2, $2, P4, A5, H3, L2, T4, j4 = u4.type;
+  if (null != u4.constructor) return null;
   128 & t3.__u && (c3 = !!(32 & t3.__u), o3 = [f4 = u4.__e = t3.__e]), (a3 = l.__b) && a3(u4);
-  n:
-    if ("function" == typeof j5)
-      try {
-        if (b2 = u4.props, S2 = "prototype" in j5 && j5.prototype.render, C4 = (a3 = j5.contextType) && i4[a3.__c], M2 = a3 ? C4 ? C4.props.value : a3.__ : i4, t3.__c ? m3 = (h3 = u4.__c = t3.__c).__ = h3.__E : (S2 ? u4.__c = h3 = new j5(b2, M2) : (u4.__c = h3 = new x(b2, M2), h3.constructor = j5, h3.render = D), C4 && C4.sub(h3), h3.props = b2, h3.state || (h3.state = {}), h3.context = M2, h3.__n = i4, p3 = h3.__d = true, h3.__h = [], h3._sb = []), S2 && null == h3.__s && (h3.__s = h3.state), S2 && null != j5.getDerivedStateFromProps && (h3.__s == h3.state && (h3.__s = d({}, h3.__s)), d(h3.__s, j5.getDerivedStateFromProps(b2, h3.__s))), v3 = h3.props, y3 = h3.state, h3.__v = u4, p3)
-          S2 && null == j5.getDerivedStateFromProps && null != h3.componentWillMount && h3.componentWillMount(), S2 && null != h3.componentDidMount && h3.__h.push(h3.componentDidMount);
-        else {
-          if (S2 && null == j5.getDerivedStateFromProps && b2 !== v3 && null != h3.componentWillReceiveProps && h3.componentWillReceiveProps(b2, M2), !h3.__e && null != h3.shouldComponentUpdate && false === h3.shouldComponentUpdate(b2, h3.__s, M2) || u4.__v == t3.__v) {
-            for (u4.__v != t3.__v && (h3.props = b2, h3.state = h3.__s, h3.__d = false), u4.__e = t3.__e, u4.__k = t3.__k, u4.__k.some(function(n3) {
-              n3 && (n3.__ = u4);
-            }), $2 = 0; $2 < h3._sb.length; $2++)
-              h3.__h.push(h3._sb[$2]);
-            h3._sb = [], h3.__h.length && e3.push(h3);
-            break n;
-          }
-          null != h3.componentWillUpdate && h3.componentWillUpdate(b2, h3.__s, M2), S2 && null != h3.componentDidUpdate && h3.__h.push(function() {
-            h3.componentDidUpdate(v3, y3, _3);
-          });
-        }
-        if (h3.context = M2, h3.props = b2, h3.__P = n2, h3.__e = false, P5 = l.__r, A5 = 0, S2) {
-          for (h3.state = h3.__s, h3.__d = false, P5 && P5(u4), a3 = h3.render(h3.props, h3.state, h3.context), H4 = 0; H4 < h3._sb.length; H4++)
-            h3.__h.push(h3._sb[H4]);
-          h3._sb = [];
-        } else
-          do {
-            h3.__d = false, P5 && P5(u4), a3 = h3.render(h3.props, h3.state, h3.context), h3.state = h3.__s;
-          } while (h3.__d && ++A5 < 25);
-        h3.state = h3.__s, null != h3.getChildContext && (i4 = d(d({}, i4), h3.getChildContext())), S2 && !p3 && null != h3.getSnapshotBeforeUpdate && (_3 = h3.getSnapshotBeforeUpdate(v3, y3)), L2 = a3, null != a3 && a3.type === k && null == a3.key && (L2 = N(a3.props.children)), f4 = I(n2, w(L2) ? L2 : [L2], u4, t3, i4, r3, o3, e3, f4, c3, s3), h3.base = u4.__e, u4.__u &= -161, h3.__h.length && e3.push(h3), m3 && (h3.__E = h3.__ = null);
-      } catch (n3) {
-        if (u4.__v = null, c3 || null != o3)
-          if (n3.then) {
-            for (u4.__u |= c3 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; )
-              f4 = f4.nextSibling;
-            o3[o3.indexOf(f4)] = null, u4.__e = f4;
-          } else
-            for (T5 = o3.length; T5--; )
-              g(o3[T5]);
-        else
-          u4.__e = t3.__e, u4.__k = t3.__k;
-        l.__e(n3, u4, t3);
+  n: if ("function" == typeof j4) try {
+    if (b2 = u4.props, S2 = "prototype" in j4 && j4.prototype.render, C4 = (a3 = j4.contextType) && i4[a3.__c], M2 = a3 ? C4 ? C4.props.value : a3.__ : i4, t3.__c ? m3 = (h3 = u4.__c = t3.__c).__ = h3.__E : (S2 ? u4.__c = h3 = new j4(b2, M2) : (u4.__c = h3 = new x(b2, M2), h3.constructor = j4, h3.render = E), C4 && C4.sub(h3), h3.props = b2, h3.state || (h3.state = {}), h3.context = M2, h3.__n = i4, p3 = h3.__d = true, h3.__h = [], h3._sb = []), S2 && null == h3.__s && (h3.__s = h3.state), S2 && null != j4.getDerivedStateFromProps && (h3.__s == h3.state && (h3.__s = d({}, h3.__s)), d(h3.__s, j4.getDerivedStateFromProps(b2, h3.__s))), v3 = h3.props, y3 = h3.state, h3.__v = u4, p3) S2 && null == j4.getDerivedStateFromProps && null != h3.componentWillMount && h3.componentWillMount(), S2 && null != h3.componentDidMount && h3.__h.push(h3.componentDidMount);
+    else {
+      if (S2 && null == j4.getDerivedStateFromProps && b2 !== v3 && null != h3.componentWillReceiveProps && h3.componentWillReceiveProps(b2, M2), !h3.__e && null != h3.shouldComponentUpdate && false === h3.shouldComponentUpdate(b2, h3.__s, M2) || u4.__v == t3.__v) {
+        for (u4.__v != t3.__v && (h3.props = b2, h3.state = h3.__s, h3.__d = false), u4.__e = t3.__e, u4.__k = t3.__k, u4.__k.some(function(n3) {
+          n3 && (n3.__ = u4);
+        }), $2 = 0; $2 < h3._sb.length; $2++) h3.__h.push(h3._sb[$2]);
+        h3._sb = [], h3.__h.length && e3.push(h3);
+        break n;
       }
-    else
-      null == o3 && u4.__v == t3.__v ? (u4.__k = t3.__k, u4.__e = t3.__e) : f4 = u4.__e = V(t3.__e, u4, t3, i4, r3, o3, e3, c3, s3);
+      null != h3.componentWillUpdate && h3.componentWillUpdate(b2, h3.__s, M2), S2 && null != h3.componentDidUpdate && h3.__h.push(function() {
+        h3.componentDidUpdate(v3, y3, _3);
+      });
+    }
+    if (h3.context = M2, h3.props = b2, h3.__P = n2, h3.__e = false, P4 = l.__r, A5 = 0, S2) {
+      for (h3.state = h3.__s, h3.__d = false, P4 && P4(u4), a3 = h3.render(h3.props, h3.state, h3.context), H3 = 0; H3 < h3._sb.length; H3++) h3.__h.push(h3._sb[H3]);
+      h3._sb = [];
+    } else do {
+      h3.__d = false, P4 && P4(u4), a3 = h3.render(h3.props, h3.state, h3.context), h3.state = h3.__s;
+    } while (h3.__d && ++A5 < 25);
+    h3.state = h3.__s, null != h3.getChildContext && (i4 = d(d({}, i4), h3.getChildContext())), S2 && !p3 && null != h3.getSnapshotBeforeUpdate && (_3 = h3.getSnapshotBeforeUpdate(v3, y3)), L2 = a3, null != a3 && a3.type === k && null == a3.key && (L2 = V(a3.props.children)), f4 = I(n2, w(L2) ? L2 : [L2], u4, t3, i4, r3, o3, e3, f4, c3, s3), h3.base = u4.__e, u4.__u &= -161, h3.__h.length && e3.push(h3), m3 && (h3.__E = h3.__ = null);
+  } catch (n3) {
+    if (u4.__v = null, c3 || null != o3) if (n3.then) {
+      for (u4.__u |= c3 ? 160 : 128; f4 && 8 == f4.nodeType && f4.nextSibling; ) f4 = f4.nextSibling;
+      o3[o3.indexOf(f4)] = null, u4.__e = f4;
+    } else {
+      for (T4 = o3.length; T4--; ) g(o3[T4]);
+      z(u4);
+    }
+    else u4.__e = t3.__e, u4.__k = t3.__k, n3.then || z(u4);
+    l.__e(n3, u4, t3);
+  }
+  else null == o3 && u4.__v == t3.__v ? (u4.__k = t3.__k, u4.__e = t3.__e) : f4 = u4.__e = q(t3.__e, u4, t3, i4, r3, o3, e3, c3, s3);
   return (a3 = l.diffed) && a3(u4), 128 & u4.__u ? void 0 : f4;
 }
-function z(n2, u4, t3) {
-  for (var i4 = 0; i4 < t3.length; i4++)
-    q(t3[i4], t3[++i4], t3[++i4]);
+function z(n2) {
+  n2 && n2.__c && (n2.__c.__e = true), n2 && n2.__k && n2.__k.forEach(z);
+}
+function N(n2, u4, t3) {
+  for (var i4 = 0; i4 < t3.length; i4++) B(t3[i4], t3[++i4], t3[++i4]);
   l.__c && l.__c(u4, n2), n2.some(function(u5) {
     try {
       n2 = u5.__h, u5.__h = [], n2.some(function(n3) {
@@ -771,88 +1192,71 @@ function z(n2, u4, t3) {
     }
   });
 }
-function N(n2) {
-  return "object" != typeof n2 || null == n2 || n2.__b && n2.__b > 0 ? n2 : w(n2) ? n2.map(N) : d({}, n2);
+function V(n2) {
+  return "object" != typeof n2 || null == n2 || n2.__b && n2.__b > 0 ? n2 : w(n2) ? n2.map(V) : d({}, n2);
 }
-function V(u4, t3, i4, r3, o3, e3, f4, c3, s3) {
+function q(u4, t3, i4, r3, o3, e3, f4, c3, s3) {
   var a3, h3, v3, y3, d3, _3, m3, b2 = i4.props, k3 = t3.props, x4 = t3.type;
   if ("svg" == x4 ? o3 = "http://www.w3.org/2000/svg" : "math" == x4 ? o3 = "http://www.w3.org/1998/Math/MathML" : o3 || (o3 = "http://www.w3.org/1999/xhtml"), null != e3) {
-    for (a3 = 0; a3 < e3.length; a3++)
-      if ((d3 = e3[a3]) && "setAttribute" in d3 == !!x4 && (x4 ? d3.localName == x4 : 3 == d3.nodeType)) {
-        u4 = d3, e3[a3] = null;
-        break;
-      }
+    for (a3 = 0; a3 < e3.length; a3++) if ((d3 = e3[a3]) && "setAttribute" in d3 == !!x4 && (x4 ? d3.localName == x4 : 3 == d3.nodeType)) {
+      u4 = d3, e3[a3] = null;
+      break;
+    }
   }
   if (null == u4) {
-    if (null == x4)
-      return document.createTextNode(k3);
+    if (null == x4) return document.createTextNode(k3);
     u4 = document.createElementNS(o3, x4, k3.is && k3), c3 && (l.__m && l.__m(t3, e3), c3 = false), e3 = null;
   }
-  if (null == x4)
-    b2 === k3 || c3 && u4.data == k3 || (u4.data = k3);
+  if (null == x4) b2 === k3 || c3 && u4.data == k3 || (u4.data = k3);
   else {
-    if (e3 = e3 && n.call(u4.childNodes), b2 = i4.props || p, !c3 && null != e3)
-      for (b2 = {}, a3 = 0; a3 < u4.attributes.length; a3++)
-        b2[(d3 = u4.attributes[a3]).name] = d3.value;
-    for (a3 in b2)
-      if (d3 = b2[a3], "children" == a3)
-        ;
-      else if ("dangerouslySetInnerHTML" == a3)
-        v3 = d3;
-      else if (!(a3 in k3)) {
-        if ("value" == a3 && "defaultValue" in k3 || "checked" == a3 && "defaultChecked" in k3)
-          continue;
-        j(u4, a3, null, d3, o3);
-      }
-    for (a3 in k3)
-      d3 = k3[a3], "children" == a3 ? y3 = d3 : "dangerouslySetInnerHTML" == a3 ? h3 = d3 : "value" == a3 ? _3 = d3 : "checked" == a3 ? m3 = d3 : c3 && "function" != typeof d3 || b2[a3] === d3 || j(u4, a3, d3, b2[a3], o3);
-    if (h3)
-      c3 || v3 && (h3.__html == v3.__html || h3.__html == u4.innerHTML) || (u4.innerHTML = h3.__html), t3.__k = [];
-    else if (v3 && (u4.innerHTML = ""), I("template" == t3.type ? u4.content : u4, w(y3) ? y3 : [y3], t3, i4, r3, "foreignObject" == x4 ? "http://www.w3.org/1999/xhtml" : o3, e3, f4, e3 ? e3[0] : i4.__k && S(i4, 0), c3, s3), null != e3)
-      for (a3 = e3.length; a3--; )
-        g(e3[a3]);
+    if (e3 = e3 && n.call(u4.childNodes), b2 = i4.props || p, !c3 && null != e3) for (b2 = {}, a3 = 0; a3 < u4.attributes.length; a3++) b2[(d3 = u4.attributes[a3]).name] = d3.value;
+    for (a3 in b2) if (d3 = b2[a3], "children" == a3) ;
+    else if ("dangerouslySetInnerHTML" == a3) v3 = d3;
+    else if (!(a3 in k3)) {
+      if ("value" == a3 && "defaultValue" in k3 || "checked" == a3 && "defaultChecked" in k3) continue;
+      j(u4, a3, null, d3, o3);
+    }
+    for (a3 in k3) d3 = k3[a3], "children" == a3 ? y3 = d3 : "dangerouslySetInnerHTML" == a3 ? h3 = d3 : "value" == a3 ? _3 = d3 : "checked" == a3 ? m3 = d3 : c3 && "function" != typeof d3 || b2[a3] === d3 || j(u4, a3, d3, b2[a3], o3);
+    if (h3) c3 || v3 && (h3.__html == v3.__html || h3.__html == u4.innerHTML) || (u4.innerHTML = h3.__html), t3.__k = [];
+    else if (v3 && (u4.innerHTML = ""), I("template" == t3.type ? u4.content : u4, w(y3) ? y3 : [y3], t3, i4, r3, "foreignObject" == x4 ? "http://www.w3.org/1999/xhtml" : o3, e3, f4, e3 ? e3[0] : i4.__k && S(i4, 0), c3, s3), null != e3) for (a3 = e3.length; a3--; ) g(e3[a3]);
     c3 || (a3 = "value", "progress" == x4 && null == _3 ? u4.removeAttribute("value") : null != _3 && (_3 !== u4[a3] || "progress" == x4 && !_3 || "option" == x4 && _3 != b2[a3]) && j(u4, a3, _3, b2[a3], o3), a3 = "checked", null != m3 && m3 != u4[a3] && j(u4, a3, m3, b2[a3], o3));
   }
   return u4;
 }
-function q(n2, u4, t3) {
+function B(n2, u4, t3) {
   try {
     if ("function" == typeof n2) {
       var i4 = "function" == typeof n2.__u;
       i4 && n2.__u(), i4 && null == u4 || (n2.__u = n2(u4));
-    } else
-      n2.current = u4;
+    } else n2.current = u4;
   } catch (n3) {
     l.__e(n3, t3);
   }
 }
-function B(n2, u4, t3) {
+function D(n2, u4, t3) {
   var i4, r3;
-  if (l.unmount && l.unmount(n2), (i4 = n2.ref) && (i4.current && i4.current != n2.__e || q(i4, null, u4)), null != (i4 = n2.__c)) {
-    if (i4.componentWillUnmount)
-      try {
-        i4.componentWillUnmount();
-      } catch (n3) {
-        l.__e(n3, u4);
-      }
+  if (l.unmount && l.unmount(n2), (i4 = n2.ref) && (i4.current && i4.current != n2.__e || B(i4, null, u4)), null != (i4 = n2.__c)) {
+    if (i4.componentWillUnmount) try {
+      i4.componentWillUnmount();
+    } catch (n3) {
+      l.__e(n3, u4);
+    }
     i4.base = i4.__P = null;
   }
-  if (i4 = n2.__k)
-    for (r3 = 0; r3 < i4.length; r3++)
-      i4[r3] && B(i4[r3], u4, t3 || "function" != typeof n2.type);
+  if (i4 = n2.__k) for (r3 = 0; r3 < i4.length; r3++) i4[r3] && D(i4[r3], u4, t3 || "function" != typeof n2.type);
   t3 || g(n2.__e), n2.__c = n2.__ = n2.__e = void 0;
 }
-function D(n2, l3, u4) {
+function E(n2, l3, u4) {
   return this.constructor(n2, u4);
 }
-function E(u4, t3, i4) {
+function G(u4, t3, i4) {
   var r3, o3, e3, f4;
-  t3 == document && (t3 = document.documentElement), l.__ && l.__(u4, t3), o3 = (r3 = "function" == typeof i4) ? null : i4 && i4.__k || t3.__k, e3 = [], f4 = [], O(t3, u4 = (!r3 && i4 || t3).__k = _(k, null, [u4]), o3 || p, p, t3.namespaceURI, !r3 && i4 ? [i4] : o3 ? null : t3.firstChild ? n.call(t3.childNodes) : null, e3, !r3 && i4 ? i4 : o3 ? o3.__e : t3.firstChild, r3, f4), z(e3, u4, f4);
+  t3 == document && (t3 = document.documentElement), l.__ && l.__(u4, t3), o3 = (r3 = "function" == typeof i4) ? null : i4 && i4.__k || t3.__k, e3 = [], f4 = [], O(t3, u4 = (!r3 && i4 || t3).__k = _(k, null, [u4]), o3 || p, p, t3.namespaceURI, !r3 && i4 ? [i4] : o3 ? null : t3.firstChild ? n.call(t3.childNodes) : null, e3, !r3 && i4 ? i4 : o3 ? o3.__e : t3.firstChild, r3, f4), N(e3, u4, f4);
 }
-function G(n2, l3) {
-  E(n2, l3, G);
+function J(n2, l3) {
+  G(n2, l3, J);
 }
-function K(n2) {
+function Q(n2) {
   function l3(n3) {
     var u4, t3;
     return this.getChildContext || (u4 = /* @__PURE__ */ new Set(), (t3 = {})[l3.__c] = this, this.getChildContext = function() {
@@ -876,14 +1280,11 @@ function K(n2) {
   }).contextType = l3, l3;
 }
 n = v.slice, l = { __e: function(n2, l3, u4, t3) {
-  for (var i4, r3, o3; l3 = l3.__; )
-    if ((i4 = l3.__c) && !i4.__)
-      try {
-        if ((r3 = i4.constructor) && null != r3.getDerivedStateFromError && (i4.setState(r3.getDerivedStateFromError(n2)), o3 = i4.__d), null != i4.componentDidCatch && (i4.componentDidCatch(n2, t3 || {}), o3 = i4.__d), o3)
-          return i4.__E = i4;
-      } catch (l4) {
-        n2 = l4;
-      }
+  for (var i4, r3, o3; l3 = l3.__; ) if ((i4 = l3.__c) && !i4.__) try {
+    if ((r3 = i4.constructor) && null != r3.getDerivedStateFromError && (i4.setState(r3.getDerivedStateFromError(n2)), o3 = i4.__d), null != i4.componentDidCatch && (i4.componentDidCatch(n2, t3 || {}), o3 = i4.__d), o3) return i4.__E = i4;
+  } catch (l4) {
+    n2 = l4;
+  }
   throw n2;
 } }, u = 0, t = function(n2) {
   return null != n2 && null == n2.constructor;
@@ -896,7 +1297,7 @@ n = v.slice, l = { __e: function(n2, l3, u4, t3) {
   return n2.__v.__b - l3.__v.__b;
 }, $.__r = 0, f = /(PointerCapture)$|Capture$/i, c = 0, s = F(false), a = F(true), h = 0;
 
-// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/hooks/dist/hooks.module.js
+// ../isoq/node_modules/.pnpm/preact@10.27.0/node_modules/preact/hooks/dist/hooks.module.js
 var t2;
 var r2;
 var u2;
@@ -925,15 +1326,13 @@ function h2(n2, u4, i4) {
     t3 !== r3 && (o3.__N = [r3, o3.__[1]], o3.__c.setState({}));
   }], o3.__c = r2, !r2.__f)) {
     var f4 = function(n3, t3, r3) {
-      if (!o3.__c.__H)
-        return true;
+      if (!o3.__c.__H) return true;
       var u5 = o3.__c.__H.__.filter(function(n4) {
         return !!n4.__c;
       });
       if (u5.every(function(n4) {
         return !n4.__N;
-      }))
-        return !c3 || c3.call(this, n3, t3, r3);
+      })) return !c3 || c3.call(this, n3, t3, r3);
       var i5 = o3.__c.props !== n3;
       return u5.forEach(function(n4) {
         if (n4.__N) {
@@ -984,13 +1383,11 @@ function P2(n2, t3) {
   c2.useDebugValue && c2.useDebugValue(t3 ? t3(n2) : n2);
 }
 function j2() {
-  for (var n2; n2 = f2.shift(); )
-    if (n2.__P && n2.__H)
-      try {
-        n2.__H.__h.forEach(z2), n2.__H.__h.forEach(B2), n2.__H.__h = [];
-      } catch (t3) {
-        n2.__H.__h = [], c2.__e(t3, n2.__v);
-      }
+  for (var n2; n2 = f2.shift(); ) if (n2.__P && n2.__H) try {
+    n2.__H.__h.forEach(z2), n2.__H.__h.forEach(B2), n2.__H.__h = [];
+  } catch (t3) {
+    n2.__H.__h = [], c2.__e(t3, n2.__v);
+  }
 }
 c2.__b = function(n2) {
   r2 = null, e2 && e2(n2);
@@ -1055,19 +1452,14 @@ function D2(n2, t3) {
   return "function" == typeof t3 ? t3(n2) : t3;
 }
 
-// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/compat/dist/compat.module.js
+// ../isoq/node_modules/.pnpm/preact@10.27.0/node_modules/preact/compat/dist/compat.module.js
 function g3(n2, t3) {
-  for (var e3 in t3)
-    n2[e3] = t3[e3];
+  for (var e3 in t3) n2[e3] = t3[e3];
   return n2;
 }
 function E2(n2, t3) {
-  for (var e3 in n2)
-    if ("__source" !== e3 && !(e3 in t3))
-      return true;
-  for (var r3 in t3)
-    if ("__source" !== r3 && n2[r3] !== t3[r3])
-      return true;
+  for (var e3 in n2) if ("__source" !== e3 && !(e3 in t3)) return true;
+  for (var r3 in t3) if ("__source" !== r3 && n2[r3] !== t3[r3]) return true;
   return false;
 }
 function C3(n2, t3) {
@@ -1103,9 +1495,7 @@ var A3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward
 var F3 = l.__e;
 l.__e = function(n2, t3, e3, r3) {
   if (n2.then) {
-    for (var u4, o3 = t3; o3 = o3.__; )
-      if ((u4 = o3.__c) && u4.__c)
-        return null == t3.__e && (t3.__e = e3.__e, t3.__k = e3.__k), u4.__c(n2, t3);
+    for (var u4, o3 = t3; o3 = o3.__; ) if ((u4 = o3.__c) && u4.__c) return null == t3.__e && (t3.__e = e3.__e, t3.__k = e3.__k), u4.__c(n2, t3);
   }
   F3(n2, t3, e3, r3);
 };
@@ -1149,8 +1539,7 @@ l.unmount = function(n2) {
         r3.__v.__k[0] = W(n3, n3.__c.__P, n3.__c.__O);
       }
       var t4;
-      for (r3.setState({ __a: r3.__b = null }); t4 = r3.o.pop(); )
-        t4.forceUpdate();
+      for (r3.setState({ __a: r3.__b = null }); t4 = r3.o.pop(); ) t4.forceUpdate();
     }
   };
   r3.__u++ || 32 & t3.__u || r3.setState({ __a: r3.__b = r3.__v.__k[0] }), n2.then(i4, i4);
@@ -1168,14 +1557,11 @@ l.unmount = function(n2) {
   return i4 && (i4.__u &= -33), [_(k, null, e3.__a ? null : n2.children), i4];
 };
 var H2 = function(n2, t3, e3) {
-  if (++e3[1] === e3[0] && n2.l.delete(t3), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.l.size))
-    for (e3 = n2.i; e3; ) {
-      for (; e3.length > 3; )
-        e3.pop()();
-      if (e3[1] < e3[0])
-        break;
-      n2.i = e3 = e3[2];
-    }
+  if (++e3[1] === e3[0] && n2.l.delete(t3), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.l.size)) for (e3 = n2.i; e3; ) {
+    for (; e3.length > 3; ) e3.pop()();
+    if (e3[1] < e3[0]) break;
+    n2.i = e3 = e3[2];
+  }
 };
 (B3.prototype = new x()).__a = function(n2) {
   var t3 = this, e3 = j3(t3.__v), r3 = t3.l.get(n2);
@@ -1189,8 +1575,7 @@ var H2 = function(n2, t3, e3) {
   this.i = null, this.l = /* @__PURE__ */ new Map();
   var t3 = H(n2.children);
   n2.revealOrder && "b" === n2.revealOrder[0] && t3.reverse();
-  for (var e3 = t3.length; e3--; )
-    this.l.set(t3[e3], this.i = [1, 0, this.i]);
+  for (var e3 = t3.length; e3--; ) this.l.set(t3[e3], this.i = [1, 0, this.i]);
   return n2.children;
 }, B3.prototype.componentDidUpdate = B3.prototype.componentDidMount = function() {
   var n2 = this;
@@ -1202,7 +1587,7 @@ var q3 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element
 var G2 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
 var J2 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
 var K2 = /[A-Z0-9]/g;
-var Q = "undefined" != typeof document;
+var Q2 = "undefined" != typeof document;
 var X = function(n2) {
   return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n2);
 };
@@ -1231,11 +1616,11 @@ var cn = { enumerable: false, configurable: true, get: function() {
 } };
 var fn = l.vnode;
 l.vnode = function(n2) {
-  "string" == typeof n2.type && function(n3) {
+  "string" == typeof n2.type && (function(n3) {
     var t3 = n3.props, e3 = n3.type, u4 = {}, o3 = -1 === e3.indexOf("-");
     for (var i4 in t3) {
       var l3 = t3[i4];
-      if (!("value" === i4 && "defaultValue" in t3 && null == l3 || Q && "children" === i4 && "noscript" === e3 || "class" === i4 || "className" === i4)) {
+      if (!("value" === i4 && "defaultValue" in t3 && null == l3 || Q2 && "children" === i4 && "noscript" === e3 || "class" === i4 || "className" === i4)) {
         var c3 = i4.toLowerCase();
         "defaultValue" === i4 && "value" in t3 && null == t3.value ? i4 = "value" : "download" === i4 && true === l3 ? l3 = "" : "translate" === c3 && "no" === l3 ? l3 = false : "o" === c3[0] && "n" === c3[1] ? "ondoubleclick" === c3 ? i4 = "ondblclick" : "onchange" !== c3 || "input" !== e3 && "textarea" !== e3 || X(t3.type) ? "onfocus" === c3 ? i4 = "onfocusin" : "onblur" === c3 ? i4 = "onfocusout" : J2.test(i4) && (i4 = c3) : c3 = i4 = "oninput" : o3 && G2.test(i4) ? i4 = i4.replace(K2, "-$&").toLowerCase() : null === l3 && (l3 = void 0), "oninput" === c3 && u4[i4 = c3] && (i4 = "oninputCapture"), u4[i4] = l3;
       }
@@ -1245,7 +1630,7 @@ l.vnode = function(n2) {
     })), "select" == e3 && null != u4.defaultValue && (u4.value = H(t3.children).forEach(function(n4) {
       n4.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n4.props.value) : u4.defaultValue == n4.props.value;
     })), t3.class && !t3.className ? (u4.class = t3.class, Object.defineProperty(u4, "className", cn)) : (t3.className && !t3.class || t3.class && t3.className) && (u4.class = u4.className = t3.className), n3.props = u4;
-  }(n2), n2.$$typeof = q3, fn && fn(n2);
+  })(n2), n2.$$typeof = q3, fn && fn(n2);
 };
 var an = l.__r;
 l.__r = function(n2) {
@@ -1257,636 +1642,6 @@ l.diffed = function(n2) {
   var t3 = n2.props, e3 = n2.__e;
   null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), ln = null;
 };
-
-// ../qql/src/utils/js-util.js
-function objectifyArgs(params, fields) {
-  function isPlainObject(value) {
-    if (!value)
-      return false;
-    if (value.constructor === Object)
-      return true;
-    if (value.constructor.toString().includes("Object"))
-      return true;
-    return false;
-  }
-  let conf = {};
-  for (let i4 = 0; i4 < params.length; i4++) {
-    if (isPlainObject(params[i4]))
-      conf = { ...conf, ...params[i4] };
-    else if (fields[i4])
-      conf[fields[i4]] = params[i4];
-  }
-  return conf;
-}
-var CallableClass = class extends Function {
-  constructor(f4) {
-    return Object.setPrototypeOf(f4, new.target.prototype);
-  }
-};
-
-// ../qql/src/net/QqlClient.js
-var QqlClient = class extends CallableClass {
-  constructor(...args) {
-    super((q5) => this.query(q5));
-    let options = objectifyArgs(args, ["url"]);
-    this.url = options.url;
-    this.fetch = options.fetch;
-    this.headers = options.headers;
-    if (!this.fetch)
-      this.fetch = globalThis.fetch.bind(globalThis);
-  }
-  query = async (query) => {
-    let response = await this.fetch(this.url, {
-      method: "POST",
-      body: JSON.stringify(query),
-      headers: this.headers
-    });
-    if (response.status < 200 || response.status >= 300)
-      throw new Error(await response.text());
-    return await response.json();
-  };
-};
-function createQqlClient(...args) {
-  return new QqlClient(...args);
-}
-
-// ../isoq/node_modules/.pnpm/preact@10.26.9/node_modules/preact/jsx-runtime/dist/jsxRuntime.module.js
-var f3 = 0;
-var i3 = Array.isArray;
-function u3(e3, t3, n2, o3, i4, u4) {
-  t3 || (t3 = {});
-  var a3, c3, p3 = t3;
-  if ("ref" in p3)
-    for (c3 in p3 = {}, t3)
-      "ref" == c3 ? a3 = t3[c3] : p3[c3] = t3[c3];
-  var l3 = { type: e3, props: p3, key: n2, ref: a3, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: --f3, __i: -1, __u: 0, __source: i4, __self: u4 };
-  if ("function" == typeof e3 && (a3 = e3.defaultProps))
-    for (c3 in a3)
-      void 0 === p3[c3] && (p3[c3] = a3[c3]);
-  return l.vnode && l.vnode(l3), l3;
-}
-
-// ../qql/src/lib/qql-react.jsx
-var QqlContext = K();
-function QqlProvider({ fetch: fetch2, url, children, qql }) {
-  let ref = A2();
-  if (!ref.current) {
-    if (qql)
-      ref.current = qql;
-    else
-      ref.current = createQqlClient({ fetch: fetch2, url });
-  }
-  return /* @__PURE__ */ u3(QqlContext.Provider, { value: ref.current, children });
-}
-function useQql() {
-  return x2(QqlContext);
-}
-
-// ../quickmin/node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
-function normalize(strArray) {
-  var resultArray = [];
-  if (strArray.length === 0) {
-    return "";
-  }
-  if (typeof strArray[0] !== "string") {
-    throw new TypeError("Url must be a string. Received " + strArray[0]);
-  }
-  if (strArray[0].match(/^[^/:]+:\/*$/) && strArray.length > 1) {
-    var first = strArray.shift();
-    strArray[0] = first + strArray[0];
-  }
-  if (strArray[0].match(/^file:\/\/\//)) {
-    strArray[0] = strArray[0].replace(/^([^/:]+):\/*/, "$1:///");
-  } else {
-    strArray[0] = strArray[0].replace(/^([^/:]+):\/*/, "$1://");
-  }
-  for (var i4 = 0; i4 < strArray.length; i4++) {
-    var component = strArray[i4];
-    if (typeof component !== "string") {
-      throw new TypeError("Url must be a string. Received " + component);
-    }
-    if (component === "") {
-      continue;
-    }
-    if (i4 > 0) {
-      component = component.replace(/^[\/]+/, "");
-    }
-    if (i4 < strArray.length - 1) {
-      component = component.replace(/[\/]+$/, "");
-    } else {
-      component = component.replace(/[\/]+$/, "/");
-    }
-    resultArray.push(component);
-  }
-  var str = resultArray.join("/");
-  str = str.replace(/\/(\?|&|#[^!])/g, "$1");
-  var parts = str.split("?");
-  str = parts.shift() + (parts.length > 0 ? "?" : "") + parts.join("&");
-  return str;
-}
-function urlJoin() {
-  var input;
-  if (typeof arguments[0] === "object") {
-    input = arguments[0];
-  } else {
-    input = [].slice.call(arguments);
-  }
-  return normalize(input);
-}
-
-// ../quickmin/src/export/quickmin-api.js
-var QuickminApi = class {
-  constructor(options = {}) {
-    this.fetch = globalThis.fetch.bind(globalThis);
-    if (options.fetch)
-      this.fetch = options.fetch;
-    this.url = options.url;
-    if (!this.url)
-      throw new Error("Need url for QuickminApi");
-    this.headers = new Headers();
-    if (options.headers)
-      this.headers = options.headers;
-    if (options.apiKey)
-      this.headers.set("x-api-key", options.apiKey);
-  }
-  setApiKey(apiKey) {
-    this.headers.set("x-api-key", apiKey);
-  }
-  setHeader(header, value) {
-    this.headers.set(header, value);
-  }
-  async getCurrentUser() {
-    console.log("getting current user...");
-    let response = await this.fetch(urlJoin(this.url, "_getCurrentUser"));
-    let reply = await response.json();
-    return reply;
-  }
-  async findMany(table, query = {}) {
-    let url = urlJoin(this.url, table) + "?filter=" + JSON.stringify(query);
-    let resultsResponse = await this.fetch(url, {
-      headers: this.headers
-    });
-    let results = await resultsResponse.json();
-    return results;
-  }
-  async findOne(table, query = {}) {
-    let results = await this.findMany(table, query);
-    return results[0];
-  }
-  async getAuthUrls(referer, state = {}) {
-    let response = await this.fetch(urlJoin(this.url, "_authUrls"), {
-      method: "post",
-      body: JSON.stringify({
-        ...state,
-        referer: referer.toString()
-      })
-    });
-    return await response.json();
-  }
-  async insert(tableName, data) {
-    let h3 = new Headers(this.headers);
-    h3.set("content-type", "application/json");
-    let response = await this.fetch(urlJoin(this.url, tableName), {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: h3
-    });
-    if (response.status != 200)
-      throw new Error(await response.text());
-    return await response.json();
-  }
-  async update(tableName, id, data) {
-    let h3 = new Headers(this.headers);
-    h3.set("content-type", "application/json");
-    let response = await this.fetch(urlJoin(this.url, tableName, String(id)), {
-      method: "PUT",
-      body: JSON.stringify(data),
-      headers: h3
-    });
-    if (response.status != 200)
-      throw new Error(await response.text());
-    return await response.json();
-  }
-  async delete(tableName, id) {
-    let response = await this.fetch(urlJoin(this.url, tableName, String(id)), {
-      method: "DELETE",
-      headers: new Headers(this.headers)
-    });
-    if (response.status != 200)
-      throw new Error(await response.text());
-    return await response.json();
-  }
-  async uploadFile(file) {
-    let formData = new FormData();
-    formData.append("file", file);
-    let uploadResponse = await fetch(urlJoin(this.url, "_upload"), {
-      method: "post",
-      body: formData,
-      headers: new Headers(this.headers)
-    });
-    if (uploadResponse.status < 200 || uploadResponse.status >= 300)
-      throw new Error(await uploadResponse.text());
-    let uploadResult = await uploadResponse.json();
-    return uploadResult.file;
-  }
-};
-
-// ../quickmin/node_modules/.pnpm/preact@10.26.9/node_modules/preact/compat/dist/compat.module.js
-function g4(n2, t3) {
-  for (var e3 in t3)
-    n2[e3] = t3[e3];
-  return n2;
-}
-function E3(n2, t3) {
-  for (var e3 in n2)
-    if ("__source" !== e3 && !(e3 in t3))
-      return true;
-  for (var r3 in t3)
-    if ("__source" !== r3 && n2[r3] !== t3[r3])
-      return true;
-  return false;
-}
-function N3(n2, t3) {
-  this.props = n2, this.context = t3;
-}
-(N3.prototype = new x()).isPureReactComponent = true, N3.prototype.shouldComponentUpdate = function(n2, t3) {
-  return E3(this.props, n2) || E3(this.state, t3);
-};
-var T4 = l.__b;
-l.__b = function(n2) {
-  n2.type && n2.type.__f && n2.ref && (n2.props.ref = n2.ref, n2.ref = null), T4 && T4(n2);
-};
-var A4 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.forward_ref") || 3911;
-var F4 = l.__e;
-l.__e = function(n2, t3, e3, r3) {
-  if (n2.then) {
-    for (var u4, o3 = t3; o3 = o3.__; )
-      if ((u4 = o3.__c) && u4.__c)
-        return null == t3.__e && (t3.__e = e3.__e, t3.__k = e3.__k), u4.__c(n2, t3);
-  }
-  F4(n2, t3, e3, r3);
-};
-var U2 = l.unmount;
-function V3(n2, t3, e3) {
-  return n2 && (n2.__c && n2.__c.__H && (n2.__c.__H.__.forEach(function(n3) {
-    "function" == typeof n3.__c && n3.__c();
-  }), n2.__c.__H = null), null != (n2 = g4({}, n2)).__c && (n2.__c.__P === e3 && (n2.__c.__P = t3), n2.__c.__e = true, n2.__c = null), n2.__k = n2.__k && n2.__k.map(function(n3) {
-    return V3(n3, t3, e3);
-  })), n2;
-}
-function W2(n2, t3, e3) {
-  return n2 && e3 && (n2.__v = null, n2.__k = n2.__k && n2.__k.map(function(n3) {
-    return W2(n3, t3, e3);
-  }), n2.__c && n2.__c.__P === t3 && (n2.__e && e3.appendChild(n2.__e), n2.__c.__e = true, n2.__c.__P = e3)), n2;
-}
-function P4() {
-  this.__u = 0, this.o = null, this.__b = null;
-}
-function j4(n2) {
-  var t3 = n2.__.__c;
-  return t3 && t3.__a && t3.__a(n2);
-}
-function B4() {
-  this.i = null, this.l = null;
-}
-l.unmount = function(n2) {
-  var t3 = n2.__c;
-  t3 && t3.__R && t3.__R(), t3 && 32 & n2.__u && (n2.type = null), U2 && U2(n2);
-}, (P4.prototype = new x()).__c = function(n2, t3) {
-  var e3 = t3.__c, r3 = this;
-  null == r3.o && (r3.o = []), r3.o.push(e3);
-  var u4 = j4(r3.__v), o3 = false, i4 = function() {
-    o3 || (o3 = true, e3.__R = null, u4 ? u4(l3) : l3());
-  };
-  e3.__R = i4;
-  var l3 = function() {
-    if (!--r3.__u) {
-      if (r3.state.__a) {
-        var n3 = r3.state.__a;
-        r3.__v.__k[0] = W2(n3, n3.__c.__P, n3.__c.__O);
-      }
-      var t4;
-      for (r3.setState({ __a: r3.__b = null }); t4 = r3.o.pop(); )
-        t4.forceUpdate();
-    }
-  };
-  r3.__u++ || 32 & t3.__u || r3.setState({ __a: r3.__b = r3.__v.__k[0] }), n2.then(i4, i4);
-}, P4.prototype.componentWillUnmount = function() {
-  this.o = [];
-}, P4.prototype.render = function(n2, e3) {
-  if (this.__b) {
-    if (this.__v.__k) {
-      var r3 = document.createElement("div"), o3 = this.__v.__k[0].__c;
-      this.__v.__k[0] = V3(this.__b, r3, o3.__O = o3.__P);
-    }
-    this.__b = null;
-  }
-  var i4 = e3.__a && _(k, null, n2.fallback);
-  return i4 && (i4.__u &= -33), [_(k, null, e3.__a ? null : n2.children), i4];
-};
-var H3 = function(n2, t3, e3) {
-  if (++e3[1] === e3[0] && n2.l.delete(t3), n2.props.revealOrder && ("t" !== n2.props.revealOrder[0] || !n2.l.size))
-    for (e3 = n2.i; e3; ) {
-      for (; e3.length > 3; )
-        e3.pop()();
-      if (e3[1] < e3[0])
-        break;
-      n2.i = e3 = e3[2];
-    }
-};
-(B4.prototype = new x()).__a = function(n2) {
-  var t3 = this, e3 = j4(t3.__v), r3 = t3.l.get(n2);
-  return r3[0]++, function(u4) {
-    var o3 = function() {
-      t3.props.revealOrder ? (r3.push(u4), H3(t3, n2, r3)) : u4();
-    };
-    e3 ? e3(o3) : o3();
-  };
-}, B4.prototype.render = function(n2) {
-  this.i = null, this.l = /* @__PURE__ */ new Map();
-  var t3 = H(n2.children);
-  n2.revealOrder && "b" === n2.revealOrder[0] && t3.reverse();
-  for (var e3 = t3.length; e3--; )
-    this.l.set(t3[e3], this.i = [1, 0, this.i]);
-  return n2.children;
-}, B4.prototype.componentDidUpdate = B4.prototype.componentDidMount = function() {
-  var n2 = this;
-  this.l.forEach(function(t3, e3) {
-    H3(n2, e3, t3);
-  });
-};
-var q4 = "undefined" != typeof Symbol && Symbol.for && Symbol.for("react.element") || 60103;
-var G3 = /^(?:accent|alignment|arabic|baseline|cap|clip(?!PathU)|color|dominant|fill|flood|font|glyph(?!R)|horiz|image(!S)|letter|lighting|marker(?!H|W|U)|overline|paint|pointer|shape|stop|strikethrough|stroke|text(?!L)|transform|underline|unicode|units|v|vector|vert|word|writing|x(?!C))[A-Z]/;
-var J3 = /^on(Ani|Tra|Tou|BeforeInp|Compo)/;
-var K3 = /[A-Z0-9]/g;
-var Q2 = "undefined" != typeof document;
-var X2 = function(n2) {
-  return ("undefined" != typeof Symbol && "symbol" == typeof Symbol() ? /fil|che|rad/ : /fil|che|ra/).test(n2);
-};
-x.prototype.isReactComponent = {}, ["componentWillMount", "componentWillReceiveProps", "componentWillUpdate"].forEach(function(t3) {
-  Object.defineProperty(x.prototype, t3, { configurable: true, get: function() {
-    return this["UNSAFE_" + t3];
-  }, set: function(n2) {
-    Object.defineProperty(this, t3, { configurable: true, writable: true, value: n2 });
-  } });
-});
-var en2 = l.event;
-function rn2() {
-}
-function un2() {
-  return this.cancelBubble;
-}
-function on2() {
-  return this.defaultPrevented;
-}
-l.event = function(n2) {
-  return en2 && (n2 = en2(n2)), n2.persist = rn2, n2.isPropagationStopped = un2, n2.isDefaultPrevented = on2, n2.nativeEvent = n2;
-};
-var ln2;
-var cn2 = { enumerable: false, configurable: true, get: function() {
-  return this.class;
-} };
-var fn2 = l.vnode;
-l.vnode = function(n2) {
-  "string" == typeof n2.type && function(n3) {
-    var t3 = n3.props, e3 = n3.type, u4 = {}, o3 = -1 === e3.indexOf("-");
-    for (var i4 in t3) {
-      var l3 = t3[i4];
-      if (!("value" === i4 && "defaultValue" in t3 && null == l3 || Q2 && "children" === i4 && "noscript" === e3 || "class" === i4 || "className" === i4)) {
-        var c3 = i4.toLowerCase();
-        "defaultValue" === i4 && "value" in t3 && null == t3.value ? i4 = "value" : "download" === i4 && true === l3 ? l3 = "" : "translate" === c3 && "no" === l3 ? l3 = false : "o" === c3[0] && "n" === c3[1] ? "ondoubleclick" === c3 ? i4 = "ondblclick" : "onchange" !== c3 || "input" !== e3 && "textarea" !== e3 || X2(t3.type) ? "onfocus" === c3 ? i4 = "onfocusin" : "onblur" === c3 ? i4 = "onfocusout" : J3.test(i4) && (i4 = c3) : c3 = i4 = "oninput" : o3 && G3.test(i4) ? i4 = i4.replace(K3, "-$&").toLowerCase() : null === l3 && (l3 = void 0), "oninput" === c3 && u4[i4 = c3] && (i4 = "oninputCapture"), u4[i4] = l3;
-      }
-    }
-    "select" == e3 && u4.multiple && Array.isArray(u4.value) && (u4.value = H(t3.children).forEach(function(n4) {
-      n4.props.selected = -1 != u4.value.indexOf(n4.props.value);
-    })), "select" == e3 && null != u4.defaultValue && (u4.value = H(t3.children).forEach(function(n4) {
-      n4.props.selected = u4.multiple ? -1 != u4.defaultValue.indexOf(n4.props.value) : u4.defaultValue == n4.props.value;
-    })), t3.class && !t3.className ? (u4.class = t3.class, Object.defineProperty(u4, "className", cn2)) : (t3.className && !t3.class || t3.class && t3.className) && (u4.class = u4.className = t3.className), n3.props = u4;
-  }(n2), n2.$$typeof = q4, fn2 && fn2(n2);
-};
-var an2 = l.__r;
-l.__r = function(n2) {
-  an2 && an2(n2), ln2 = n2.__c;
-};
-var sn2 = l.diffed;
-l.diffed = function(n2) {
-  sn2 && sn2(n2);
-  var t3 = n2.props, e3 = n2.__e;
-  null != e3 && "textarea" === n2.type && "value" in t3 && t3.value !== e3.value && (e3.value = null == t3.value ? "" : t3.value), ln2 = null;
-};
-
-// ../quickmin/src/utils/js-util.js
-async function responseAssert(response) {
-  if (response.status >= 200 && response.status < 300)
-    return;
-  let e3 = new Error(await response.text());
-  e3.status = response.status;
-  throw e3;
-}
-function parseCookie(str) {
-  return str.split(";").map((v3) => v3.split("=")).reduce((acc, v3) => {
-    if (v3.length == 2)
-      acc[decodeURIComponent(v3[0].trim())] = decodeURIComponent(v3[1].trim());
-    return acc;
-  }, {});
-}
-function clearCookie(name) {
-  globalThis.window.document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-}
-
-// ../quickmin/src/utils/react-util.jsx
-function useConstructor(fn3) {
-  let value = A2();
-  let called = A2();
-  if (!called.current) {
-    called.current = true;
-    value.current = fn3();
-  }
-  return value.current;
-}
-
-// ../quickmin/src/export/quickmin-api-react.jsx
-var QuickminState = class extends EventTarget {
-  constructor({ fetch: fetch2, url, initialUser, quickminCookieName, apiKey, headers, authProviderInfo, children }) {
-    super();
-    if (!quickminCookieName)
-      throw new Error("No quickmin cookie name provided!");
-    this.fetch = fetch2;
-    this.url = url;
-    this.api = new QuickminApi({ fetch: fetch2, url, apiKey, headers });
-    this.currentUser = initialUser;
-    this.quickminCookieName = quickminCookieName;
-    this.authProviderInfo = authProviderInfo;
-    if (globalThis.window) {
-      let cookies = parseCookie(globalThis.window.document.cookie);
-      if (cookies.quickmin_login_error) {
-        clearCookie("quickmin_login_error");
-        this.loginError = new Error(cookies.quickmin_login_error);
-      }
-    }
-  }
-  logout() {
-    clearCookie(this.quickminCookieName);
-    this.currentUser = null;
-    this.dispatchEvent(new Event("change"));
-  }
-  popLoginError() {
-    let e3 = this.loginError;
-    this.loginError = void 0;
-    return e3;
-  }
-  async uploadFile(file) {
-    return await this.api.uploadFile(file);
-  }
-  async getAuthUrls(referer, state = {}) {
-    return await this.api.getAuthUrls(referer, state = {});
-  }
-  getAuthProviderByName(providerName) {
-    for (let provider of this.authProviderInfo)
-      if (provider.name == providerName)
-        return provider;
-  }
-  async loginByProvider(providerName) {
-    let provider = this.getAuthProviderByName(providerName);
-    let loginUrl = new URL(provider.loginUrl);
-    loginUrl.searchParams.set("state", JSON.stringify({
-      provider: provider.name,
-      referer: window.location.toString()
-    }));
-    window.location = loginUrl;
-  }
-  async login(args) {
-    if (!args)
-      return await this.loginByProvider(this.authProviderInfo[0].name);
-    if (typeof args == "string")
-      return await this.loginByProvider(args);
-    try {
-      let response = await this.api.fetch(urlJoin(this.api.url, "_login"), {
-        method: "post",
-        body: JSON.stringify({
-          username: args.username,
-          password: args.password
-        })
-      });
-      await responseAssert(response);
-      let responseBody = await response.json();
-      if (!responseBody.user)
-        throw new Error("Can't login with this user");
-      window.document.cookie = this.quickminCookieName + "=" + responseBody.token + "; path=/";
-      this.currentUser = responseBody.user;
-      this.dispatchEvent(new Event("change"));
-    } catch (e3) {
-      this.loginError = e3;
-      this.dispatchEvent(new Event("change"));
-    }
-  }
-};
-var QuickminContext = K();
-function QuickminProvider({ children, quickminState, ...props }) {
-  let qm = useConstructor(() => {
-    if (quickminState)
-      return quickminState;
-    return new QuickminState(props);
-  });
-  return /* @__PURE__ */ u3(QuickminContext.Provider, { value: qm, children: /* @__PURE__ */ u3(
-    QqlProvider,
-    {
-      fetch: qm.fetch,
-      url: urlJoin(qm.url, "_qql"),
-      children
-    }
-  ) });
-}
-
-// ../isoq/src/isoq/IsoContext.js
-var IsoContext = K();
-function useIsoContext() {
-  return x2(IsoContext);
-}
-var IsoContext_default = IsoContext;
-
-// ../isoq/src/components/Head.js
-function Head({ children }) {
-  let isoContext = useIsoContext();
-  if (isoContext.isSsr())
-    isoContext.headChildren.push(children);
-  return _(k);
-}
-
-// ../isoq/src/utils/js-util.js
-function parseCookie2(str) {
-  if (!str)
-    return {};
-  return str.split(";").map((v3) => v3.split("=")).reduce((acc, v3) => {
-    if (v3.length == 2)
-      acc[decodeURIComponent(v3[0].trim())] = decodeURIComponent(v3[1].trim());
-    return acc;
-  }, {});
-}
-function stringifyCookie(key, value, options = {}) {
-  let s3 = encodeURIComponent(key) + "=" + encodeURIComponent(value) + ";";
-  if (options.expires)
-    s3 += "expires=" + new Date(options.expires).toUTCString() + ";";
-  if (options.path)
-    s3 += "path=" + options.path + ";";
-  else
-    s3 += "path=/;";
-  return s3;
-}
-function arrayRemove(array, item) {
-  let index = array.indexOf(item);
-  if (index >= 0)
-    array.splice(index, 1);
-  return array;
-}
-
-// ../isoq/src/utils/react-util.js
-function useEventListener(o3, ev, fn3) {
-  _2(() => {
-    o3.addEventListener(ev, fn3);
-    return () => {
-      o3.removeEventListener(ev, fn3);
-    };
-  }, [o3, ev, fn3]);
-}
-function useEventUpdate2(o3, ev) {
-  let [_3, setDummyState] = d2();
-  let forceUpdate = q2(() => setDummyState({}));
-  useEventListener(o3, ev, forceUpdate);
-}
-
-// ../isoq/src/components/useIsLoading.js
-var LoadingState = class extends EventTarget {
-  constructor() {
-    super();
-    this.loaderCount = 0;
-  }
-  isLoading() {
-    return this.loaderCount > 0;
-  }
-  updateCount(v3) {
-    let loading = this.isLoading();
-    this.loaderCount += v3;
-    if (this.isLoading() != loading)
-      this.dispatchEvent(new Event("loadingStateChange"));
-  }
-  createLoader() {
-    let resolved = false;
-    this.updateCount(1);
-    return () => {
-      if (resolved)
-        return;
-      resolved = true;
-      this.updateCount(-1);
-    };
-  }
-};
-function useLoadingState() {
-  let iso = useIsoContext();
-  if (!iso.loadingState)
-    iso.loadingState = new LoadingState();
-  return iso.loadingState;
-}
 
 // ../isoq/src/utils/preact-refid.js
 var currentVNode;
@@ -1931,15 +1686,23 @@ function useRefId() {
   return vnodePath(currentVNode) + "#" + refIndex;
 }
 
-// ../isoq/src/utils/iso-ref.js
-var IsoRefContext = K();
+// ../isoq/src/utils/js-util.js
+function arrayRemove(array, item) {
+  let index = array.indexOf(item);
+  if (index >= 0)
+    array.splice(index, 1);
+  return array;
+}
+
+// ../isoq/src/components/iso-ref.js
+var IsoRefContext = Q();
 var IsoRef = class {
-  constructor(isoRefState, initialValue, options) {
+  constructor(isoRefState, initialValue, options2) {
     this.isoRefState = isoRefState;
     this.refCount = 0;
     this.current = initialValue;
     this.ids = [];
-    this.shared = options.shared;
+    this.shared = options2.shared;
     if (this.shared === void 0)
       this.shared = true;
   }
@@ -1963,9 +1726,9 @@ var IsoRefState = class {
         this.refs[k3] = new IsoRef(this, initialRefValues[k3], { shared: true });
     }
   }
-  getRef(id, initialValue, options) {
+  getRef(id, initialValue, options2) {
     if (!this.refs[id]) {
-      this.refs[id] = new IsoRef(this, initialValue, options);
+      this.refs[id] = new IsoRef(this, initialValue, options2);
       this.scheduleSweep();
     }
     return this.refs[id];
@@ -2017,12 +1780,12 @@ function IsoSuspense({ children, fallback }) {
   }
   return _(P3, { fallback: _(FallbackWrapper) }, children);
 }
-function useIsoRef(initialValue, options = {}) {
-  if (typeof options == "boolean")
-    options = { shared: options };
+function useIsoRef(initialValue, options2 = {}) {
+  if (typeof options2 == "boolean")
+    options2 = { shared: options2 };
   let refId = useRefId();
   let isoRefState = x2(IsoRefContext);
-  let ref = isoRefState.getRef(refId, initialValue, options);
+  let ref = isoRefState.getRef(refId, initialValue, options2);
   _2(() => {
     ref.ref(refId);
     return () => {
@@ -2032,79 +1795,191 @@ function useIsoRef(initialValue, options = {}) {
   return ref;
 }
 
-// ../isoq/src/components/useIsoMemo.js
-function useIsoMemo(asyncFn, deps = [], options = {}) {
-  let loadingState = useLoadingState();
-  let iso = useIsoContext();
-  let [, forceUpdate] = d2({});
-  let ref = useIsoRef({
-    result: void 0,
-    error: void 0,
-    status: "idle",
-    deps: void 0
-  }, { shared: options.shared });
-  let localRef = useIsoRef({
-    promise: null,
-    pendingNextRun: false,
-    fn: void 0
-  }, { shared: false });
+// ../isoq/src/utils/react-util.js
+function useEventListener(o3, ev, fn2) {
   _2(() => {
-    localRef.mounted = true;
+    o3.addEventListener(ev, fn2);
     return () => {
-      localRef.mounted = false;
+      o3.removeEventListener(ev, fn2);
     };
-  });
-  if (iso.isSsr() && options.server === false)
-    return;
-  localRef.current.fn = asyncFn;
-  deps = JSON.stringify(deps);
-  let depsChanged = ref.current.deps === void 0 || ref.current.deps != deps;
-  if (depsChanged) {
-    if (iso.hydration) {
-      console.log("yep, hydration");
-      setTimeout(() => forceUpdate({}), 0);
+  }, [o3, ev, fn2]);
+}
+function useEventUpdate(o3, ev) {
+  let [_3, setDummyState] = d2();
+  let forceUpdate = q2(() => setDummyState({}));
+  useEventListener(o3, ev, forceUpdate);
+}
+
+// ../isoq/node_modules/.pnpm/preact@10.27.0/node_modules/preact/jsx-runtime/dist/jsxRuntime.module.js
+var f3 = 0;
+var i3 = Array.isArray;
+function u3(e3, t3, n2, o3, i4, u4) {
+  t3 || (t3 = {});
+  var a3, c3, p3 = t3;
+  if ("ref" in p3) for (c3 in p3 = {}, t3) "ref" == c3 ? a3 = t3[c3] : p3[c3] = t3[c3];
+  var l3 = { type: e3, props: p3, key: n2, ref: a3, __k: null, __: null, __b: 0, __e: null, __c: null, constructor: void 0, __v: --f3, __i: -1, __u: 0, __source: i4, __self: u4 };
+  if ("function" == typeof e3 && (a3 = e3.defaultProps)) for (c3 in a3) void 0 === p3[c3] && (p3[c3] = a3[c3]);
+  return l.vnode && l.vnode(l3), l3;
+}
+
+// ../isoq/src/components/router.jsx
+var RouterContext = Q();
+var RouteContext = Q();
+var RouteMatchContext = Q();
+var RouterState = class extends EventTarget {
+  constructor({ url }) {
+    super();
+    this.baseUrl = new URL(url).origin;
+    this.committedUrl = new URL(url).toString();
+    this.committedVersion = 1;
+    this.nextVersion = 0;
+    this.nextUrl = "";
+    this.isSsr = !globalThis.window;
+    if (!this.isSsr) {
+      globalThis.window.addEventListener("popstate", (e3) => {
+        this.setUrl(String(globalThis.window.location));
+      });
+    }
+  }
+  setUrl(url) {
+    if (this.isSsr) {
+      this.redirectUrl = url;
       return;
     }
-    ref.current.deps = deps;
-    if (ref.current.status === "pending") {
-      localRef.current.pendingNextRun = true;
-    } else {
-      let run = function() {
-        ref.current.status = "pending";
-        localRef.current.pendingNextRun = false;
-        localRef.current.promise = localRef.current.fn();
-        localRef.current.promise.then((result) => {
-          ref.current.result = result;
-          ref.current.status = "success";
-          if (localRef.mounted)
-            forceUpdate({});
-        }).catch((err) => {
-          console.log("caught...");
-          ref.current.error = err;
-          ref.current.status = "error";
-        }).finally(() => {
-          if (localRef.current.pendingNextRun)
-            run();
-          else
-            loadingState.updateCount(-1);
-        });
-      };
-      loadingState.updateCount(1);
-      run();
+    this.nextUrl = new URL(url, this.baseUrl).toString();
+    if (this.nextVersion)
+      this.nextVersion++;
+    else
+      this.nextVersion = this.committedVersion + 1;
+    this.dispatchEvent(new Event("change"));
+  }
+  postNavScroll() {
+    let win = globalThis.window;
+    let u4 = new URL(this.committedUrl);
+    let el;
+    if (u4.hash) {
+      let hash = u4.hash.replace("#", "");
+      let els = win.document.getElementsByName(hash);
+      if (els.length)
+        el = els[0];
+    }
+    if (el)
+      el.scrollIntoView({
+        behavior: "smooth"
+      });
+    else
+      win.scrollTo(0, 0);
+  }
+  commit() {
+    this.committedUrl = this.nextUrl;
+    this.committedVersion = this.nextVersion;
+    this.nextVersion = null;
+    this.nextUrl = null;
+    this.dispatchEvent(new Event("change"));
+    if (!this.isSsr) {
+      let w3 = globalThis.window;
+      if (w3.location != this.committedUrl) {
+        w3.history.scrollRestoration = "manual";
+        w3.history.pushState(null, null, this.committedUrl);
+      }
+      setTimeout(() => this.postNavScroll(), 0);
     }
   }
-  if (ref.current.status === "pending") {
-    if (localRef.mounted) {
-      if (options.swr === false)
-        return void 0;
-      return ref.current.result;
+};
+function CheckMount({ onMount, children }) {
+  y2(() => {
+    if (onMount)
+      onMount();
+  });
+  return children;
+}
+function Router({ routerState, children }) {
+  useEventUpdate(routerState, "change");
+  return /* @__PURE__ */ u3(RouterContext.Provider, { value: routerState, children: [
+    /* @__PURE__ */ u3(IsoSuspense, { children: /* @__PURE__ */ u3("div", { style: { display: "contents" }, children: /* @__PURE__ */ u3(CheckMount, { children: /* @__PURE__ */ u3(RouteContext.Provider, { value: { url: routerState.committedUrl }, children }) }) }) }, "route-" + routerState.committedVersion),
+    !!routerState.nextVersion && /* @__PURE__ */ u3(IsoSuspense, { children: /* @__PURE__ */ u3("div", { style: { display: "none" }, children: /* @__PURE__ */ u3(CheckMount, { onMount: () => routerState.commit(), children: /* @__PURE__ */ u3(RouteContext.Provider, { value: { url: routerState.nextUrl }, children }) }) }) }, "route-" + routerState.nextVersion)
+  ] });
+}
+
+// ../isoq/src/components/IsoErrorBoundary.jsx
+function DefaultErrorFallback({ error }) {
+  let [showNoisy, setShowNoisy] = d2();
+  let style = {
+    position: "fixed",
+    left: "0",
+    top: "0",
+    width: "100%",
+    height: "100%",
+    zOrder: "100",
+    backgroundColor: "#000000",
+    color: "#ff0000",
+    fontSize: "16px",
+    fontFamily: "monospace",
+    borderStyle: "solid",
+    borderWidth: "0.5em",
+    borderColor: "#ff0000",
+    padding: "0.5em",
+    boxSizing: "border-box"
+  };
+  let aStyle = {
+    marginLeft: "40px",
+    textDecoration: "underline",
+    cursor: "pointer"
+  };
+  return /* @__PURE__ */ u3("div", { style, children: [
+    /* @__PURE__ */ u3("div", { children: String(error) }),
+    error.stackFrames && /* @__PURE__ */ u3(k, { children: [
+      error.stackFrames.filter((f4) => showNoisy || !f4.noisy).map(
+        (f4) => /* @__PURE__ */ u3("div", { style: { marginLeft: "40px" }, children: [
+          "at ",
+          f4.file,
+          ":",
+          f4.line,
+          ":",
+          f4.column,
+          f4.name ? ` (in ${f4.name})` : ""
+        ] })
+      ),
+      !showNoisy && error.stackFrames.filter((f4) => f4.noisy).length > 0 && /* @__PURE__ */ u3("a", { style: aStyle, onClick: () => setShowNoisy(true), children: "more..." })
+    ] })
+  ] });
+}
+var ErrorBoundary = class extends x {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+  componentDidCatch(error, info) {
+    if (this.props.onError) {
+      this.props.onError(error, info);
     }
-    throw localRef.current.promise;
   }
-  if (ref.current.status === "error") {
-    throw ref.current.error;
+  render(_3, state) {
+    if (state.hasError) {
+      return this.props.fallback ?? null;
+    }
+    return this.props.children;
   }
-  return ref.current.result;
+};
+function IsoErrorBoundary({ fallback, children }) {
+  let [error, setError] = d2();
+  let iso = useIsoContext();
+  iso.errorFallback = fallback;
+  async function handleError(e3) {
+    let tmpError = new Error();
+    tmpError.name = e3.name;
+    tmpError.message = e3.message;
+    setError(tmpError);
+    await iso.processError(e3);
+    setError(e3);
+  }
+  let Fallback = fallback;
+  if (error)
+    return /* @__PURE__ */ u3(Fallback, { error });
+  return /* @__PURE__ */ u3(ErrorBoundary, { onError: handleError, children });
 }
 
 // ../isoq/node_modules/.pnpm/stacktrace-parser@0.1.11/node_modules/stacktrace-parser/dist/stack-trace-parser.esm.js
@@ -2207,184 +2082,599 @@ function parseNode(line) {
   };
 }
 
-// ../isoq/src/utils/SourceMapper.js
-var import_path_resolve = __toESM(require_path_resolve(), 1);
-var SourceMapper = class {
-  constructor() {
+// ../isoq/node_modules/.pnpm/@jridgewell+sourcemap-codec@1.5.5/node_modules/@jridgewell/sourcemap-codec/dist/sourcemap-codec.mjs
+var comma = ",".charCodeAt(0);
+var semicolon = ";".charCodeAt(0);
+var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+var intToChar = new Uint8Array(64);
+var charToInt = new Uint8Array(128);
+for (let i4 = 0; i4 < chars.length; i4++) {
+  const c3 = chars.charCodeAt(i4);
+  intToChar[i4] = c3;
+  charToInt[c3] = i4;
+}
+function decodeInteger(reader, relative) {
+  let value = 0;
+  let shift = 0;
+  let integer = 0;
+  do {
+    const c3 = reader.next();
+    integer = charToInt[c3];
+    value |= (integer & 31) << shift;
+    shift += 5;
+  } while (integer & 32);
+  const shouldNegate = value & 1;
+  value >>>= 1;
+  if (shouldNegate) {
+    value = -2147483648 | -value;
   }
-  async transformError(error) {
-    let sourceMapConsumer = await new this.SourceMapConsumer(this.map);
-    let stack = parse(error.stack);
-    let entryLines = [];
-    for (let entry of stack) {
-      let original = sourceMapConsumer.originalPositionFor({
-        line: entry.lineNumber,
-        column: entry.column
-      });
-      let sourceUrl = this.resolveSource(original.source);
-      if (original.name) {
-        entryLines.push(
-          "    at " + original.name + " (" + sourceUrl + ":" + original.line + ":" + original.column + ")"
-        );
+  return relative + value;
+}
+function hasMoreVlq(reader, max) {
+  if (reader.pos >= max) return false;
+  return reader.peek() !== comma;
+}
+var bufLength = 1024 * 16;
+var StringReader = class {
+  constructor(buffer) {
+    this.pos = 0;
+    this.buffer = buffer;
+  }
+  next() {
+    return this.buffer.charCodeAt(this.pos++);
+  }
+  peek() {
+    return this.buffer.charCodeAt(this.pos);
+  }
+  indexOf(char) {
+    const { buffer, pos } = this;
+    const idx = buffer.indexOf(char, pos);
+    return idx === -1 ? buffer.length : idx;
+  }
+};
+function decode(mappings) {
+  const { length } = mappings;
+  const reader = new StringReader(mappings);
+  const decoded = [];
+  let genColumn = 0;
+  let sourcesIndex = 0;
+  let sourceLine = 0;
+  let sourceColumn = 0;
+  let namesIndex = 0;
+  do {
+    const semi = reader.indexOf(";");
+    const line = [];
+    let sorted = true;
+    let lastCol = 0;
+    genColumn = 0;
+    while (reader.pos < semi) {
+      let seg;
+      genColumn = decodeInteger(reader, genColumn);
+      if (genColumn < lastCol) sorted = false;
+      lastCol = genColumn;
+      if (hasMoreVlq(reader, semi)) {
+        sourcesIndex = decodeInteger(reader, sourcesIndex);
+        sourceLine = decodeInteger(reader, sourceLine);
+        sourceColumn = decodeInteger(reader, sourceColumn);
+        if (hasMoreVlq(reader, semi)) {
+          namesIndex = decodeInteger(reader, namesIndex);
+          seg = [genColumn, sourcesIndex, sourceLine, sourceColumn, namesIndex];
+        } else {
+          seg = [genColumn, sourcesIndex, sourceLine, sourceColumn];
+        }
       } else {
-        entryLines.push(
-          "    at " + sourceUrl + ":" + original.line + ":" + original.column
-        );
+        seg = [genColumn];
       }
+      line.push(seg);
+      reader.pos++;
     }
-    if (sourceMapConsumer.destroy)
-      sourceMapConsumer.destroy();
-    return {
-      message: String(error),
-      stack: String(error) + "\n" + entryLines.join("\n"),
-      toString: () => error.toString()
-    };
-  }
-  resolveSource(sourceName) {
-    let resolvedSource = (0, import_path_resolve.default)(this.mapDir, sourceName);
-    if (resolvedSource.startsWith("/"))
-      return "file://" + resolvedSource;
-    else
-      return "file:///" + resolvedSource;
-  }
-};
+    if (!sorted) sort(line);
+    decoded.push(line);
+    reader.pos = semi + 1;
+  } while (reader.pos <= length);
+  return decoded;
+}
+function sort(line) {
+  line.sort(sortComparator);
+}
+function sortComparator(a3, b2) {
+  return a3[0] - b2[0];
+}
 
-// ../isoq/src/components/IsoErrorBoundary.js
-var ErrorBoundaryComponent = class extends x {
-  componentDidCatch(error, info) {
+// ../isoq/node_modules/.pnpm/@jridgewell+trace-mapping@0.3.30/node_modules/@jridgewell/trace-mapping/dist/trace-mapping.mjs
+var import_resolve_uri = __toESM(require_resolve_uri_umd(), 1);
+function stripFilename(path2) {
+  if (!path2) return "";
+  const index = path2.lastIndexOf("/");
+  return path2.slice(0, index + 1);
+}
+function resolver(mapUrl, sourceRoot) {
+  const from = stripFilename(mapUrl);
+  const prefix = sourceRoot ? sourceRoot + "/" : "";
+  return (source) => (0, import_resolve_uri.default)(prefix + (source || ""), from);
+}
+var COLUMN = 0;
+var SOURCES_INDEX = 1;
+var SOURCE_LINE = 2;
+var SOURCE_COLUMN = 3;
+var NAMES_INDEX = 4;
+function maybeSort(mappings, owned) {
+  const unsortedIndex = nextUnsortedSegmentLine(mappings, 0);
+  if (unsortedIndex === mappings.length) return mappings;
+  if (!owned) mappings = mappings.slice();
+  for (let i4 = unsortedIndex; i4 < mappings.length; i4 = nextUnsortedSegmentLine(mappings, i4 + 1)) {
+    mappings[i4] = sortSegments(mappings[i4], owned);
   }
-  static getDerivedStateFromError(error) {
-    console.error(error);
-    return { error };
+  return mappings;
+}
+function nextUnsortedSegmentLine(mappings, start) {
+  for (let i4 = start; i4 < mappings.length; i4++) {
+    if (!isSorted(mappings[i4])) return i4;
   }
-  render() {
-    let error;
-    if (this.props.error)
-      error = this.props.error;
-    if (this.state.error)
-      error = this.state.error;
-    if (this.state.transformedError)
-      error = this.state.transformedError;
-    if (error) {
-      if (!this.props.iso.isSsr() && !this.state.transformed && window.sourceMap) {
-        this.setState({ transformed: true });
-        (async () => {
-          let mapper = new SourceMapper();
-          let response = await fetch("/client.js.map", window.location);
-          mapper.map = await response.json();
-          mapper.SourceMapConsumer = window.sourceMap.SourceMapConsumer;
-          mapper.mapDir = window.__sourcemapRoot;
-          let transformedError = await mapper.transformError(error);
-          this.setState({ transformedError });
-        })();
-      }
-      return _(this.props.fallback, { error });
+  return mappings.length;
+}
+function isSorted(line) {
+  for (let j4 = 1; j4 < line.length; j4++) {
+    if (line[j4][COLUMN] < line[j4 - 1][COLUMN]) {
+      return false;
     }
-    return this.props.children;
+  }
+  return true;
+}
+function sortSegments(line, owned) {
+  if (!owned) line = line.slice();
+  return line.sort(sortComparator2);
+}
+function sortComparator2(a3, b2) {
+  return a3[COLUMN] - b2[COLUMN];
+}
+var found = false;
+function binarySearch(haystack, needle, low, high) {
+  while (low <= high) {
+    const mid = low + (high - low >> 1);
+    const cmp = haystack[mid][COLUMN] - needle;
+    if (cmp === 0) {
+      found = true;
+      return mid;
+    }
+    if (cmp < 0) {
+      low = mid + 1;
+    } else {
+      high = mid - 1;
+    }
+  }
+  found = false;
+  return low - 1;
+}
+function upperBound(haystack, needle, index) {
+  for (let i4 = index + 1; i4 < haystack.length; index = i4++) {
+    if (haystack[i4][COLUMN] !== needle) break;
+  }
+  return index;
+}
+function lowerBound(haystack, needle, index) {
+  for (let i4 = index - 1; i4 >= 0; index = i4--) {
+    if (haystack[i4][COLUMN] !== needle) break;
+  }
+  return index;
+}
+function memoizedState() {
+  return {
+    lastKey: -1,
+    lastNeedle: -1,
+    lastIndex: -1
+  };
+}
+function memoizedBinarySearch(haystack, needle, state, key) {
+  const { lastKey, lastNeedle, lastIndex } = state;
+  let low = 0;
+  let high = haystack.length - 1;
+  if (key === lastKey) {
+    if (needle === lastNeedle) {
+      found = lastIndex !== -1 && haystack[lastIndex][COLUMN] === needle;
+      return lastIndex;
+    }
+    if (needle >= lastNeedle) {
+      low = lastIndex === -1 ? 0 : lastIndex;
+    } else {
+      high = lastIndex;
+    }
+  }
+  state.lastKey = key;
+  state.lastNeedle = needle;
+  return state.lastIndex = binarySearch(haystack, needle, low, high);
+}
+function parse2(map) {
+  return typeof map === "string" ? JSON.parse(map) : map;
+}
+var LINE_GTR_ZERO = "`line` must be greater than 0 (lines start at line 1)";
+var COL_GTR_EQ_ZERO = "`column` must be greater than or equal to 0 (columns start at column 0)";
+var LEAST_UPPER_BOUND = -1;
+var GREATEST_LOWER_BOUND = 1;
+var TraceMap = class {
+  constructor(map, mapUrl) {
+    const isString = typeof map === "string";
+    if (!isString && map._decodedMemo) return map;
+    const parsed = parse2(map);
+    const { version, file, names, sourceRoot, sources, sourcesContent } = parsed;
+    this.version = version;
+    this.file = file;
+    this.names = names || [];
+    this.sourceRoot = sourceRoot;
+    this.sources = sources;
+    this.sourcesContent = sourcesContent;
+    this.ignoreList = parsed.ignoreList || parsed.x_google_ignoreList || void 0;
+    const resolve = resolver(mapUrl, sourceRoot);
+    this.resolvedSources = sources.map(resolve);
+    const { mappings } = parsed;
+    if (typeof mappings === "string") {
+      this._encoded = mappings;
+      this._decoded = void 0;
+    } else if (Array.isArray(mappings)) {
+      this._encoded = void 0;
+      this._decoded = maybeSort(mappings, isString);
+    } else if (parsed.sections) {
+      throw new Error(`TraceMap passed sectioned source map, please use FlattenMap export instead`);
+    } else {
+      throw new Error(`invalid source map: ${JSON.stringify(parsed)}`);
+    }
+    this._decodedMemo = memoizedState();
+    this._bySources = void 0;
+    this._bySourceMemos = void 0;
   }
 };
-var IsoErrorBoundaryContext = K();
-function IsoErrorBoundary({ fallback, children, error }) {
-  let iso = useIsoContext();
-  let [currentError, setCurrentError] = d2(error);
-  if (iso.isSsr())
-    iso.setErrorFallback(fallback);
-  return _(
-    IsoErrorBoundaryContext.Provider,
-    { value: setCurrentError },
-    _(
-      ErrorBoundaryComponent,
-      {
-        fallback,
-        error: currentError,
-        iso
-      },
-      children
-    )
+function cast(map) {
+  return map;
+}
+function decodedMappings(map) {
+  var _a;
+  return (_a = cast(map))._decoded || (_a._decoded = decode(cast(map)._encoded));
+}
+function originalPositionFor(map, needle) {
+  let { line, column, bias } = needle;
+  line--;
+  if (line < 0) throw new Error(LINE_GTR_ZERO);
+  if (column < 0) throw new Error(COL_GTR_EQ_ZERO);
+  const decoded = decodedMappings(map);
+  if (line >= decoded.length) return OMapping(null, null, null, null);
+  const segments = decoded[line];
+  const index = traceSegmentInternal(
+    segments,
+    cast(map)._decodedMemo,
+    line,
+    column,
+    bias || GREATEST_LOWER_BOUND
+  );
+  if (index === -1) return OMapping(null, null, null, null);
+  const segment = segments[index];
+  if (segment.length === 1) return OMapping(null, null, null, null);
+  const { names, resolvedSources } = map;
+  return OMapping(
+    resolvedSources[segment[SOURCES_INDEX]],
+    segment[SOURCE_LINE] + 1,
+    segment[SOURCE_COLUMN],
+    segment.length === 5 ? names[segment[NAMES_INDEX]] : null
   );
 }
+function OMapping(source, line, column, name) {
+  return { source, line, column, name };
+}
+function traceSegmentInternal(segments, memo, line, column, bias) {
+  let index = memoizedBinarySearch(segments, column, memo, line);
+  if (found) {
+    index = (bias === LEAST_UPPER_BOUND ? upperBound : lowerBound)(segments, column, index);
+  } else if (bias === LEAST_UPPER_BOUND) index++;
+  if (index === -1 || index === segments.length) return -1;
+  return index;
+}
 
-// ../isoq/src/components/router.jsx
-var RouterContext = K();
-var RouteContext = K();
-var RouteMatchContext = K();
-var RouterState = class extends EventTarget {
-  constructor({ url }) {
-    super();
-    this.baseUrl = new URL(url).origin;
-    this.committedUrl = new URL(url).toString();
-    this.committedVersion = 1;
-    this.nextVersion = 0;
-    this.nextUrl = "";
-    this.isSsr = !globalThis.window;
-    if (!this.isSsr) {
-      globalThis.window.addEventListener("popstate", (e3) => {
-        this.setUrl(String(globalThis.window.location));
-      });
-    }
-  }
-  setUrl(url) {
-    if (this.isSsr) {
-      this.redirectUrl = url;
-      return;
-    }
-    this.nextUrl = new URL(url, this.baseUrl).toString();
-    if (this.nextVersion)
-      this.nextVersion++;
-    else
-      this.nextVersion = this.committedVersion + 1;
-    this.dispatchEvent(new Event("change"));
-  }
-  postNavScroll() {
-    let win = globalThis.window;
-    let u4 = new URL(this.committedUrl);
-    let el;
-    if (u4.hash) {
-      let hash = u4.hash.replace("#", "");
-      let els = win.document.getElementsByName(hash);
-      if (els.length)
-        el = els[0];
-    }
-    if (el)
-      el.scrollIntoView({
-        behavior: "smooth"
-      });
-    else
-      win.scrollTo(0, 0);
-  }
-  commit() {
-    this.committedUrl = this.nextUrl;
-    this.committedVersion = this.nextVersion;
-    this.nextVersion = null;
-    this.nextUrl = null;
-    this.dispatchEvent(new Event("change"));
-    if (!this.isSsr) {
-      let w3 = globalThis.window;
-      if (w3.location != this.committedUrl) {
-        w3.history.scrollRestoration = "manual";
-        w3.history.pushState(null, null, this.committedUrl);
+// ../isoq/src/utils/error-util.js
+var import_path_browserify = __toESM(require_path_browserify(), 1);
+var fileUrlToPath = (url) => decodeURIComponent(new URL(url).pathname).replace(/^\/([a-zA-Z]:)/, "$1");
+function extractSourceMap(source) {
+  let match = source.match(/\/\/# sourceMappingURL=data:application\/json[^,]+base64,([A-Za-z0-9+/=]+)/);
+  if (!match)
+    return;
+  let mapJson = JSON.parse(atob(match[1]));
+  return mapJson;
+}
+async function errorCreateStackFrames({ stack, fs, sourceRoot, sourcemap }) {
+  let thrownFrames = parse(stack);
+  let fileNames = [...new Set(thrownFrames.map((f4) => f4.file))];
+  let traceMaps = {};
+  if (sourcemap) {
+    for (let fn2 of fileNames) {
+      let fileContent;
+      if (fn2.startsWith("file://"))
+        fileContent = await fs.promises.readFile(fileUrlToPath(fn2), "utf8");
+      if (fn2.startsWith("http://") || fn2.startsWith("https://"))
+        fileContent = await (await fetch(fn2)).text();
+      if (fileContent) {
+        let sourceMap = extractSourceMap(fileContent);
+        if (sourceMap)
+          traceMaps[fn2] = new TraceMap(sourceMap);
       }
-      setTimeout(() => this.postNavScroll(), 0);
     }
+  }
+  let frames = [];
+  for (let thrown of thrownFrames) {
+    let frame = {
+      thrown
+    };
+    if (traceMaps[thrown.file]) {
+      frame.orig = originalPositionFor(traceMaps[thrown.file], {
+        line: thrown.lineNumber,
+        column: thrown.column
+      });
+      if (frame.orig && frame.orig.source) {
+        frame.line = frame.orig.line;
+        frame.column = frame.orig.column;
+        frame.name = frame.orig.name;
+        if (sourceRoot)
+          frame.file = import_path_browserify.default.relative(sourceRoot, frame.orig.source);
+        else
+          frame.file = frame.orig.source;
+        if (frame.orig.source.includes("node_modules") || frame.file.startsWith(".."))
+          frame.noisy = true;
+      }
+    }
+    if (!frame.orig || !frame.orig.source) {
+      frame.file = frame.thrown.file;
+      frame.name = frame.thrown.methodName;
+      frame.line = frame.thrown.lineNumber;
+      frame.column = frame.thrown.column;
+    }
+    frames.push(frame);
+  }
+  return frames;
+}
+
+// ../isoq/src/components/IsoContext.jsx
+var IsoState = class {
+  constructor({ refs, props, url, localFetch, sourceRoot, sourcemap, fs, request } = {}) {
+    this.isoRefState = new IsoRefState({ initialRefValues: refs });
+    this.routerState = new RouterState({ url });
+    this.url = url;
+    this.props = props;
+    this.headChildren = [];
+    this.localFetch = localFetch;
+    this.errorFallback = DefaultErrorFallback;
+    this.sourceRoot = sourceRoot;
+    this.sourcemap = sourcemap;
+    this.fs = fs;
+    this.request = request;
+  }
+  isSsr() {
+    return !globalThis.window;
+  }
+  getData() {
+    return {
+      refs: this.isoRefState.getSharedRefValues(),
+      props: this.props
+    };
+  }
+  fetch = async (url, options2 = {}) => {
+    if (this.isSsr() && url.startsWith("/") && this.localFetch) {
+      url = new URL(this.request.url).origin + url;
+      let request = new Request(url.toString(), options2);
+      if (this.request.headers.get("cookie"))
+        request.headers.set("cookie", this.request.headers.get("cookie"));
+      let localFetchResponse = await this.localFetch(request);
+      if (localFetchResponse.status != 200) {
+        console.log("****** local fetch failed");
+      }
+      return localFetchResponse;
+    }
+    if (url.startsWith("/"))
+      url = new URL(this.url).origin + url;
+    return await globalThis.fetch(url, options2);
+  };
+  async processError(error) {
+    error.stackFrames = await errorCreateStackFrames({
+      stack: error.stack,
+      sourceRoot: this.sourceRoot,
+      sourcemap: this.sourcemap,
+      fs: this.fs
+    });
   }
 };
-function CheckMount({ onMount, children }) {
-  y2(() => {
-    if (onMount)
-      onMount();
-  });
-  return children;
+var IsoContext = Q();
+function useIsoContext() {
+  return x2(IsoContext);
 }
-function Router({ routerState, children }) {
-  useEventUpdate2(routerState, "change");
-  return /* @__PURE__ */ u3(RouterContext, { value: routerState, children: [
-    /* @__PURE__ */ u3(IsoSuspense, { children: /* @__PURE__ */ u3("div", { style: { display: "contents" }, children: /* @__PURE__ */ u3(CheckMount, { children: /* @__PURE__ */ u3(RouteContext.Provider, { value: { url: routerState.committedUrl }, children }) }) }) }, "route-" + routerState.committedVersion),
-    !!routerState.nextVersion && /* @__PURE__ */ u3(IsoSuspense, { children: /* @__PURE__ */ u3("div", { style: { display: "none" }, children: /* @__PURE__ */ u3(CheckMount, { onMount: () => routerState.commit(), children: /* @__PURE__ */ u3(RouteContext.Provider, { value: { url: routerState.nextUrl }, children }) }) }) }, "route-" + routerState.nextVersion)
-  ] });
+function IsoContextProvider({ isoState, children }) {
+  return /* @__PURE__ */ u3(IsoContext.Provider, { value: isoState, children: /* @__PURE__ */ u3(IsoErrorBoundary, { fallback: DefaultErrorFallback, children: /* @__PURE__ */ u3(IsoRefContext.Provider, { value: isoState.isoRefState, children: /* @__PURE__ */ u3(Router, { routerState: isoState.routerState, children }) }) }) });
 }
 
-// node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
-function normalize2(strArray) {
+// ../isoq/src/components/Head.jsx
+function Head({ children }) {
+  let isoContext = useIsoContext();
+  if (isoContext.isSsr())
+    isoContext.headChildren.push(children);
+  return /* @__PURE__ */ u3(k, {});
+}
+
+// ../isoq/src/components/useIsLoading.jsx
+var LoadingState = class extends EventTarget {
+  constructor() {
+    super();
+    this.loaderCount = 0;
+  }
+  isLoading() {
+    return this.loaderCount > 0;
+  }
+  updateCount(v3) {
+    let loading = this.isLoading();
+    this.loaderCount += v3;
+    if (this.isLoading() != loading)
+      this.dispatchEvent(new Event("loadingStateChange"));
+  }
+  createLoader() {
+    let resolved = false;
+    this.updateCount(1);
+    return (() => {
+      if (resolved)
+        return;
+      resolved = true;
+      this.updateCount(-1);
+    });
+  }
+};
+function useLoadingState() {
+  let iso = useIsoContext();
+  if (!iso.loadingState)
+    iso.loadingState = new LoadingState();
+  return iso.loadingState;
+}
+
+// ../isoq/src/components/useIsoMemo.jsx
+function useIsoMemo(asyncFn, deps = [], options2 = {}) {
+  let loadingState = useLoadingState();
+  let iso = useIsoContext();
+  let [, forceUpdate] = d2({});
+  let ref = useIsoRef({
+    result: void 0,
+    error: void 0,
+    status: "idle",
+    deps: void 0
+  }, { shared: options2.shared });
+  let localRef = useIsoRef({
+    promise: null,
+    pendingNextRun: false,
+    fn: void 0
+  }, { shared: false });
+  _2(() => {
+    localRef.mounted = true;
+    return () => {
+      localRef.mounted = false;
+    };
+  });
+  if (iso.isSsr() && options2.server === false)
+    return;
+  localRef.current.fn = asyncFn;
+  deps = JSON.stringify(deps);
+  let depsChanged = ref.current.deps === void 0 || ref.current.deps != deps;
+  if (depsChanged) {
+    if (iso.hydration) {
+      console.log("yep, hydration");
+      setTimeout(() => forceUpdate({}), 0);
+      return;
+    }
+    ref.current.deps = deps;
+    if (ref.current.status === "pending") {
+      localRef.current.pendingNextRun = true;
+    } else {
+      let run = function() {
+        ref.current.status = "pending";
+        localRef.current.pendingNextRun = false;
+        localRef.current.promise = localRef.current.fn();
+        localRef.current.promise.then((result) => {
+          ref.current.result = result;
+          ref.current.status = "success";
+          if (localRef.mounted)
+            forceUpdate({});
+        }).catch((err) => {
+          console.log("caught...");
+          ref.current.error = err;
+          ref.current.status = "error";
+        }).finally(() => {
+          if (localRef.current.pendingNextRun)
+            run();
+          else
+            loadingState.updateCount(-1);
+        });
+      };
+      loadingState.updateCount(1);
+      run();
+    }
+  }
+  if (ref.current.status === "pending") {
+    if (localRef.mounted) {
+      if (options2.swr === false)
+        return void 0;
+      return ref.current.result;
+    }
+    throw localRef.current.promise;
+  }
+  if (ref.current.status === "error") {
+    throw ref.current.error;
+  }
+  return ref.current.result;
+}
+
+// ../isoq/node_modules/.pnpm/preact-render-to-string@6.5.13_preact@10.27.0/node_modules/preact-render-to-string/dist/index.module.js
+var E3 = Array.isArray;
+
+// ../qql/src/utils/js-util.js
+function objectifyArgs(params, fields) {
+  function isPlainObject(value) {
+    if (!value)
+      return false;
+    if (value.constructor === Object)
+      return true;
+    if (value.constructor.toString().includes("Object"))
+      return true;
+    return false;
+  }
+  let conf = {};
+  for (let i4 = 0; i4 < params.length; i4++) {
+    if (isPlainObject(params[i4]))
+      conf = { ...conf, ...params[i4] };
+    else if (fields[i4])
+      conf[fields[i4]] = params[i4];
+  }
+  return conf;
+}
+var CallableClass = class extends Function {
+  constructor(f4) {
+    return Object.setPrototypeOf(f4, new.target.prototype);
+  }
+};
+
+// ../qql/src/net/QqlClient.js
+var QqlClient = class extends CallableClass {
+  constructor(...args) {
+    super((q4) => this.query(q4));
+    let options2 = objectifyArgs(args, ["url"]);
+    this.url = options2.url;
+    this.fetch = options2.fetch;
+    this.headers = options2.headers;
+    if (!this.fetch)
+      this.fetch = globalThis.fetch.bind(globalThis);
+  }
+  query = async (query) => {
+    let response = await this.fetch(this.url, {
+      method: "POST",
+      body: JSON.stringify(query),
+      headers: this.headers
+    });
+    if (response.status < 200 || response.status >= 300)
+      throw new Error(await response.text());
+    return await response.json();
+  };
+};
+function createQqlClient(...args) {
+  return new QqlClient(...args);
+}
+
+// ../qql/src/lib/qql-react.jsx
+var QqlContext = Q();
+function QqlProvider({ fetch: fetch2, url, children, qql }) {
+  let ref = A2();
+  if (!ref.current) {
+    if (qql)
+      ref.current = qql;
+    else
+      ref.current = createQqlClient({ fetch: fetch2, url });
+  }
+  return /* @__PURE__ */ u3(QqlContext.Provider, { value: ref.current, children });
+}
+function useQql() {
+  return x2(QqlContext);
+}
+
+// ../quickmin/node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
+function normalize(strArray) {
   var resultArray = [];
   if (strArray.length === 0) {
     return "";
@@ -2425,30 +2715,234 @@ function normalize2(strArray) {
   str = parts.shift() + (parts.length > 0 ? "?" : "") + parts.join("&");
   return str;
 }
-function urlJoin2() {
+function urlJoin() {
   var input;
   if (typeof arguments[0] === "object") {
     input = arguments[0];
   } else {
     input = [].slice.call(arguments);
   }
-  return normalize2(input);
+  return normalize(input);
 }
 
-// packages/katnip-quickmin/katnip-quickmin-isowrap.jsx
-function QuickminWrapper({ quickminUser, quickminCookieName, authProviderInfo, children }) {
-  let iso = useIsoContext();
-  if (!quickminCookieName)
-    return children;
-  if (!iso.quickminState)
-    iso.quickminState = new QuickminState({
-      fetch: iso.fetch,
-      url: "/admin",
-      initialUser: quickminUser,
-      authProviderInfo,
-      quickminCookieName
+// ../quickmin/src/export/quickmin-api.js
+var QuickminApi = class {
+  constructor(options2 = {}) {
+    this.fetch = globalThis.fetch.bind(globalThis);
+    if (options2.fetch)
+      this.fetch = options2.fetch;
+    this.url = options2.url;
+    if (!this.url)
+      throw new Error("Need url for QuickminApi");
+    this.headers = new Headers();
+    if (options2.headers)
+      this.headers = options2.headers;
+    if (options2.apiKey)
+      this.headers.set("x-api-key", options2.apiKey);
+  }
+  setApiKey(apiKey) {
+    this.headers.set("x-api-key", apiKey);
+  }
+  setHeader(header, value) {
+    this.headers.set(header, value);
+  }
+  async getCurrentUser() {
+    console.log("getting current user...");
+    let response = await this.fetch(urlJoin(this.url, "_getCurrentUser"));
+    let reply = await response.json();
+    return reply;
+  }
+  async findMany(table, query = {}) {
+    let url = urlJoin(this.url, table) + "?filter=" + JSON.stringify(query);
+    let resultsResponse = await this.fetch(url, {
+      headers: this.headers
     });
-  return /* @__PURE__ */ u3(QuickminProvider, { quickminState: iso.quickminState, children });
+    let results = await resultsResponse.json();
+    return results;
+  }
+  async findOne(table, query = {}) {
+    let results = await this.findMany(table, query);
+    return results[0];
+  }
+  async getAuthUrls(referer, state = {}) {
+    let response = await this.fetch(urlJoin(this.url, "_authUrls"), {
+      method: "post",
+      body: JSON.stringify({
+        ...state,
+        referer: referer.toString()
+      })
+    });
+    return await response.json();
+  }
+  async insert(tableName, data) {
+    let h3 = new Headers(this.headers);
+    h3.set("content-type", "application/json");
+    let response = await this.fetch(urlJoin(this.url, tableName), {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: h3
+    });
+    if (response.status != 200)
+      throw new Error(await response.text());
+    return await response.json();
+  }
+  async update(tableName, id, data) {
+    let h3 = new Headers(this.headers);
+    h3.set("content-type", "application/json");
+    let response = await this.fetch(urlJoin(this.url, tableName, String(id)), {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: h3
+    });
+    if (response.status != 200)
+      throw new Error(await response.text());
+    return await response.json();
+  }
+  async delete(tableName, id) {
+    let response = await this.fetch(urlJoin(this.url, tableName, String(id)), {
+      method: "DELETE",
+      headers: new Headers(this.headers)
+    });
+    if (response.status != 200)
+      throw new Error(await response.text());
+    return await response.json();
+  }
+  async uploadFile(file) {
+    let formData = new FormData();
+    formData.append("file", file);
+    let uploadResponse = await fetch(urlJoin(this.url, "_upload"), {
+      method: "post",
+      body: formData,
+      headers: new Headers(this.headers)
+    });
+    if (uploadResponse.status < 200 || uploadResponse.status >= 300)
+      throw new Error(await uploadResponse.text());
+    let uploadResult = await uploadResponse.json();
+    return uploadResult.file;
+  }
+};
+
+// ../quickmin/src/utils/js-util.js
+async function responseAssert(response) {
+  if (response.status >= 200 && response.status < 300)
+    return;
+  let e3 = new Error(await response.text());
+  e3.status = response.status;
+  throw e3;
+}
+function parseCookie(str) {
+  return str.split(";").map((v3) => v3.split("=")).reduce((acc, v3) => {
+    if (v3.length == 2)
+      acc[decodeURIComponent(v3[0].trim())] = decodeURIComponent(v3[1].trim());
+    return acc;
+  }, {});
+}
+function clearCookie(name) {
+  globalThis.window.document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}
+
+// ../quickmin/src/utils/react-util.jsx
+function useConstructor(fn2) {
+  let value = A2();
+  let called = A2();
+  if (!called.current) {
+    called.current = true;
+    value.current = fn2();
+  }
+  return value.current;
+}
+
+// ../quickmin/src/export/quickmin-api-react.jsx
+var QuickminState = class extends EventTarget {
+  constructor({ fetch: fetch2, url, initialUser, quickminCookieName, apiKey, headers, authProviderInfo, children }) {
+    super();
+    if (!quickminCookieName)
+      throw new Error("No quickmin cookie name provided!");
+    this.fetch = fetch2;
+    this.url = url;
+    this.api = new QuickminApi({ fetch: fetch2, url, apiKey, headers });
+    this.currentUser = initialUser;
+    this.quickminCookieName = quickminCookieName;
+    this.authProviderInfo = authProviderInfo;
+    if (globalThis.window) {
+      let cookies = parseCookie(globalThis.window.document.cookie);
+      if (cookies.quickmin_login_error) {
+        clearCookie("quickmin_login_error");
+        this.loginError = new Error(cookies.quickmin_login_error);
+      }
+    }
+  }
+  logout() {
+    clearCookie(this.quickminCookieName);
+    this.currentUser = null;
+    this.dispatchEvent(new Event("change"));
+  }
+  popLoginError() {
+    let e3 = this.loginError;
+    this.loginError = void 0;
+    return e3;
+  }
+  async uploadFile(file) {
+    return await this.api.uploadFile(file);
+  }
+  async getAuthUrls(referer, state = {}) {
+    return await this.api.getAuthUrls(referer, state = {});
+  }
+  getAuthProviderByName(providerName) {
+    for (let provider of this.authProviderInfo)
+      if (provider.name == providerName)
+        return provider;
+  }
+  async loginByProvider(providerName) {
+    let provider = this.getAuthProviderByName(providerName);
+    let loginUrl = new URL(provider.loginUrl);
+    loginUrl.searchParams.set("state", JSON.stringify({
+      provider: provider.name,
+      referer: window.location.toString()
+    }));
+    window.location = loginUrl;
+  }
+  async login(args) {
+    if (!args)
+      return await this.loginByProvider(this.authProviderInfo[0].name);
+    if (typeof args == "string")
+      return await this.loginByProvider(args);
+    try {
+      let response = await this.api.fetch(urlJoin(this.api.url, "_login"), {
+        method: "post",
+        body: JSON.stringify({
+          username: args.username,
+          password: args.password
+        })
+      });
+      await responseAssert(response);
+      let responseBody = await response.json();
+      if (!responseBody.user)
+        throw new Error("Can't login with this user");
+      window.document.cookie = this.quickminCookieName + "=" + responseBody.token + "; path=/";
+      this.currentUser = responseBody.user;
+      this.dispatchEvent(new Event("change"));
+    } catch (e3) {
+      this.loginError = e3;
+      this.dispatchEvent(new Event("change"));
+    }
+  }
+};
+var QuickminContext = Q();
+function QuickminProvider({ children, quickminState, ...props }) {
+  let qm = useConstructor(() => {
+    if (quickminState)
+      return quickminState;
+    return new QuickminState(props);
+  });
+  return /* @__PURE__ */ u3(QuickminContext.Provider, { value: qm, children: /* @__PURE__ */ u3(
+    QqlProvider,
+    {
+      fetch: qm.fetch,
+      url: urlJoin(qm.url, "_qql"),
+      children
+    }
+  ) });
 }
 
 // ../fullstack-rpc/fullstack-rpc-client.js
@@ -2485,7 +2979,7 @@ var RpcClient = class {
 };
 
 // ../fullstack-rpc/fullstack-rpc-react.jsx
-var RpcContext = K();
+var RpcContext = Q();
 function RpcProvider({ fetch: fetch2, url, children }) {
   let api = new RpcClient({ fetch: fetch2, url });
   return /* @__PURE__ */ u3(k, { children: /* @__PURE__ */ u3(RpcContext.Provider, { value: api, children }) });
@@ -2493,23 +2987,6 @@ function RpcProvider({ fetch: fetch2, url, children }) {
 function useRpc() {
   return x2(RpcContext).proxy;
 }
-
-// packages/katnip-rpc/katnip-rpc-isowrap.jsx
-function RpcWrapper({ children }) {
-  let iso = useIsoContext();
-  return /* @__PURE__ */ u3(RpcProvider, { url: urlJoin2(iso.appPathname, "rpc"), fetch: iso.fetch, children });
-}
-
-// packages/katnip-tailwind/katnip-tailwind-isowrap.jsx
-function TailwindWrapper({ children }) {
-  return /* @__PURE__ */ u3(k, { children: [
-    /* @__PURE__ */ u3(Head, { children: /* @__PURE__ */ u3("link", { href: "/index.css", rel: "stylesheet" }) }),
-    /* @__PURE__ */ u3(k, { children })
-  ] });
-}
-
-// filecontent:@wrappers
-var wrappers_default = [QuickminWrapper, RpcWrapper, TailwindWrapper];
 
 // node_modules/.pnpm/proxy-compare@3.0.1/node_modules/proxy-compare/dist/index.js
 var TRACK_MEMO_SYMBOL = Symbol();
@@ -2690,7 +3167,7 @@ var markToTrack = (obj, mark = true) => {
 var affectedToPathList = (obj, affected, onlyWithValues) => {
   const list = [];
   const seen = /* @__PURE__ */ new WeakSet();
-  const walk = (x4, path) => {
+  const walk = (x4, path2) => {
     var _a, _b, _c;
     if (seen.has(x4)) {
       return;
@@ -2702,24 +3179,24 @@ var affectedToPathList = (obj, affected, onlyWithValues) => {
     if (used) {
       (_a = used[HAS_KEY_PROPERTY]) === null || _a === void 0 ? void 0 : _a.forEach((key) => {
         const segment = `:has(${String(key)})`;
-        list.push(path ? [...path, segment] : [segment]);
+        list.push(path2 ? [...path2, segment] : [segment]);
       });
       if (used[ALL_OWN_KEYS_PROPERTY] === true) {
         const segment = ":ownKeys";
-        list.push(path ? [...path, segment] : [segment]);
+        list.push(path2 ? [...path2, segment] : [segment]);
       } else {
         (_b = used[HAS_OWN_KEY_PROPERTY]) === null || _b === void 0 ? void 0 : _b.forEach((key) => {
           const segment = `:hasOwn(${String(key)})`;
-          list.push(path ? [...path, segment] : [segment]);
+          list.push(path2 ? [...path2, segment] : [segment]);
         });
       }
       (_c = used[KEYS_PROPERTY]) === null || _c === void 0 ? void 0 : _c.forEach((key) => {
         if (!onlyWithValues || "value" in (Object.getOwnPropertyDescriptor(x4, key) || {})) {
-          walk(x4[key], path ? [...path, key] : [key]);
+          walk(x4[key], path2 ? [...path2, key] : [key]);
         }
       });
-    } else if (path) {
-      list.push(path);
+    } else if (path2) {
+      list.push(path2);
     }
   };
   walk(obj);
@@ -2806,9 +3283,9 @@ function proxy(baseObject = {}) {
   if (!isObject2(baseObject)) {
     throw new Error("object required");
   }
-  const found = proxyCache.get(baseObject);
-  if (found) {
-    return found;
+  const found2 = proxyCache.get(baseObject);
+  if (found2) {
+    return found2;
   }
   let version = versionHolder[0];
   const listeners = /* @__PURE__ */ new Set();
@@ -2956,8 +3433,8 @@ var useAffectedDebugValue = (state, affected) => {
 };
 var condUseAffectedDebugValue = useAffectedDebugValue;
 var targetCache = /* @__PURE__ */ new WeakMap();
-function useSnapshot(proxyObject, options) {
-  const notifyInSync = options == null ? void 0 : options.sync;
+function useSnapshot(proxyObject, options2) {
+  const notifyInSync = options2 == null ? void 0 : options2.sync;
   const affected = T2(
     () => proxyObject && /* @__PURE__ */ new WeakMap(),
     [proxyObject]
@@ -3015,10 +3492,10 @@ var import_sqlstring_sqlite3 = __toESM(require_sqlstring_sqlite(), 1);
 var import_sqlstring2 = __toESM(require_sqlstring(), 1);
 
 // ../qql/src/lib/qql-hydrate.js
-function appendFunction(target, name, fn3) {
+function appendFunction(target, name, fn2) {
   Object.defineProperty(target, name, {
     enumeratable: false,
-    value: fn3
+    value: fn2
   });
 }
 function qqlHydrateOne({ qql, data, parentArray, parentObject, oneFrom, where, include, objectFactory, via }) {
@@ -3211,139 +3688,58 @@ function isomain_default() {
   ] });
 }
 
-// ../isoq/node_modules/.pnpm/url-join@5.0.0/node_modules/url-join/lib/url-join.js
-function normalize3(strArray) {
-  var resultArray = [];
-  if (strArray.length === 0) {
-    return "";
-  }
-  if (typeof strArray[0] !== "string") {
-    throw new TypeError("Url must be a string. Received " + strArray[0]);
-  }
-  if (strArray[0].match(/^[^/:]+:\/*$/) && strArray.length > 1) {
-    var first = strArray.shift();
-    strArray[0] = first + strArray[0];
-  }
-  if (strArray[0].match(/^file:\/\/\//)) {
-    strArray[0] = strArray[0].replace(/^([^/:]+):\/*/, "$1:///");
-  } else {
-    strArray[0] = strArray[0].replace(/^([^/:]+):\/*/, "$1://");
-  }
-  for (var i4 = 0; i4 < strArray.length; i4++) {
-    var component = strArray[i4];
-    if (typeof component !== "string") {
-      throw new TypeError("Url must be a string. Received " + component);
-    }
-    if (component === "") {
-      continue;
-    }
-    if (i4 > 0) {
-      component = component.replace(/^[\/]+/, "");
-    }
-    if (i4 < strArray.length - 1) {
-      component = component.replace(/[\/]+$/, "");
-    } else {
-      component = component.replace(/[\/]+$/, "/");
-    }
-    resultArray.push(component);
-  }
-  var str = resultArray.join("/");
-  str = str.replace(/\/(\?|&|#[^!])/g, "$1");
-  var parts = str.split("?");
-  str = parts.shift() + (parts.length > 0 ? "?" : "") + parts.join("&");
-  return str;
-}
-function urlJoin3() {
-  var input;
-  if (typeof arguments[0] === "object") {
-    input = arguments[0];
-  } else {
-    input = [].slice.call(arguments);
-  }
-  return normalize3(input);
+// packages/katnip-quickmin/katnip-quickmin-isowrap.jsx
+function QuickminWrapper({ quickminUser, quickminCookieName, authProviderInfo, children }) {
+  let iso = useIsoContext();
+  if (!quickminCookieName)
+    return children;
+  if (!iso.quickminState)
+    iso.quickminState = new QuickminState({
+      fetch: iso.fetch,
+      url: "/admin",
+      initialUser: quickminUser,
+      authProviderInfo,
+      quickminCookieName
+    });
+  return /* @__PURE__ */ u3(QuickminProvider, { quickminState: iso.quickminState, children });
 }
 
-// ../isoq/src/isoq/IsoqClient.js
-var IsoqClient = class {
-  constructor({ props, refs, appPathname, window: window2 }) {
-    this.window = window2;
-    this.refs = refs;
-    this.props = props;
-    this.appPathname = appPathname;
-    if (window2.Request)
-      this.req = new Request(this.window.location);
-    this.cookieDispatcher = new EventTarget();
-    this.undefRefs = [];
-  }
-  isSsr() {
-    return false;
-  }
-  getUrl() {
-    return this.window.location;
-  }
-  getAppUrl(pathname) {
-    if (!pathname)
-      pathname = "";
-    let u4 = new URL(urlJoin3(this.appPathname, pathname), this.getUrl());
-    return u4.toString();
-  }
-  getWindow() {
-    return this.window;
-  }
-  /*redirect(url) {
-  	this.window.location=url;
-  }*/
-  fetch = async (url, options = {}) => {
-    if (url.startsWith("/"))
-      url = new URL(this.req.url).origin + url;
-    return await this.window.fetch(url, options);
-  };
-  getCookie(key) {
-    let parsedCookie = parseCookie2(this.window.document.cookie);
-    return parsedCookie[key];
-  }
-  setCookie(key, value, options = {}) {
-    document.cookie = stringifyCookie(key, value, options);
-    this.cookieDispatcher.dispatchEvent(new Event(key));
-  }
-};
-
-// ../isoq/src/isoq/DefaultErrorFallback.js
-function DefaultErrorFallback({ error }) {
-  let style = {
-    position: "fixed",
-    left: "0",
-    top: "0",
-    width: "100%",
-    height: "100%",
-    zOrder: "100",
-    backgroundColor: "#000000",
-    color: "#ff0000",
-    fontSize: "16px",
-    fontFamily: "monospace",
-    borderStyle: "solid",
-    borderWidth: "0.5em",
-    borderColor: "#ff0000",
-    padding: "0.5em",
-    boxSizing: "border-box",
-    whiteSpace: "pre"
-  };
-  let message = error.toString();
-  if (error.stack)
-    message = error.stack;
-  return _("div", { style }, message);
+// packages/katnip-rpc/katnip-rpc-isowrap.jsx
+function RpcWrapper({ children }) {
+  let iso = useIsoContext();
+  return /* @__PURE__ */ u3(RpcProvider, { url: "/rpc", fetch: iso.fetch, children });
 }
 
-// ../isoq/src/isoq/client.jsx
-if (!window.__isoError && window.__iso) {
-  let isoClient = new IsoqClient({ ...window.__iso, window });
-  let content = /* @__PURE__ */ u3(isomain_default, { ...isoClient.props });
-  for (let W3 of [...wrappers_default].reverse())
-    content = /* @__PURE__ */ u3(W3, { ...isoClient.props, children: content });
-  let isoRefState = new IsoRefState({ initialRefValues: window.__iso.refs });
-  let routerState = new RouterState({ url: isoClient.getUrl(), iso: isoClient });
-  content = /* @__PURE__ */ u3(IsoContext_default.Provider, { value: isoClient, children: /* @__PURE__ */ u3(IsoRefContext.Provider, { value: isoRefState, children: /* @__PURE__ */ u3(Router, { routerState, children: /* @__PURE__ */ u3(IsoErrorBoundary, { fallback: DefaultErrorFallback, children: content }) }) }) });
-  isoClient.hydration = true;
-  G(content, window.document.getElementById("isoq"));
-  isoClient.hydration = false;
+// packages/katnip-tailwind/katnip-tailwind-isowrap.jsx
+function TailwindWrapper({ children }) {
+  return /* @__PURE__ */ u3(k, { children: [
+    /* @__PURE__ */ u3(Head, { children: /* @__PURE__ */ u3("link", { href: "/index.css", rel: "stylesheet" }) }),
+    /* @__PURE__ */ u3(k, { children })
+  ] });
+}
+
+// spec/packages/test-project/.target/client.jsx
+var __wrappers = [QuickminWrapper, RpcWrapper, TailwindWrapper];
+var options = {};
+function createIsoState2(isoStateParams) {
+  return new IsoState({
+    sourceRoot: options.sourceRoot,
+    sourcemap: options.sourcemap,
+    ...isoStateParams
+  });
+}
+function Element({ isoState }) {
+  let content = /* @__PURE__ */ u3(isomain_default, { ...isoState.props });
+  for (let W2 of [...__wrappers].reverse())
+    content = /* @__PURE__ */ u3(W2, { ...isoState.props, children: content });
+  return /* @__PURE__ */ u3(IsoContextProvider, { isoState, children: content });
+}
+if (globalThis.window && globalThis.window.__iso) {
+  let isoState = createIsoState2({
+    refs: globalThis.window.__iso.refs,
+    props: globalThis.window.__iso.props,
+    url: globalThis.window.location
+  });
+  let element = /* @__PURE__ */ u3(Element, { isoState });
+  J(element, globalThis.window.document.getElementById("isoq"));
 }

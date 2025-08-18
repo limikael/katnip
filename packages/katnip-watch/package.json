@@ -1,4 +1,5 @@
 {
+  "name": "katnip-watch",
   "private": true,
   "type": "module",
   "exports": {

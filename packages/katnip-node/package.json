@@ -1,4 +1,5 @@
 {
+  "name": "katnip-node",
   "private": true,
   "type": "module",
   "exports": {

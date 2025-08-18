@@ -1,4 +1,5 @@
 {
+  "name": "katnip-isoq",
   "private": true,
   "type": "module",
   "exports": {
