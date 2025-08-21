@@ -1,5 +1,5 @@
 import {useIsoContext} from "isoq";
-import {RpcProvider} from "fullstack-rpc/react";
+import {RpcProvider} from "katnip"; //"../../src/exports/exports-browser.jsx";
 import urlJoin from "url-join";
 
 export default function RpcWrapper({children}) {

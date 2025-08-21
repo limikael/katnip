@@ -1,4 +1,5 @@
-import {QuickminProvider, QuickminState} from "quickmin/react";
+//import {QuickminProvider, QuickminState} from "katnip"; //"../../src/exports/exports-browser.jsx";
+import {QuickminProvider, QuickminState} from "katnip"; //"../../src/exports/exports-browser.jsx";
 import {useIsoContext} from "isoq";
 import urlJoin from "url-join";
 

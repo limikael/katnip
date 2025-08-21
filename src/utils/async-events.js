@@ -81,6 +81,8 @@ export class AsyncEventTarget {
 		if (this.listeners[hookEvent.type])
 			listeners.push(...this.listeners[hookEvent.type]);
 
+		//console.log("dispatch: "+hookEvent.type+" concurrent: "+options.concurrent);
+
 		if (options.concurrent) {
 			let priorityGroups={};
 			for (let listener of listeners) {
@@ -89,6 +91,8 @@ export class AsyncEventTarget {
 
 				priorityGroups[listener.priority].push(listener)
 			}
+
+			console.log("priorityGroups: ",priorityGroups);
 
 			for (let priority in priorityGroups) {
 				let groupListeners=priorityGroups[priority];

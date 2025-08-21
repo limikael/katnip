@@ -1,6 +1,6 @@
 import path from "node:path";
 import fs, {promises as fsp} from "node:fs";
-import {isoqBundle} from "isoq/commands";
+import {isoqBundle, isoqContext} from "isoq/commands";
 
 const INDEX_JSX=
 `export default function() {
@@ -39,16 +39,10 @@ export async function build(buildEvent) {
 	if (modulePaths.length>1)
 		throw new Error("More than one client entrypoint.");
 
-	let wrapperPaths=await project.resolveEntrypoints("isowrap");
+	let wrapperPaths=await project.resolveEntrypoints("isowrap",{fullPaths: false});
 	//console.log(wrapperPaths);
 
 	let config={...project.env.config};
-
-	if (config.clientPurgeOldJs===undefined)
-		config.clientPurgeOldJs=true;
-
-	if (config.clientMinify===undefined)
-		config.clientMinify=true;
 
 	let handlerOut=path.resolve(project.cwd,".target/isoq-request-handler.js");
 	let bundleOptions={
@@ -59,20 +53,31 @@ export async function build(buildEvent) {
 		wrappers: wrapperPaths,
 		quiet: true,
 		minify: config.clientMinify,
+		prune: config.clientPrune,
 		splitting: config.clientSplitting,
-		purgeOldJs: config.clientPurgeOldJs
+		vendorExclude: config.clientVendorExclude
 	}
 
 	if (buildEvent.target.platform=="node" && 
-			buildEvent.target.mode=="dev" &&
-			config.clientSourcemap!==false) {
-		bundleOptions={...bundleOptions,
-			sourcemap: true,
-			sourceRoot: path.resolve(project.cwd),
-		};
+			buildEvent.target.mode=="dev") {
+		if (config.clientSourcemap!==false)
+			bundleOptions={...bundleOptions,
+				sourcemap: true,
+				sourceRoot: path.resolve(project.cwd),
+			};
+
+		if (config.clientVendor!==false)
+			bundleOptions.vendor=true;
+
+		if (!project.pluginData.isoqBuildContext)
+			project.pluginData.isoqBuildContext=await isoqContext(bundleOptions);
 	}
 
-	await isoqBundle(bundleOptions);
+	if (project.pluginData.isoqBuildContext)
+		await project.pluginData.isoqBuildContext.rebuild();
+
+	else
+		await isoqBundle(bundleOptions);
 
 	buildEvent.importModules.isoqRequestHandler=handlerOut;
 }

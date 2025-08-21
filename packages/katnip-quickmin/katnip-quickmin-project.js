@@ -2,7 +2,7 @@ import fs, {promises as fsp} from "node:fs";
 import path from "node:path";
 import {fileURLToPath} from 'url';
 import {quickminCanonicalizeConf, QuickminServer} from "quickmin/server";
-import {isoqGetEsbuildOptions} from "isoq/commands";
+import {vendoredBuild, vendoredContext} from "isoq/commands";
 import esbuild from "esbuild";
 import {DeclaredError} from "../../src/exports/exports-default.js";
 import {AsyncEvent} from "katnip";
@@ -101,6 +101,7 @@ export async function provision(provisionEvent) {
 
 export async function build(buildEvent) {
 	let project=buildEvent.target;
+    let config={...project.env.config};
 
     if (!fs.existsSync(path.join(project.cwd,"quickmin.yaml")))
         return;
@@ -115,12 +116,38 @@ export async function build(buildEvent) {
         throw new Error("More than one admin client entrypoint");
 
     if (clientEntrypoints.length) {
-        await esbuild.build({
-            ...await isoqGetEsbuildOptions(),
+        let minify=config.clientMinify;
+        if (minify===undefined)
+            minify=true;
+
+        let buildOptions={
+            preset: "preact",
             entryPoints: clientEntrypoints,
             outfile: path.join(project.cwd,"public","admin-client-functions.js"),
-            minify: true,
-        });
+            outdir: path.join(project.cwd,"public"),
+            tmpdir: path.join(project.cwd,".target"),
+            chunkNames: "admin-[hash]",
+            vendorExclude: config.clientVendorExclude,
+            minify: minify,
+            prune: true
+        };
+
+        if (buildEvent.target.platform=="node" && 
+                buildEvent.target.mode=="dev") {
+            if (config.clientVendor!==false)
+                buildOptions.vendor=true;
+
+            if (!project.pluginData.adminClientBuildContext)
+                project.pluginData.adminClientBuildContext=await vendoredContext(buildOptions);
+
+            await project.pluginData.adminClientBuildContext.rebuild();
+        }
+
+        else {
+            //console.log("********* vendored build");
+            await vendoredBuild(buildOptions);
+            //console.log("********* done");
+        }
 
         conf.clientImports.push("/admin-client-functions.js");
     }

@@ -88,6 +88,8 @@ export default class KatnipProject extends AsyncEventTarget {
 		this.addEventListener("provision",ev=>{
 			this.log("Provision: "+this.platform+"/"+this.mode);
 		},{priority: 0});
+
+		this.pluginData={};
 	}
 
 	getRuntimeEnv() {
@@ -238,7 +240,7 @@ export default class KatnipProject extends AsyncEventTarget {
 		return await this.dispatchEvent(event);
 	}
 
-	async resolveEntrypoints(importPath, {conditions, allowMissingPkg}={}) {
+	async resolveEntrypoints(importPath, {conditions, allowMissingPkg, fullPaths}={}) {
 		if (!this.config)
 			throw new Error("No config loaded in resolveEntrypoints");
 
@@ -252,7 +254,8 @@ export default class KatnipProject extends AsyncEventTarget {
 			importPath,
 			conditions,
 			allowMissingPkg,
-			disablePlugins: ["katnip",...disablePlugins]
+			disablePlugins: ["katnip",...disablePlugins],
+			fullPaths
 		});
 	}
 

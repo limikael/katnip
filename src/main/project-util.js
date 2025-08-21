@@ -79,7 +79,10 @@ export async function processProjectFile({cwd, filename, format, processor}) {
 }
 
 export async function resolveProjectEntrypoints({cwd, importPath, conditions,
-		allowMissingPkg, defaultPluginPath, disablePlugins}) {
+		allowMissingPkg, defaultPluginPath, disablePlugins, fullPaths}) {
+	if (fullPaths===undefined)
+		fullPaths=true;
+
 	let havePkg=fs.existsSync(path.join(cwd,"package.json"));
 	if (!havePkg && !allowMissingPkg)
 		throw new DeclaredError("No package.json found");
@@ -118,8 +121,13 @@ export async function resolveProjectEntrypoints({cwd, importPath, conditions,
 					depPkgJson.keywords.includes("katnip-plugin") &&
 					!disablePlugins.includes(depPkgJson.name)) {
 				let allExports=await resolveAllExports(depPkgJsonPath,{conditions});
-				if (allExports[importPath])
-					resPaths.push(allExports[importPath].pathname);
+				if (allExports[importPath]) {
+					if (fullPaths)
+						resPaths.push(allExports[importPath].pathname);
+
+					else
+						resPaths.push(path.join(dep,importPath));
+				}
 			}
 		}
 

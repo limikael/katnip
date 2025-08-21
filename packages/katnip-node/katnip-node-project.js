@@ -130,8 +130,11 @@ export async function dev(ev) {
 	if (project.platform=="node")
 		workerPromise=importWorker(path.join(__dirname,"katnip-node-dev-worker.js"));
 
+
 	let buildEvent=new AsyncEvent("build",{save: false});
-	await project.dispatchEvent(buildEvent);
+	await project.dispatchEvent(buildEvent/*,{concurrent: true}*/);
+
+	project.log(`Build complete (${(Date.now()-start)/1000}s)`);
 
 	if (ev.provision)
 		await project.dispatchEvent(new AsyncEvent("provision",{local: true}));

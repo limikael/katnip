@@ -2,7 +2,7 @@ import {useRef} from "react";
 import {proxy, useSnapshot} from "valtio";
 import {useIsoMemo} from "isoq";
 import {qqlHydrateData} from "quickmin/qql";
-import {useQql} from "quickmin/react";
+import {useQql} from "katnip"; //../../src/exports/exports-browser.jsx";
 export {vbind} from "./valtio-util.jsx";
 
 export function useData(queryAndOptions, deps=[]) {
