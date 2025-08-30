@@ -92,7 +92,7 @@ export class AsyncEventTarget {
 				priorityGroups[listener.priority].push(listener)
 			}
 
-			console.log("priorityGroups: ",priorityGroups);
+			//console.log("priorityGroups: ",priorityGroups);
 
 			for (let priority in priorityGroups) {
 				let groupListeners=priorityGroups[priority];
