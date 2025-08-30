@@ -2,12 +2,14 @@ import KatnipNodeServer from "./KatnipNodeServer.js";
 
 let server;
 
-export async function start({modulePaths, importModulePaths, env, port}) {
+export async function start({modulePaths, importModulePaths, env, port, testScheduled, cron}) {
 	server=new KatnipNodeServer({
 		modulePaths,
 		importModulePaths,
 		env,
-		port
+		port,
+		testScheduled,
+		cron
 	});
 
 	await server.start();

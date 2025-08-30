@@ -34,22 +34,49 @@ export default class KatnipServer extends AsyncEventTarget {
 		return await this.startPromise;
 	}
 
+	createLocalFetch({request, ctx}) {
+		let localFetch=async (requestOrUrl, options={})=>{
+			if (requestOrUrl instanceof Request)
+				return await this.handleRequest({request: requestOrUrl, ctx: ctx});
+
+			//console.log("constructing url from: "+requestOrUrl);
+			let requestUrl=new URL(request.url);
+			let url=new URL(requestOrUrl,requestUrl.origin);
+			//console.log("fetching from: "+url);
+
+			let localRequest=new Request(url, options);
+			return await this.handleRequest({request: localRequest, ctx: ctx});
+		}
+
+		return localFetch;
+	}
+
 	handleRequest=async({request, ctx})=>{
 		try {
 			await this.start();
 
 			let ev=new AsyncEvent("fetch",{
-				request, 
+				request,
 				ctx,
-				localFetch: request=>this.handleRequest({request,ctx})
+				localFetch: this.createLocalFetch({request,ctx}),
 			});
 
 			return await this.dispatchEvent(ev);
 		}
 
 		catch (e) {
-			console.log(e);
-			throw e;
+			//console.log(e);
+			return new Response(e.message,{status: 500, headers: {"content-type": "text/html"}});
+			//throw e;
 		}
+	}
+
+	handleScheduled=async({cron})=>{
+		await this.start();
+		let ev=new AsyncEvent("scheduled",{
+			cron
+		});
+
+		await this.dispatchEvent(ev);
 	}
 }

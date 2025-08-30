@@ -141,11 +141,14 @@ export async function dev(ev) {
 	if (project.platform=="node") {
 		let worker=await workerPromise;
 
+		let env=buildEvent.getRuntimeEnv();
 		await worker.start({
 			modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
 			importModulePaths: buildEvent.importModules,
-			env: buildEvent.getRuntimeEnv(),
-			port: ev.port
+			env: env,
+			port: ev.port,
+			testScheduled: true,
+			cron: env.config.cron
 		});
 
 		let duration=Date.now()-start;
@@ -197,7 +200,8 @@ export async function start(ev) {
 		modulePaths: artifact.modulePaths,
 		importModulePaths: artifact.importModulePaths,
 		env: artifact.env,
-		port: ev.port
+		port: ev.port,
+		cron: artifact.env.config.cron
 	});
 
 	await server.start();
