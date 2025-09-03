@@ -9,7 +9,13 @@ import KatnipProject from "./KatnipProject.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 try {
-	let earlyProgram=parseEarlyOptions(["--cwd <cwd>","--platform <platform>","--help","--version"]);
+	let earlyProgram=parseEarlyOptions([
+		"--cwd <cwd>",
+		"--platform <platform>",
+		"--mode <mode>",
+		"--help",
+		"--version"
+	]);
 	let {cwd, platform}=earlyProgram.opts();
 
 	if (!cwd)

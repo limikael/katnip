@@ -35,7 +35,7 @@ export default class KatnipProject extends AsyncEventTarget {
 			.allowExcessArguments()
 			.option("--cwd <cwd>","Run as if started from this dir.")
 			.option("--platform <platform>","Specify platform.")
-			.option("--mode <mode>","Specify mode (prod/dev).");
+			.option("--mode <mode>","Specify mode (prod/dev/staging).");
 
 		this.eventCommand("init")
 			.description("Initialize project.")
@@ -183,11 +183,15 @@ export default class KatnipProject extends AsyncEventTarget {
 				tags.push("prod","production");
 				break;
 
+			case "staging":
+				tags.push("staging");
+				break;
+
 			case "test":
 				break;
 
 			default:
-				throw new Error("Unknown mode: "+this.mode);
+				throw new DeclaredError("Unknown mode: "+this.mode);
 		}
 
 		this.env=await loadTaggedEnv(this.cwd,tags);
@@ -231,8 +235,8 @@ export default class KatnipProject extends AsyncEventTarget {
 		if (!this.mode)
 			this.mode="dev";
 
-		if (!["dev","prod","test"].includes(this.mode))
-			throw new Error("Unknown mode: "+this.mode);
+		if (!["dev","prod","test","staging"].includes(this.mode))
+			throw new DeclaredError("Unknown mode: "+this.mode);
 
 		if (!this.env)
 			await this.populateEnv();

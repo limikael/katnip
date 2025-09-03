@@ -27,20 +27,21 @@ export function initCli(ev) {
 		.description("Build project.")
 		.defaultMode("prod")
 		.option("--platform <platform>","Build for platform.")
-		.option("--mode <mode>","Specify mode (prod/dev).");
+		.option("--mode <mode>","Specify mode (prod/dev/staging).")
 
 	ev.target.eventCommand("deploy")
 		.description("Deploy project.")
 		.defaultMode("prod")
 		.option("--no-build","Don't build, requires a previous build.")
 		.option("--no-provision","Don't run provision as part of the deploy.")
+		.option("--mode <mode>","Specify mode (prod/dev/staging).")
 		.option("--platform <platform>","Deploy to platform.");
 
 	ev.target.eventCommand("provision")
 		.description("Provision project, i.e. migrate database, etc.")
 		.defaultMode("prod")
 		.option("--platform <platform>","Provision platform.")
-		.option("--mode <mode>","Specify mode (prod/dev).");
+		.option("--mode <mode>","Specify mode (prod/dev/staging).")
 }
 
 init.priority=5;
