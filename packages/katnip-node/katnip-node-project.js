@@ -2,15 +2,13 @@ import path from "node:path";
 import {AsyncEvent, DeclaredError} from "../../src/exports/exports-default.js";
 import KatnipNodeServer from "./KatnipNodeServer.js";
 import {fileURLToPath} from 'url';
-import {importWorker} from "../../src/utils/import-worker.js";
 import fs, {promises as fsp} from "node:fs";
+import {register} from "node:module";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 initCli.priority=5;
 export function initCli(ev) {
-	//ev.target.eventCommand("build").description("Build project.");
-
 	ev.target.eventCommand("start")
 		.description("Start server for production.")
 		.defaultMode("prod")
@@ -120,29 +118,28 @@ export async function saveBuild(ev) {
 
 dev.priority=5;
 export async function dev(ev) {
+	if (!globalThis.__cacheBustingLoaderRegistered) {
+		globalThis.__cacheBustingLoaderRegistered=true;
+		register("../../src/utils/cache-busting-loader.js",import.meta.url);
+	}
+
 	let start=Date.now();
 	let project=ev.target;
 
 	if (project.mode!="dev")
 		throw new DeclaredError("Dev requires dev mode");
 
-	let workerPromise;
-	if (project.platform=="node")
-		workerPromise=importWorker(path.join(__dirname,"katnip-node-dev-worker.js"));
-
 	let buildEvent=new AsyncEvent("build",{save: false});
 	await project.dispatchEvent(buildEvent/*,{concurrent: true}*/);
 
-	project.log(`Build complete (${(Date.now()-start)/1000}s)`);
+	//project.log(`Build complete (${(Date.now()-start)/1000}s)`);
 
 	if (ev.provision)
 		await project.dispatchEvent(new AsyncEvent("provision",{local: true}));
 
 	if (project.platform=="node") {
-		let worker=await workerPromise;
-
 		let env=buildEvent.getRuntimeEnv();
-		await worker.start({
+		let server=new KatnipNodeServer({
 			modulePaths: await ev.target.resolveEntrypoints("katnip-server-hooks"),
 			importModulePaths: buildEvent.importModules,
 			env: env,
@@ -151,11 +148,13 @@ export async function dev(ev) {
 			cron: env.config.cron
 		});
 
+		await server.start();
+
 		let duration=Date.now()-start;
 		project.log(`Started (${duration/1000}s), Listen: ${ev.port}`);
 
 		async function stop() {
-			await worker.terminate();
+			await server.stop();
 		}
 
 		return {stop};

@@ -5,6 +5,7 @@ import http from "node:http";
 import {KatnipServer} from "../../src/exports/exports-default.js";
 import path from "node:path";
 import cron from "node-cron";
+//import {importVm} from "../../src/utils/import-vm.js";
 
 export default class KatnipNodeServer {
 	constructor({modulePaths, importModulePaths, port, env, testScheduled, cron}) {

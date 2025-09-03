@@ -9,6 +9,7 @@ import JSON5 from "json5";
 import {loadTaggedEnv} from "../utils/env-util.js";
 import {getPackageVersion} from "../utils/node-util.js";
 import EnvBakeMode from "./EnvBakeMode.js";
+import {register} from "node:module";
 
 const __dirname=path.dirname(fileURLToPath(import.meta.url));
 
