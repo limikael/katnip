@@ -5,11 +5,16 @@ import {qqlHydrateData} from "quickmin/qql";
 import {useQql} from "katnip"; //../../src/exports/exports-browser.jsx";
 export {vbind} from "./valtio-util.jsx";
 
-export function useData(queryAndOptions, deps=[]) {
-	let {swr, ...query}=queryAndOptions;
+export function useData(query, deps=[]) {
+	let swr;
+	if (query) {
+		query={...query};
+		swr=query.swr;
+		delete query.swr;
+	}
 
 	let qql=useQql();
-	let data=useIsoMemo(()=>query && qql(query),[query, ...deps],{swr});
+	let data=useIsoMemo(async ()=>query && qql(query),[query, ...deps],{swr});
 	let ref=useRef({});
 	if (!ref.current.proxy || ref.current.data!=data) {
 		ref.current.data=data;
