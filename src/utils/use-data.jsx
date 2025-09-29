@@ -1,40 +1,38 @@
 import {useRef} from "react";
 import {proxy, useSnapshot} from "valtio";
 import {useIsoMemo} from "isoq";
-import {qqlHydrateData} from "quickmin/qql";
+import {qqlHydrate, qqlRemoveHydrate} from "quickmin/qql";
 import {useQql} from "katnip"; //../../src/exports/exports-browser.jsx";
 export {vbind} from "./valtio-util.jsx";
 
-export function useData(query, deps=[]) {
-	let swr;
-	if (query) {
-		query={...query};
-		swr=query.swr;
-		delete query.swr;
-	}
+const proxyStateForUndefined = proxy({ value: undefined });
 
+export function useData(queryOrUndefined, deps=[]) {
+	let haveQuery=!!queryOrUndefined;
+	let {swr,proxy:doProxy,...query}=queryOrUndefined||{};
 	let qql=useQql();
-	let data=useIsoMemo(async ()=>query && qql(query),[query, ...deps],{swr});
-	let ref=useRef({});
-	if (!ref.current.proxy || ref.current.data!=data) {
-		ref.current.data=data;
 
-		if (ref.current.data) {
-			ref.current.proxy=proxy(structuredClone(data));
-			qqlHydrateData({
-				qql,
-				data: ref.current.proxy,
-				objectFactory: ()=>proxy({}),
-				...query
-			});
-		}
+	async function maybeQql(query) {
+		if (!haveQuery)
+			return;
 
-		else {
-			ref.current.proxy=undefined;
-		}
+		return qql(qqlRemoveHydrate(query))
 	}
 
-	useSnapshot(ref.current.proxy?ref.current.proxy:proxy());
+	function hydrate(data) {
+		if (!data)
+			return;
 
-	return ref.current.proxy;
+		data=qqlHydrate({qql,data,...query});
+		if (doProxy)
+			data=proxy(data);
+
+		return data;
+
+	}
+
+	let data=useIsoMemo(()=>maybeQql(query),[query, ...deps],{swr, hydrate});
+	useSnapshot((haveQuery&&doProxy)?data:proxyStateForUndefined);
+
+	return data;
 }

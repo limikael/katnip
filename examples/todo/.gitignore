@@ -1,0 +1,7 @@
+node_modules
+upoad
+quickmin.db
+.target
+upoad
+public/*.js
+public/*.css

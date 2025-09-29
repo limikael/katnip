@@ -1,0 +1,13 @@
+{
+  "name": "todo",
+  "type": "module",
+  "scripts": {
+    "dev": "katnip dev"
+  },
+  "dependencies": {
+    "katnip": "^6.0.16"
+  },
+  "exports": {
+    "./isomain": "src/main/client.jsx"
+  }
+}
