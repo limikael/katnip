@@ -1,9 +1,7 @@
-import {useRef} from "react";
 import {proxy, useSnapshot} from "valtio";
 import {useIsoMemo} from "isoq";
 import {qqlHydrate, qqlRemoveHydrate} from "quickmin/qql";
 import {useQql} from "katnip"; //../../src/exports/exports-browser.jsx";
-export {vbind} from "./valtio-util.jsx";
 
 const proxyStateForUndefined = proxy({ value: undefined });
 
