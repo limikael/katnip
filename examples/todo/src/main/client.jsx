@@ -50,7 +50,12 @@ export default function() {
         <div>Things to do:</div>
         {todos.map(todo=>
         	<div class="p-5 m-5 border" onClick={()=>setTodo(todo)}>
+        		{/*console.log(todo)*/}
         		Todo: {todo.title}
+	    		<button class="mx-5 p-2 border"
+	    				onclick={(e)=>{e.stopPropagation(); todo.delete()}}>
+	    			delete
+	    		</button>
         	</div>
         )}
         {todo &&

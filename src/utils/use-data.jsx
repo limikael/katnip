@@ -21,12 +21,7 @@ export function useData(queryOrUndefined, deps=[]) {
 		if (!data)
 			return;
 
-		data=qqlHydrate({qql,data,...query});
-		if (doProxy)
-			data=proxy(data);
-
-		return data;
-
+		return qqlHydrate({qql,data,wrapper: doProxy?proxy:null,...query});
 	}
 
 	let data=useIsoMemo(()=>maybeQql(query),[query, ...deps],{swr, hydrate});
